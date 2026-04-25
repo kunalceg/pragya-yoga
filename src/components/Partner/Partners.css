@@ -1,0 +1,194 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
+
+/* ── Tokens ─────────────────────────────────── */
+:root {
+  --brand:          #E87722;
+  --brand-light:    rgba(232, 119, 34, 0.10);
+  --bg:             #faf9f7;
+  --surface:        #ffffff;
+  --border:         rgba(0, 0, 0, 0.07);
+  --border-hover:   rgba(0, 0, 0, 0.14);
+  --text-primary:   #1a1a1a;
+  --text-secondary: #6b6b6b;
+  --text-tertiary:  #a0a0a0;
+}
+
+/* ── Root ────────────────────────────────────── */
+.ps-root {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  padding: 72px 32px 64px;
+  text-align: center;
+  overflow: hidden;
+}
+
+/* ── Header ──────────────────────────────────── */
+.ps-header {
+  max-width: 520px;
+  margin: 0 auto 48px;
+}
+
+.ps-eyebrow {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--brand);
+  margin-bottom: 12px;
+}
+
+.ps-heading {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 36px;
+  font-weight: 500;
+  color: var(--text-primary);
+  line-height: 1.15;
+  margin: 0 0 10px;
+}
+
+.ps-sub {
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0 0 24px;
+}
+
+.ps-rule {
+  width: 36px;
+  height: 2px;
+  background: var(--brand);
+  border-radius: 2px;
+  margin: 0 auto;
+}
+
+/* ── Marquee ─────────────────────────────────── */
+.ps-marquee-wrap {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+.ps-fade {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 80px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.ps-fade--left  { left: 0;  background: linear-gradient(to right, var(--bg), transparent); }
+.ps-fade--right { right: 0; background: linear-gradient(to left,  var(--bg), transparent); }
+
+.ps-track {
+  display: flex;
+  gap: 14px;
+  width: max-content;
+  padding: 8px 0 12px;
+  will-change: transform;
+}
+
+/* ── Card ────────────────────────────────────── */
+.ps-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 152px;
+  height: 112px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border: 0.5px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 12px 12px;
+  gap: 6px;
+  cursor: default;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.ps-card:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-2px);
+}
+
+/* ── Avatar ──────────────────────────────────── */
+.ps-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.ps-avatar--blue   { background: #E6F1FB; color: #0C447C; }
+.ps-avatar--amber  { background: #FAEEDA; color: #633806; }
+.ps-avatar--coral  { background: #FAECE7; color: #712B13; }
+.ps-avatar--teal   { background: #E1F5EE; color: #085041; }
+.ps-avatar--purple { background: #EEEDFE; color: #3C3489; }
+.ps-avatar--green  { background: #EAF3DE; color: #27500A; }
+.ps-avatar--pink   { background: #FBEAF0; color: #72243E; }
+
+/* ── Card text ───────────────────────────────── */
+.ps-card-name {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-primary);
+  text-align: center;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.ps-card-type {
+  font-size: 10px;
+  font-weight: 300;
+  color: var(--text-tertiary);
+  text-align: center;
+}
+
+/* ── Stats ───────────────────────────────────── */
+.ps-stats {
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+  flex-wrap: wrap;
+  margin-top: 56px;
+  padding-top: 40px;
+  border-top: 0.5px solid var(--border);
+}
+
+.ps-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.ps-stat-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 32px;
+  font-weight: 500;
+  color: var(--brand);
+  line-height: 1;
+}
+
+.ps-stat-label {
+  font-size: 12px;
+  font-weight: 300;
+  color: var(--text-secondary);
+  letter-spacing: 0.3px;
+}
+
+/* ── Responsive ──────────────────────────────── */
+@media (max-width: 600px) {
+  .ps-root     { padding: 48px 16px 48px; }
+  .ps-heading  { font-size: 28px; }
+  .ps-stats    { gap: 28px; margin-top: 40px; }
+  .ps-stat-value { font-size: 26px; }
+  .ps-fade     { width: 40px; }
+}

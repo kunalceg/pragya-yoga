@@ -1,0 +1,132 @@
+.root {
+  width: 100%;
+  background: #fff;
+  border-bottom: 1px solid #eee;
+}
+
+/* Topbar */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 2rem;
+  background: rgba(242,92,5,0.6);
+  font-size: 0.9rem;
+}
+
+.topbarItem {
+  margin-right: 1rem;
+  color: #333;
+  text-decoration: none;
+}
+
+.socialBtn {
+  margin-left: 0.5rem;
+  font-size: 1.2rem;
+}
+
+/* Navbar */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.logoImg {
+  height: 40px;
+  margin-right: 0.5rem;
+}
+
+.logoText {
+  display: flex;
+  flex-direction: column;
+}
+
+.logoName {
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: #e87722;
+}
+
+.logoTagline {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.navLinks {
+  display: flex;
+  gap: 1rem;
+}
+
+.navLink {
+  text-decoration: none;
+  color: #333;
+  transition: color 0.3s ease;
+}
+
+.navLink:hover {
+  color: #e87722;
+}
+
+.active {
+  color: #e87722;
+  font-weight: bold;
+}
+
+.navCta {
+  background: #e87722;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.bar {
+  width: 25px;
+  height: 3px;
+  background: #e87722;;
+  transition: all 0.3s ease;
+}
+
+.open {
+  background: #e87722;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .navLinks {
+    display: none;
+    flex-direction: column;
+    background: #e87722;
+    position: absolute;
+    top: 70px;
+    right: 0;
+    width: 200px;
+    padding: 1rem;
+    border: 1px solid #e87722;
+  }
+
+  .navLinks.open {
+    display: flex;
+  }
+
+  .hamburger {
+    display: flex;
+  }
+}

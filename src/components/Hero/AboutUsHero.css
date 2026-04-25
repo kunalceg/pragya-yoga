@@ -1,0 +1,34 @@
+.hero {
+  height: 100vh;
+  background: url("/images/services/about.png") no-repeat center center/cover;
+  display: flex;
+  align-items: flex-start;   /* ✅ move content higher */
+  justify-content: center; /* centers horizontally */
+  position: relative;
+}
+
+.overlay {
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4); /* optional dark overlay */
+  display: flex;
+  align-items: flex-start;    /* ✅ aligns content at top */
+  justify-content: center;
+  padding-top: 120px;         /* ✅ pushes text down a bit */}
+
+.center-content {
+  text-align: center;
+}
+
+.hero-title {
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: #fff;              /* ✅ white heading */
+  /* text-transform: uppercase; */
+  text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+}
+p {
+  font-size: 1.2rem;
+  color: #eee;          /* ✅ lighter white for subtitle */
+  margin-top: 1rem;
+}

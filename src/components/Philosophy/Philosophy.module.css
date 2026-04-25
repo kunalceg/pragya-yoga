@@ -1,0 +1,65 @@
+.philosophy {
+  padding: 80px 0;
+  background: #fdf8f4;
+}
+
+.container {
+  width: 85%;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+}
+
+.left {
+  flex: 1;
+}
+
+.title {
+  font-size: 36px;
+  color: #d35400;
+  margin-bottom: 20px;
+}
+
+.text {
+  font-size: 16px;
+  line-height: 1.7;
+  color: #555;
+  margin-bottom: 15px;
+}
+
+.btn {
+  margin-top: 15px;
+  padding: 12px 28px;
+  background: #ff6a00;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.3s;
+}
+
+.btn:hover {
+  background: #e85d00;
+}
+
+.right {
+  flex: 1;
+  text-align: center;
+}
+
+.image {
+  width: 100%;
+  max-width: 420px;
+  border-radius: 12px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    text-align: center;
+  }
+}

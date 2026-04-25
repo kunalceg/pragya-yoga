@@ -1,0 +1,35 @@
+.achievements-section {
+  background: #f97316;          
+  padding: 3rem 1rem;
+  color: #fff;
+  margin-right: 5px;
+  margin-left: 5px;
+}
+
+.achievements-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap;              
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.achievement {
+  flex: 1;
+  min-width: 220px;
+  text-align: center;
+  margin: 1rem;
+}
+
+.achievement i {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.achievement p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin: 0;
+}
