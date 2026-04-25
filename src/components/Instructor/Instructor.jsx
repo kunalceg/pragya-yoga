@@ -9,7 +9,7 @@ const instructors = [
     bio: '20+ years of experience spreading the science of yoga and holistic wellness.',
     tags: ['Hatha', 'Wellness'],
     color: 'orange',
-    image: 'public/images/instructor/kapil.png',
+    image: 'images/instructor/kapil.png',
   },
   {
     initials: 'SA',
@@ -18,7 +18,7 @@ const instructors = [
     bio: 'Grace and precision in every class, specialising in Vinyasa and Ashtanga flows.',
     tags: ['Vinyasa', 'Ashtanga'],
     color: 'blue',
-    image: 'public/images/instructor/Shreya.png',
+    image: 'images/instructor/Shreya.png',
   },
   {
     initials: 'MK',
@@ -27,7 +27,7 @@ const instructors = [
     bio: 'Leads advanced training and mentors aspiring yoga teachers with rigour and heart.',
     tags: ['Training', 'Mentorship'],
     color: 'green',
-     image: 'public/images/instructor/Mrityunjay.png'
+     image: 'images/instructor/Mrityunjay.png'
   },
   {
     initials: 'VK',
@@ -36,7 +36,7 @@ const instructors = [
     bio: 'Blends clinical knowledge with yogic healing for injury and stress recovery.',
     tags: ['Therapy', 'Yin'],
     color: 'amber',
-    image: 'public/images/instructor/Vinod.png'
+    image: 'images/instructor/Vinod.png'
   },
   {
     initials: 'AK',
@@ -45,7 +45,7 @@ const instructors = [
     bio: 'Inversions master who helps students build confidence and strength on the mat.',
     tags: ['Inversions', 'Strength'],
     color: 'pink',
-    image: 'public/images/instructor/Ashish.png'
+    image: 'images/instructor/Ashish.png'
   },
   {
     initials: 'SK',
@@ -54,7 +54,7 @@ const instructors = [
     bio: 'Inversions master who helps students build confidence and strength on the mat.',
     tags: ['Inversions', 'Strength'],
     color: 'pink',
-    image: 'public/images/instructor/Sunil.png'
+    image: 'images/instructor/Sunil.png'
   },
   
   {
@@ -64,7 +64,7 @@ const instructors = [
     bio: 'Combines therapeutic techniques with mindful movement for deep physical healing.',
     tags: ['Therapy', 'Mindfulness'],
     color: 'teal',
-    image: 'public/images/instructor/Deepak.jpg'
+    image: 'images/instructor/Deepak.jpg'
   },
 ];
 

@@ -27,7 +27,7 @@ const StudioSection = () => {
       </div>
 
       <div className="studio-image">
-        <img src="public/images/services/studio.jpg" alt="Yoga Studio Environment" />
+        <img src="images/services/studio.jpg" alt="Yoga Studio Environment" />
       </div>
     </section>
   );

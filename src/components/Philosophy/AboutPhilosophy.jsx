@@ -25,7 +25,7 @@ const AboutPragya = ({ founderImage }) => {
               </svg>
             </div>
 
-            <img src="public/images/services/Aboutus.png" alt="Dr. Kapil Dev Kesari" className="founder-img" />
+            <img src="images/services/Aboutus.png" alt="Dr. Kapil Dev Kesari" className="founder-img" />
             <div className="founder-label">
               <div className="accent-bar" />
               <p className="founder-name">Dr. Kapil Dev Kesari</p>
