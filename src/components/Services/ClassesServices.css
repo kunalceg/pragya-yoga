@@ -1,0 +1,78 @@
+/* ClassesServices.css */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Jost:wght@400;500&display=swap');
+
+.classes-services {
+  background: linear-gradient(160deg, #1a1208 0%, #0f0b05 60%, #1c1006 100%);
+  padding: 80px 50px;
+  color: #e8ddd0;
+  font-family: 'Jost', sans-serif;
+  position: relative;
+}
+
+.section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.4rem;
+  text-align: center;
+  color: #f25c05;
+  margin-bottom: 60px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 40px;
+}
+
+.service-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(242,92,5,0.25);
+  border-radius: 16px;
+  padding: 28px;
+  text-align: center;
+  transition: all 0.35s ease;
+}
+
+.service-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 28px rgba(242,92,5,0.35);
+  border-color: #f25c05;
+}
+
+.service-card h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.4rem;
+  color: #f25c05;
+  margin-bottom: 12px;
+}
+
+.service-card p {
+  font-size: 0.95rem;
+  color: #b5a898;
+  margin-bottom: 16px;
+}
+
+.service-time, .service-price {
+  display: block;
+  font-size: 0.9rem;
+  color: #f7c89a;
+  margin-bottom: 8px;
+}
+
+.service-cta {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 10px 22px;
+  border-radius: 30px;
+  background: linear-gradient(90deg, #f25c05, #ffaa5c);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.service-cta:hover {
+  background: #f25c05;
+  box-shadow: 0 8px 20px rgba(242,92,5,0.4);
+}

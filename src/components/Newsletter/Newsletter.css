@@ -1,0 +1,101 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Jost:wght@300;400;500&display=swap');
+
+/* Newsletter Section */
+.newsletter {
+  width: 100%;
+  background: linear-gradient(160deg, #1a1208 0%, #0f0b05 60%, #1c1006 100%);
+  border-top: 1px solid rgba(242,92,5,0.15);
+  padding: 3rem 2rem;
+  text-align: center;
+  font-family: 'Jost', sans-serif;
+  color: #e8ddd0;
+}
+
+.newsletter-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  font-size: 2rem;
+  color: #f25c05;
+  letter-spacing: 2px;
+  margin-bottom: 0.5rem;
+}
+
+.newsletter-subtitle {
+  font-size: 1rem;
+  color: #b5a898;
+  margin-bottom: 2rem;
+}
+
+.newsletter-form {
+  display: flex;
+  justify-content: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.newsletter-form input {
+  padding: 0.6rem 1rem;
+  border-radius: 20px;
+  border: 1px solid rgba(242,92,5,0.25);
+  background: rgba(255,255,255,0.04);
+  color: #e8ddd0;
+  width: 60%;
+  max-width: 400px;
+  transition: all 0.3s ease;
+}
+
+.newsletter-form input::placeholder {
+  color: #b5a898;
+}
+
+.newsletter-form input:focus {
+  border-color: #f25c05;
+  background: rgba(255,255,255,0.08);
+  outline: none;
+}
+
+.newsletter-btn {
+  background: #f25c05;
+  color: #fff;
+  padding: 0.6rem 1.2rem;
+  border-radius: 16px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.newsletter-btn:hover {
+  background: #ffaa5c;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(242,92,5,0.4);
+}
+
+.newsletter-message {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #f7c89a;
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .newsletter-form {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .newsletter-form input {
+    width: 100%;
+  }
+
+  .newsletter-btn {
+    width: 100%;
+  }
+}

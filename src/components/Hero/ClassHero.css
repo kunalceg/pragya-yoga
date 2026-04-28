@@ -1,0 +1,73 @@
+/* ClassesHero.css */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Jost:wght@400;500&display=swap');
+
+.classes-hero {
+  position: relative;
+  height: 80vh;
+  background: linear-gradient(160deg, #1a1208 0%, #0f0b05 60%, #1c1006 100%),
+              url('/images/yoga-class-bg.jpg') center/cover no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.hero-overlay {
+  background: rgba(0,0,0,0.45);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-content {
+  text-align: center;
+  max-width: 700px;
+  padding: 0 20px;
+  color: #e8ddd0;
+}
+
+.hero-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3rem;
+  color: #f25c05;
+  letter-spacing: 3px;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+.hero-subtitle {
+  font-family: 'Jost', sans-serif;
+  font-size: 1.2rem;
+  line-height: 1.8;
+  color: #b5a898;
+  margin-bottom: 35px;
+}
+
+.hero-cta {
+  display: inline-block;
+  background: linear-gradient(90deg, #f25c05, #ffaa5c);
+  color: #fff;
+  padding: 12px 28px;
+  border-radius: 30px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.35s ease;
+}
+
+.hero-cta:hover {
+  background: #f25c05;
+  box-shadow: 0 8px 20px rgba(242,92,5,0.4);
+  transform: translateY(-3px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {*
+  .hero-title {
+    font-size: 2.2rem;
+  }
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+}

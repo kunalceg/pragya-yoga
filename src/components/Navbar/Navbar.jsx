@@ -60,7 +60,7 @@ const Navbar = () => {
           <img src="/images/services/logo.png" alt="Pragya Yoga Logo" className={styles.logoImg} />
           <div className={styles.logoText}>
             <span className={styles.logoName}>Pragya Yoga</span>
-            <span className={styles.logoTagline}>Mind · Body · Spirit</span>
+            <span className={styles.logoTagline}>समत्वं योग उच्यते</span>
           </div>
         </Link>
 

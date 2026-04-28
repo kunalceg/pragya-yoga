@@ -6,6 +6,7 @@ import Achievements from "../components/Achievements/Achievements";
 import Instructor from "../components/Instructor/Instructor";
 import StudioSection from "../components/Studio/Studio";
 import PartnersSection from "../components/Partner/Partners";
+import Newsletter from "../components/Newsletter/Newsletter";
 const About = () => {
   return (
     <div>
@@ -15,6 +16,7 @@ const About = () => {
         <Instructor />
         <StudioSection />
         <PartnersSection />
+        <Newsletter />
     </div>
   )
 }

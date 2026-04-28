@@ -155,7 +155,40 @@
   background: #ffaa5c;
 }
 
-/* Responsive */
+/* Responsive Adjustments */
+
+/* Tablets and below */
+@media (max-width: 992px) {
+  .navLinks {
+    display: none; /* hide links initially */
+    flex-direction: column;
+    gap: 1rem;
+    background: rgba(26, 18, 8, 0.95);
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 220px;
+    padding: 1rem;
+    border-left: 1px solid rgba(242,92,5,0.25);
+    border-bottom: 1px solid rgba(242,92,5,0.25);
+  }
+
+  .navLinks.open {
+    display: flex; /* show when toggled */
+  }
+
+  .hamburger {
+    display: flex; /* show hamburger */
+  }
+
+  .navCta {
+    margin-top: 0.5rem;
+    text-align: center;
+    width: 100%;
+  }
+}
+
+/* Phones and small devices */
 @media (max-width: 768px) {
   .navLinks {
     position: absolute;
