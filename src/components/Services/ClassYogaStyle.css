@@ -1,0 +1,109 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;600&family=Jost:wght@300;400;500&display=swap');
+
+.yoga-section {
+  background: linear-gradient(160deg, #1a1208 0%, #0f0b05 60%, #1c1006 100%);
+  padding: 60px 30px;
+  text-align: center;
+  font-family: 'Jost', sans-serif;
+  color: #e8ddd0;
+}
+
+.section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  color: #ffaa5c;
+}
+
+.section-sub {
+  font-size: 1rem;
+  color: #b5a898;
+  margin-bottom: 40px;
+}
+
+.styles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px;
+  max-width: 1100px;
+  margin: 0 auto 40px;
+}
+
+.style-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(242, 92, 5, 0.14);
+  border-radius: 12px;
+  padding: 20px;
+  transition: transform 0.25s, border-color 0.25s;
+}
+
+.style-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(242, 92, 5, 0.38);
+}
+
+.style-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.4rem;
+  color: #ffaa5c;
+  margin-bottom: 10px;
+}
+
+.style-desc {
+  font-size: 0.95rem;
+  color: #b5a898;
+  line-height: 1.5;
+}
+
+/* CTA Buttons */
+.cta {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.btn-primary {
+  background: #f25c05;
+  color: #0f0b05;
+  border: none;
+  padding: 12px 28px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: background 0.25s, transform 0.2s;
+}
+
+.btn-primary:hover {
+  background: #ffaa5c;
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: #b5a898;
+  border: 1px solid rgba(242, 92, 5, 0.3);
+  padding: 12px 28px;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: border-color 0.25s, color 0.25s, transform 0.2s;
+}
+
+.btn-secondary:hover {
+  border-color: #f25c05;
+  color: #ffaa5c;
+  transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .section-title {
+    font-size: 2rem;
+  }
+  .styles-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+}

@@ -1,0 +1,325 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&family=Jost:wght@200;300;400;500&display=swap');
+
+/* ── ROOT / TOKENS ── */
+.classSection {
+  --orange: #f25c05;
+  --gold: #ffaa5c;
+  --bg-dark: #0f0b05;
+  --bg-card: rgba(255, 255, 255, 0.02);
+  --border: rgba(242, 92, 5, 0.14);
+  --border-hover: rgba(242, 92, 5, 0.38);
+  --text-primary: #e8ddd0;
+  --text-muted: #b5a898;
+  --text-dim: #6b5f55;
+  --font-display: 'Cormorant Garamond', serif;
+  --font-body: 'Jost', sans-serif;
+
+  background: linear-gradient(160deg, #1a1208 0%, #0f0b05 60%, #1c1006 100%);
+  padding: 52px 36px 60px;
+  position: relative;
+  overflow: hidden;
+  font-family: var(--font-body);
+}
+
+/* ── RADIAL GLOW ── */
+.classSection__glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(242, 92, 5, 0.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ── SECTION HEADER ── */
+.classSection__label {
+  font-size: 10px;
+  font-weight: 300;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--orange);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.classSection__label::before,
+.classSection__label::after {
+  content: '';
+  width: 32px;
+  height: 1px;
+  background: rgba(242, 92, 5, 0.45);
+}
+
+.classSection__title {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 36px;
+  color: var(--text-primary);
+  text-align: center;
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+
+.classSection__title em {
+  font-style: italic;
+  color: var(--gold);
+}
+
+.classSection__sub {
+  font-size: 12px;
+  font-weight: 300;
+  color: var(--text-muted);
+  text-align: center;
+  letter-spacing: 0.05em;
+  margin-bottom: 36px;
+}
+
+/* ── FEATURES GRID ── */
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+  max-width: 880px;
+  margin: 0 auto 44px;
+  position: relative;
+  z-index: 1;
+}
+
+.featCard {
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: border-color 0.25s, background 0.25s, transform 0.22s;
+}
+
+.featCard:hover {
+  border-color: var(--border-hover);
+  background: rgba(242, 92, 5, 0.06);
+  transform: translateY(-2px);
+}
+
+.featCard__icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(242, 92, 5, 0.1);
+  border: 1px solid rgba(242, 92, 5, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+}
+
+.featCard__text {
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+}
+
+/* ── DIVIDER ── */
+.classSection__divider {
+  max-width: 880px;
+  margin: 0 auto 36px;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(242, 92, 5, 0.2) 30%,
+    rgba(242, 92, 5, 0.2) 70%,
+    transparent
+  );
+  position: relative;
+  z-index: 1;
+}
+
+/* ── SCHEDULE GRID ── */
+.scheduleGrid {
+  max-width: 880px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.schedCard {
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.25s, background 0.25s;
+}
+
+.schedCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--orange), transparent);
+}
+
+.schedCard__days {
+  font-size: 9px;
+  font-weight: 300;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.schedCard__days::before {
+  content: '';
+  width: 16px;
+  height: 1px;
+  background: rgba(242, 92, 5, 0.5);
+}
+
+.schedCard__heading {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 19px;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+
+.schedCard__heading em {
+  font-style: italic;
+  color: var(--gold);
+}
+
+/* ── TIME SLOT ── */
+.slot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(242, 92, 5, 0.08);
+}
+
+.slot:last-child {
+  border-bottom: none;
+}
+
+.slot__time {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 16px;
+  color: var(--text-primary);
+  white-space: nowrap;
+  min-width: 130px;
+}
+
+.slot__divider {
+  width: 1px;
+  height: 28px;
+  background: rgba(242, 92, 5, 0.25);
+  flex-shrink: 0;
+}
+
+.slot__instructor {
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--gold);
+  letter-spacing: 0.04em;
+}
+
+.slot__role {
+  font-size: 10px;
+  font-weight: 200;
+  color: var(--text-dim);
+  letter-spacing: 0.06em;
+  margin-top: 1px;
+}
+
+/* ── CTA ── */
+.classSection__cta {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 36px;
+  position: relative;
+  z-index: 1;
+}
+
+.btn--primary {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #0f0b05;
+  background: var(--orange);
+  border: none;
+  padding: 12px 32px;
+  cursor: pointer;
+  transition: background 0.25s, transform 0.2s;
+}
+
+.btn--primary:hover {
+  background: var(--gold);
+  transform: translateY(-1px);
+}
+
+.btn--secondary {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid rgba(242, 92, 5, 0.3);
+  padding: 12px 32px;
+  cursor: pointer;
+  transition: border-color 0.25s, color 0.25s, transform 0.2s;
+}
+
+.btn--secondary:hover {
+  border-color: var(--orange);
+  color: var(--gold);
+  transform: translateY(-1px);
+}
+@media (max-width: 860px) {
+  .scheduleGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  .featuresGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .classSection {
+    padding: 40px 20px 48px;
+  }
+}
+
+@media (max-width: 400px) {
+  .classSection__title {
+    font-size: 28px;
+  }
+  .featuresGrid {
+    grid-template-columns: 1fr;
+  }
+}
