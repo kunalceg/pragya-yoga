@@ -1,118 +1,304 @@
-.services {
-  padding: 80px 60px;
-  background-color: #fdf6f2;
-  text-align: center;
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Jost:wght@300;400;500&display=swap');
+
+/* ===== GLOBAL ===== */
+body {
+  font-family: 'Jost', sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #0f0b05;
+  color: #e8ddd0;
 }
 
-.heading {
-  font-size: 2rem;
-  color: #ea580c;
-  margin-bottom: 50px;
+/* ===== SECTION WRAPPER ===== */
+.section {
+  padding: 4rem 2rem;
+  background: linear-gradient(160deg, #1a1208 0%, #0f0b05 60%, #1c1006 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* ===== HEADERS ===== */
+.header {
+  text-align: center; /* ensures all header content is centered */
+  margin-bottom: 2.5rem;
+}
+.headerLabel {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #f25c05;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+.headerTitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.5rem;
   font-weight: 600;
+  color: #f25c05;
+  margin: 0.5rem 0 1rem;
+  line-height: 1.3;
 }
-
-/* grid layout */
-.cardContainer {
+.headerSub {
+  font-size: 1rem;
+  color: #b5a898;
+  max-width: 720px;       /* keeps text from stretching too wide */
+  margin: 0 auto 2rem;    /* centers and adds spacing below */
+  line-height: 1.7;
+}
+/* ===== GRID ===== */
+.grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 25px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
 }
 
-/* card */
+/* ===== SERVICE CARD ===== */
 .card {
-  background: #fff;
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
-  cursor: pointer;
-  transform: translateY(30px);
-  opacity: 0;
-  animation: fadeUp 0.8s ease forwards;
+  border: 1px solid rgba(242, 92, 5, 0.15);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* stagger animation */
-.card:nth-child(1) { animation-delay: 0.1s; }
-.card:nth-child(2) { animation-delay: 0.2s; }
-.card:nth-child(3) { animation-delay: 0.3s; }
-.card:nth-child(4) { animation-delay: 0.4s; }
-
-@keyframes fadeUp {
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-/* hover effect */
 .card:hover {
-  transform: translateY(-10px) scale(1.02);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  transform: translateY(-8px);
+  box-shadow: 0 12px 32px rgba(242, 92, 5, 0.35);
 }
 
-/* image */
-.imageWrapper {
-  height: 180px;
+.cardImgWrap {
+  position: relative;
+  height: 220px;
   overflow: hidden;
 }
 
-.imageWrapper img {
+.cardImgWrap img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.4s ease;
+  display: block;
 }
 
-.card:hover img {
-  transform: scale(1.1);
+.cardTag {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: #f25c05;
+  color: #fff;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
 }
 
-/* content */
-.cardContent {
-  padding: 20px;
+.cardBadge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #ffaa5c;
+  color: #1a1208;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
 }
 
-.cardContent h3 {
-  font-size: 1.2rem;
-  margin-bottom: 8px;
-  color: #333;
+.cardIcon {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  font-size: 1.8rem;
+  color: #f25c05;
 }
 
-.cardContent p {
+.cardBody {
+  padding: 1.5rem;
+  text-align: left;
+}
+
+.cardTitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
+  color: #f25c05;
+}
+
+.cardDesc {
   font-size: 0.95rem;
-  color: #666;
-  margin-bottom: 15px;
+  color: #b5a898;
+  margin-bottom: 1rem;
 }
 
-/* button */
-.cardContent button {
-  background-color: #f97316;
-  color: white;
-  border: none;
-  padding: 8px 18px;
-  border-radius: 20px;
+.cardBenefits {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+}
+
+.cardBenefits li {
+  font-size: 0.9rem;
+  color: #e8ddd0;
+  margin-bottom: 0.4rem;
+  position: relative;
+  padding-left: 16px;
+}
+
+.cardBenefits li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: #f25c05;
+}
+
+/* ===== BUTTONS ===== */
+.btnPrimary,
+.btnOutline {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: 0.3s ease;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  margin-top: 1rem;
 }
 
-.cardContent button:hover {
-  background-color: #ea580c;
-  transform: scale(1.05);
+.btnPrimary {
+  background: linear-gradient(135deg, #f25c05, #ffaa5c);
+  color: #fff;
+  border: none;
 }
 
-/* 📱 responsive */
-@media (max-width: 1024px) {
-  .cardContainer {
-    grid-template-columns: repeat(2, 1fr);
+.btnPrimary:hover {
+  background: #f25c05;
+  box-shadow: 0 0 12px rgba(242,92,5,0.6);
+  transform: translateY(-2px);
+}
+
+.btnOutline {
+  background: transparent;
+  border: 2px solid #f25c05;
+  color: #f25c05;
+  margin-left: 1rem;
+}
+
+.btnOutline:hover {
+  background: #f25c05;
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+/* CTA container */
+.cta {
+  margin-top: 2.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+
+/* ===== FOOTER ===== */
+.footer {
+  background: linear-gradient(160deg, #1a1208 0%, #0f0b05 60%, #1c1006 100%);
+  color: #e8ddd0;
+  font-family: 'Jost', sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+.footer::before {
+  content: '';
+  display: block;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #f25c05, #ffaa5c, #f25c05, transparent);
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 70px 50px 50px;
+  display: grid;
+  grid-template-columns: 1.4fr 0.8fr 1.2fr;
+  gap: 60px;
+  position: relative;
+  z-index: 1;
+}
+
+.footer-section h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: #f25c05;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 28px;
+  position: relative;
+  padding-bottom: 14px;
+}
+
+.footer-section h3::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 36px;
+  height: 2px;
+  background: linear-gradient(90deg, #f25c05, transparent);
+  border-radius: 2px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+  .section {
+    padding: 3rem 1.5rem;
+  }
+  .headerTitle {
+    font-size: 2rem;
+  }
+  .grid {
+    gap: 1.5rem;
+  }
+  .footer-container {
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    padding: 50px 30px 40px;
   }
 }
 
 @media (max-width: 600px) {
-  .cardContainer {
-    grid-template-columns: 1fr;
+  .section {
+    padding: 2.5rem 1rem;
+    text-align: center;
   }
-
-  .services {
-    padding: 50px 20px;
+  .headerTitle {
+    font-size: 1.8rem;
+    line-height: 1.3;
+  }
+  .headerSub {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    padding: 0 1rem; /* adds breathing room on mobile */
+  }
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 1.2rem;
+  }
+  .cardBody {
+    text-align: center;
+  }
+  .btnPrimary,
+  .btnOutline {
+    width: 100%;
+    margin-left: 0;
+    text-align: center;
+  }
+  .cta {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .footer-container {
+    grid-template-columns: 1fr;
+    padding: 40px 24px 30px;
   }
 }
