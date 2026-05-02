@@ -43,6 +43,14 @@ const JSON_LD = {
     },
   ],
 };
+const YOGA_STYLES = [
+  { title: "Hatha Yoga", img: "/images/styles/hatha.jpg", alt: "Hatha Yoga class in Jaipur" },
+  { title: "Power Yoga", img: "/images/styles/power.jpg", alt: "Power Yoga session in Jaipur" },
+  { title: "Vinyasa Yoga", img: "/images/styles/vinyasa.jpg", alt: "Vinyasa Yoga practice in Jaipur" },
+  { title: "Iyengar Yoga", img: "/images/styles/iyengar.jpg", alt: "Iyengar Yoga class in Jaipur" },
+  { title: "Therapy Yoga", img: "/images/styles/therapy.jpg", alt: "Therapy Yoga session in Jaipur" },
+];
+
 
 /* ── DATA ── */
 const SERVICES = [
@@ -143,6 +151,31 @@ const ServiceCard = ({ icon, tag, title, shortDesc, desc, benefits, img, alt, hr
     </div>
   </article>
 );
+const StylesOfYogaCard = () => (
+  <article className={styles.card} itemScope itemType="https://schema.org/Service">
+    <meta itemProp="provider" content="Pragya Yoga Alliance" />
+    <meta itemProp="areaServed" content="Jaipur, Rajasthan, India" />
+    <meta itemProp="serviceType" content="Styles of Yoga" />
+
+    <div className={styles.cardBody}>
+      <h3 className={styles.cardTitle} itemProp="name">Styles of Yoga</h3>
+      <p className={styles.cardDesc} itemProp="description">
+        Explore different yoga traditions — Hatha, Power, Vinyasa, Iyengar, and Therapy Yoga. 
+        Each style offers unique benefits for flexibility, strength, healing, and mindfulness.
+      </p>
+
+      <div className={styles.carousel}>
+        {YOGA_STYLES.map((style) => (
+          <div key={style.title} className={styles.carouselItem}>
+            <img src={style.img} alt={style.alt} loading="lazy" />
+            <p className={styles.carouselLabel}>{style.title}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </article>
+);
+
 
 /* ── MAIN COMPONENT ── */
 const Services = () => (
@@ -170,6 +203,22 @@ const Services = () => (
           <ServiceCard key={s.title} {...s} index={i} />
         ))}
       </div>
+      <div className={styles.grid}>
+        {SERVICES.map((s, i) => (
+          <ServiceCard key={s.title} {...s} index={i} />
+        ))}
+      <StylesOfYogaCard />
+      </div>
+    <div className={styles.carousel}>
+      {YOGA_STYLES.map((style) => (
+      <div key={style.title} className={styles.carouselItem}>
+      <img src={style.img} alt={style.alt} loading="lazy" />
+      <p className={styles.carouselLabel}>{style.title}</p>
+      </div>
+      ))}
+    </div>
+
+
 
       <div className={styles.cta}>
         <a href="/classes" className={styles.btnPrimary}>Join a Class →</a>

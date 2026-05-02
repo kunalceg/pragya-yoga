@@ -1,137 +1,119 @@
-.container{
-    text-align:center;
-    padding:60px 20px;
-    background:#f6f6f6;
-    font-family:sans-serif;
+.section {
+  padding: 4rem 2rem;
+  background: linear-gradient(160deg, #1a1208 0%, #0f0b05 60%, #1c1006 100%);
+  color: #e8ddd0;
+  font-family: 'Jost', sans-serif;
 }
 
-/* TITLE */
-.title{
-    color:#f26a21;
-    font-size:32px;
-    margin-bottom:8px;
+.header {
+  text-align: center;
+  margin-bottom: 2.5rem;
 }
 
-.subtitle{
-    color:#666;
-    margin-bottom:35px;
-    font-size:16px;
+.headerLabel {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #f25c05;
 }
 
-/* WRAPPER */
-.pricingWrapper{
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    flex-wrap:wrap;   /* important for mobile */
-    gap:30px;
-    max-width: fit-content;
-    margin: auto;
+.headerTitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: #f25c05;
+  margin: 0.5rem 0 1rem;
 }
 
-/* CARD */
-.card{
-    background:white;
-    padding:25px;
-    width:100%;
-    max-width:240px;
-    border-radius:12px;
-    box-shadow:0 4px 10px rgba(0,0,0,0.08);
-    transition:transform 0.3s ease;
+.headerSub {
+  font-size: 1rem;
+  color: #b5a898;
+  max-width: 720px;
+  margin: 0 auto 2.5rem;
+  line-height: 1.7;
 }
 
-.card:hover{
-    transform:translateY(-5px);
+/* Membership cards */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
 }
 
-.price{
-    font-size:20px;
-    font-weight:bold;
-    margin:10px 0;
+.card {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 2rem;
+  border: 1px solid rgba(242, 92, 5, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  text-align: center;
 }
 
-.desc{
-    color:#777;
-    font-size:14px;
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 28px rgba(242, 92, 5, 0.35);
 }
 
-/* PROFILE IMAGE */
-.profileWrapper{
-    width:90px;
-    height:90px;
-    border-radius:50%;
-    overflow:hidden;
-    border:4px solid #f26a21;
-    margin:0 auto 10px auto;
+.cardTitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.6rem;
+  color: #f25c05;
+  margin-bottom: 0.5rem;
 }
 
-.profileImg{
-    width:100%;
-    height:100%;
-    object-fit:cover;
+.cardPrice {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #ffaa5c;
+  margin-bottom: 1rem;
 }
 
-/* BUTTON */
-.ctaBtn{
-    margin-top:25px;
-    background:#ff6a00;
-    border:none;
-    padding:12px 30px;
-    color:white;
-    font-size:16px;
-    border-radius:30px;
-    cursor:pointer;
-    transition:0.3s;
+.cardDesc {
+  font-size: 0.95rem;
+  color: #b5a898;
+  margin-bottom: 1rem;
 }
 
-.ctaBtn:hover{
-    background:#e85d00;
+.cardBenefits {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem;
 }
 
-/* -------- TABLET -------- */
-@media (max-width:768px){
-
-    .title{
-        font-size:28px;
-    }
-
-    .pricingWrapper{
-        gap:20px;
-    }
-
-    .card{
-        max-width:200px;
-    }
-
+.cardBenefits li {
+  font-size: 0.9rem;
+  color: #e8ddd0;
+  margin-bottom: 0.4rem;
 }
 
-/* -------- MOBILE -------- */
-@media (max-width:480px){
+/* Buttons */
+.btnPrimary {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  background: linear-gradient(135deg, #f25c05, #ffaa5c);
+  color: #fff;
+  border: none;
+}
 
-    .container{
-        padding:40px 15px;
-    }
+.btnPrimary:hover {
+  background: #f25c05;
+  box-shadow: 0 0 12px rgba(242,92,5,0.6);
+}
 
-    .title{
-        font-size:24px;
-    }
-
-    .subtitle{
-        font-size:14px;
-    }
-
-    .pricingWrapper{
-        flex-direction:column;
-        gap:20px;
-    }
-
-    .card{
-        max-width:90%;
-    }
-
-    .ctaBtn{
-        width:100%;
-        max-width:250px;
-    }
-
+/* Responsive */
+@media (max-width: 600px) {
+  .headerTitle {
+    font-size: 1.8rem;
+  }
+  .headerSub {
+    font-size: 0.95rem;
+    padding: 0 1rem;
+  }
 }
