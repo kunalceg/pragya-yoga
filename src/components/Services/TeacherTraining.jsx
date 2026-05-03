@@ -12,19 +12,15 @@ const TeacherTraining = () => (
           of yoga philosophy, and embark on the journey of becoming a certified yoga teacher.
         </p>
         <p className={styles.desc}>
-          This comprehensive course is <strong>certified by Yoga Alliance</strong> — the most 
+          This comprehensive course is <strong>Certified by Yoga Alliance</strong> — the most 
           recognizable organization of teachers in the world — ensuring that our graduates are 
           recognized globally and equipped with the knowledge and skills to teach yoga safely 
           and effectively.
         </p>
         <div className={styles.actions}>
           <a href="/register" className={styles.btnPrimary}>Register →</a>
-          <a href="https://wa.me/919999999999" className={styles.whatsapp} aria-label="WhatsApp Contact">
-            <img src="/images/icons/whatsapp.png" alt="WhatsApp" />
-          </a>
         </div>
       </div>
-
       <div className={styles.imageWrap}>
         <img 
           src="/images/training/teacher-training.jpg" 
