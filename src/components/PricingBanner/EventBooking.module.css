@@ -1,0 +1,101 @@
+.section {
+  padding: 4rem 2rem;
+  background: linear-gradient(160deg, #1a1208 0%, #0f0b05 60%, #1c1006 100%);
+  color: #e8ddd0;
+  font-family: 'Jost', sans-serif;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.2rem;
+  font-weight: 600;
+  color: #f25c05;
+  margin-bottom: 0.5rem;
+}
+
+.sub {
+  font-size: 1rem;
+  color: #b5a898;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+.calendar {
+  width: 100%;
+  max-width: 700px;
+  height: 400px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(242, 92, 5, 0.2);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.calendarText {
+  color: #b5a898;
+  font-size: 1rem;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.btnPrimary {
+  background: #f25c05;
+  color: #fff;
+  padding: 0.8rem 1.6rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background 0.3s ease;
+}
+
+.btnPrimary:hover {
+  background: #ffaa5c;
+}
+
+.btnOutline {
+  border: 2px solid #f25c05;
+  color: #f25c05;
+  padding: 0.8rem 1.6rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btnOutline:hover {
+  background: #f25c05;
+  color: #fff;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .calendar {
+    height: 300px;
+  }
+
+  .actions {
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+  }
+
+  .btnPrimary,
+  .btnOutline {
+    width: 100%;
+    text-align: center;
+  }
+}

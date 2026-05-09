@@ -6,6 +6,7 @@ import Home from './pages/Home'
 import About from './pages/About'
 import Classes from './pages/Classes'
 import YTTC from './pages/YTTC'
+import Events from './pages/Events'
 
 const App = () => {
   return (
@@ -16,6 +17,7 @@ const App = () => {
         <Route path="/about" element={<About />} />
         <Route path="/classes" element={<Classes />} />
         <Route path="/yttc" element={<YTTC />} />
+        <Route path="/events" elements={<Events/>} />
       </Routes>
       <Footer />
     </BrowserRouter>
