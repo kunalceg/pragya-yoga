@@ -23,9 +23,9 @@ const TeacherTraining = () => (
       </div>
       <div className={styles.imageWrap}>
         <img 
-          src="images/services/YTTC.png" 
+          src="/images/services/YTTC.png" 
           alt="Yoga Teacher Training Course at Pragya Yoga" 
-          loading="lazy" 
+          loading="lazy"  
         />
       </div>
     </div>
