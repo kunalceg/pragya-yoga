@@ -8,6 +8,7 @@ import Classes from './pages/Classes';
 import YTTC from './pages/YTTC';
 import Events from './pages/Events';
 import Login from './pages/Login';
+import NewUser from './pages/New';
 import ForgotPassword from './components/Auth/ForgotPassword';
 import ResetPassword from './components/Auth/ResetPassword';
 import Profile from './components/Profile/Profile';
@@ -39,6 +40,7 @@ const App = () => {
         <Route path="/yttc" element={<YTTC />} />
         <Route path="/events" element={<Events />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/newuser" element={<NewUser/>} />
         <Route path="/forgot-password" element={<ForgotPassword/>} />
         <Route path="/reset-password" element={<ResetPassword/>} />
         <Route path='/profile' element={<Profile/>} />
