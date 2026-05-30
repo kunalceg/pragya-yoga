@@ -1,0 +1,95 @@
+/* Color tokens imported directly from the theme styles */
+.rootContainer {
+  --or: #e8621a; --or2: #f7941d; --or-g: rgba(232,98,26,.13); --or-s: rgba(232,98,26,.07);
+  --bark: #1c0f06; --bark2: #2e1a0b; --bark3: #4a2e14; --sand: #c4a882; --sand2: #e8d5b8;
+  --cream: #fdf8f2; --parch: #f5ead8;
+  --bg: #f4ede2; --card: #fffdf8; --side: #1e1108;
+  --t1: #1c0f06; --t2: #7a5030; --t3: #b09070;
+  --bdr: rgba(180,130,70,.18); --bdr2: rgba(180,130,70,.3);
+  --green: #16a34a; --red: #dc2626; --blue: #1d6fa4; --amber: #d97706;
+  --sh: 0 2px 12px rgba(100,50,10,.1); --sh2: 0 4px 24px rgba(100,50,10,.14);
+
+  display: flex;
+  background-color: var(--bg);
+  color: var(--t1);
+  min-height: 100vh;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* Sidebar Styling Framework */
+.side {
+  width: 240px;
+  background: var(--side);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
+}
+.sideLogo {
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+}
+.brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  color: #f7941d;
+  font-weight: 600;
+}
+.sub {
+  font-size: 10px;
+  color: #6a4828;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.navGroup { padding: 10px 0; }
+.navLabel {
+  font-size: 9px; color: #4a2e14; letter-spacing: .12em;
+  text-transform: uppercase; padding: 6px 18px 4px; font-weight: 600;
+}
+.navItem {
+  display: flex; align-items: center; gap: 9px; padding: 10px 18px;
+  cursor: pointer; color: #a08060; font-size: 13px; transition: all .15s;
+  border-left: 2px solid transparent;
+}
+.navItem:hover { color: #f0c080; background: rgba(255,255,255,.04); }
+.activeNav {
+  color: #f7941d; background: rgba(232,98,26,.12); border-left-color: #f7941d;
+}
+
+/* Base Workspaces Layouts */
+.main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.topbar {
+  background: var(--card); border-bottom: 1px solid var(--bdr);
+  padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between;
+}
+.pageTitle { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; }
+.content { padding: 24px; flex: 1; overflow-y: auto; }
+
+/* Operational Grid Components */
+.statsGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 22px; }
+.statCard { background: var(--card); border-radius: 14px; border: 1px solid var(--bdr); padding: 16px; box-shadow: var(--sh); }
+.statVal { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 600; color: var(--or); }
+.card { background: var(--card); border-radius: 14px; border: 1px solid var(--bdr); padding: 18px 20px; box-shadow: var(--sh); margin-bottom: 16px; }
+
+/* Interactive Elements */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px;
+  border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer;
+  border: 1px solid var(--bdr); background: var(--card); transition: all .15s;
+}
+.btnPrimary {
+  background: linear-gradient(135deg,#c0490a,#e8621a); color: #fff; border: none;
+}
+.btnPrimary:hover { opacity: .9; }
+.tblWrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--bdr); }
+.table { width: 100%; border-collapse: collapse; text-align: left; }
+.table th { background: var(--parch); padding: 10px 14px; font-size: 10px; text-transform: uppercase; color: var(--t2); }
+.table td { padding: 12px 14px; border-bottom: 1px solid var(--bdr); }
+
+/* Custom Functional Dashboard Visualizations */
+.leadColumn { background: var(--card); border-radius: 12px; border: 1px solid var(--bdr); padding: 14px; min-height: 200px; }
+.leadCard { background: var(--parch); border: 1px solid var(--bdr); padding: 10px; border-radius: 8px; margin-bottom: 8px; }
+.couponCard { background: linear-gradient(135deg, var(--bark2), var(--bark)); padding: 16px; border-radius: 12px; color: #f0e0c8; }
+.couponCode { font-family: 'Cormorant Garamond', serif; font-size: 22px; color: #f7941d; font-weight: 600; }

@@ -1,0 +1,192 @@
+/* ─────────────────────────────────────────────
+   StudentDashboard.module.css
+   Google Fonts: add to index.html or _app.jsx
+   <link href="https://fonts.googleapis.com/css2?
+     family=Playfair+Display:wght@400;600&
+     family=DM+Sans:wght@300;400;500&display=swap"
+     rel="stylesheet" />
+   Tabler Icons CDN (sidebar icons):
+   <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet" />
+───────────────────────────────────────────── */
+
+:root {
+  --d-indigo:      #534AB7;
+  --d-indigo-lt:   #EEEDFE;
+  --d-indigo-dk:   #3C3489;
+  --d-teal:        #14b8a6;
+  --d-teal-lt:     #E1F5EE;
+  --d-teal-dk:     #0F6E56;
+  --d-amber-lt:    #FAEEDA;
+  --d-amber-dk:    #633806;
+  --d-red-lt:      #FCEBEB;
+  --d-red-dk:      #A32D2D;
+  --d-green:       #22c55e;
+  --d-surface:     #f9fafb;
+  --d-border:      #e5e7eb;
+  --d-text:        #111827;
+  --d-text-muted:  #6b7280;
+  --d-text-hint:   #9ca3af;
+  --d-font-serif:  'Playfair Display', Georgia, serif;
+  --d-font-sans:   'DM Sans', system-ui, sans-serif;
+  --d-r-card:      14px;
+  --d-r-md:        10px;
+  --d-r-sm:        8px;
+  --d-transition:  0.15s ease;
+}
+
+/* ── Outer shell ── */
+.shell {
+  font-family: var(--d-font-sans);
+  display: flex;
+  min-height: 100vh;
+  background: #f3f4f6;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: #ffffff;
+  border-right: 0.5px solid var(--d-border);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.sbProfile {
+  padding: 16px;
+  border-bottom: 0.5px solid var(--d-border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--d-indigo-lt);
+  color: var(--d-indigo-dk);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--d-font-serif);
+  font-size: 15px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.sbName {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--d-text);
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 130px;
+}
+
+.sbPlan {
+  font-size: 11px;
+  color: var(--d-text-muted);
+  margin-top: 2px;
+}
+
+.sbPlanHighlight {
+  color: var(--d-teal-dk);
+  font-weight: 500;
+}
+
+/* ── Nav ── */
+.nav {
+  flex: 1;
+  padding: 8px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 16px;
+  font-family: var(--d-font-sans);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--d-text-muted);
+  background: transparent;
+  border: none;
+  border-left: 2px solid transparent;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: background var(--d-transition), color var(--d-transition);
+}
+
+.navItem i {
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.navItem:hover {
+  background: var(--d-surface);
+  color: var(--d-text);
+}
+
+.navActive {
+  background: var(--d-surface) !important;
+  color: var(--d-indigo) !important;
+  border-left-color: var(--d-indigo) !important;
+  font-weight: 500 !important;
+}
+
+.notifBadge {
+  margin-left: auto;
+  background: var(--d-indigo);
+  color: var(--d-indigo-lt);
+  font-size: 10px;
+  padding: 1px 7px;
+  border-radius: 99px;
+  font-weight: 500;
+}
+
+/* ── Sidebar footer ── */
+.sbFooter {
+  padding: 12px 16px;
+  border-top: 0.5px solid var(--d-border);
+}
+
+.enrollBtn {
+  width: 100%;
+  padding: 8px;
+  font-family: var(--d-font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  background: transparent;
+  border: 0.5px solid var(--d-border);
+  border-radius: var(--d-r-md);
+  color: var(--d-text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background var(--d-transition);
+}
+
+.enrollBtn:hover {
+  background: var(--d-surface);
+  color: var(--d-text);
+}
+
+/* ── Main ── */
+.main {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+  min-width: 0;
+}

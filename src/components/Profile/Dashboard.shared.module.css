@@ -1,0 +1,227 @@
+/* ─────────────────────────────────────────────
+   Dashboard.shared.module.css
+   Import this in every page component alongside
+   the page-specific module.
+───────────────────────────────────────────── */
+
+/* ── Typography ── */
+.pageTitle {
+  font-size: 16px;
+  font-weight: 500;
+  color: #111827;
+  margin-bottom: 16px;
+}
+
+.sectionLabel {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #9ca3af;
+  margin: 0 0 10px;
+}
+
+.mt { margin-top: 1.4rem; }
+
+/* ── Metric cards ── */
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.metric {
+  background: #f9fafb;
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+}
+
+.metricNum {
+  font-size: 22px;
+  font-weight: 500;
+  color: #111827;
+  line-height: 1;
+}
+
+.metricLbl {
+  font-size: 10px;
+  color: #9ca3af;
+  margin-top: 4px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* ── Card ── */
+.card {
+  background: #ffffff;
+  border: 0.5px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.cardTitle {
+  font-size: 13px;
+  font-weight: 500;
+  color: #111827;
+}
+
+/* ── Row ── */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 0.5px solid #f3f4f6;
+  font-size: 13px;
+}
+
+.row:last-child { border-bottom: none; }
+
+.rowLabel {
+  color: #6b7280;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rowVal {
+  font-weight: 500;
+  color: #111827;
+}
+
+/* ── Badges ── */
+.badge {
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 99px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.badgeGreen  { background: #E1F5EE; color: #0F6E56; }
+.badgeAmber  { background: #FAEEDA; color: #854F0B; }
+.badgeRed    { background: #FCEBEB; color: #A32D2D; }
+.badgePurple { background: #EEEDFE; color: #3C3489; }
+.badgeGray   { background: #f3f4f6; color: #6b7280; }
+
+/* ── Buttons ── */
+.btnPrimary {
+  background: #534AB7;
+  color: #EEEDFE;
+  border: none;
+  border-radius: 10px;
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: background 0.15s;
+}
+
+.btnPrimary:hover { background: #3C3489; }
+
+.btnSm {
+  font-size: 12px;
+  padding: 5px 10px;
+  border: 0.5px solid #e5e7eb;
+  border-radius: 8px;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: background 0.15s;
+}
+
+.btnSm:hover { background: #f9fafb; }
+
+/* ── Tabs ── */
+.tabs {
+  display: flex;
+  border-bottom: 0.5px solid #e5e7eb;
+  margin-bottom: 14px;
+}
+
+.tab {
+  font-size: 12px;
+  padding: 6px 14px;
+  cursor: pointer;
+  color: #6b7280;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -0.5px;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  transition: color 0.15s;
+}
+
+.tabActive {
+  color: #534AB7 !important;
+  border-bottom-color: #534AB7 !important;
+  font-weight: 500 !important;
+}
+
+/* ── Class / list row ── */
+.listRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 0.5px solid #f3f4f6;
+  font-size: 13px;
+}
+
+.listRow:last-child { border-bottom: none; }
+
+.listTime {
+  font-size: 11px;
+  color: #9ca3af;
+  min-width: 78px;
+}
+
+.listName {
+  flex: 1;
+  color: #111827;
+}
+
+/* ── Type pills ── */
+.typeOnline  { font-size: 11px; padding: 2px 8px; border-radius: 99px; background: #EEEDFE; color: #534AB7; }
+.typeOffline { font-size: 11px; padding: 2px 8px; border-radius: 99px; background: #E1F5EE; color: #0F6E56; }
+
+/* ── Empty state ── */
+.emptyState {
+  text-align: center;
+  padding: 28px;
+  color: #9ca3af;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.emptyState i {
+  font-size: 28px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+/* ── Divider ── */
+.divider {
+  height: 0.5px;
+  background: #f3f4f6;
+  margin: 14px 0;
+}

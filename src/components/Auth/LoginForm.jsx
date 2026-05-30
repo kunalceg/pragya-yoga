@@ -4,6 +4,7 @@ import styles from "./LoginForm.module.css";
 
 const LoginForm = () => {
   const [isRegister, setIsRegister] = useState(false);
+  const [name, setName] = useState(""); 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -22,20 +23,25 @@ const LoginForm = () => {
         const res = await fetch("http://localhost:5000/api/auth/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify({ name, email, password }),
         });
         const data = await res.json();
+
         if (res.ok) {
-          alert(data.msg || "Registered successfully! Confirmation email sent.");
-          navigate("/login"); // redirect to login
+          alert(data.msg || "Registered successfully!");
+          // clear form after registration
+          setName("");
+          setEmail("");
+          setPassword("");
+          setConfirmPassword("");
+          setIsRegister(false);
         } else {
           alert(data.error || "Error registering user");
         }
       } catch (err) {
-        console.error(err);
+        console.error("Register error:", err);
         alert("Error registering user");
       }
-
     } else {
       try {
         const res = await fetch("http://localhost:5000/api/auth/login", {
@@ -44,15 +50,17 @@ const LoginForm = () => {
           body: JSON.stringify({ email, password }),
         });
         const data = await res.json();
+
         if (res.ok) {
           localStorage.setItem("token", data.token);
+          localStorage.setItem("user", JSON.stringify(data.user));
           alert(data.msg || "Login successful!");
-          navigate("/dashboard"); // redirect to dashboard/profile
+          navigate("/studentdashboard");
         } else {
           alert(data.error || "Invalid credentials");
         }
       } catch (err) {
-        console.error(err);
+        console.error("Login error:", err);
         alert("Error logging in");
       }
     }
@@ -62,6 +70,16 @@ const LoginForm = () => {
     <div className={styles.authForm}>
       <h2>{isRegister ? "Register" : "Login"}</h2>
       <form onSubmit={handleSubmit}>
+        {isRegister && (
+          <input
+            type="text"
+            placeholder="Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+        )}
+
         <input
           type="email"
           placeholder="Email"
@@ -88,19 +106,17 @@ const LoginForm = () => {
           />
         )}
 
-        <button type="submit">
-          {isRegister ? "Register" : "Login"}
-        </button>
+        {!isRegister ? (
+          <div className={styles.buttonRow}>
+            <button type="submit">Login</button>
+            <button type="button" onClick={() => navigate("/forgot-password")}>
+              Forgot Password?
+            </button>
+          </div>
+        ) : (
+          <button type="submit">Register</button>
+        )}
       </form>
-
-      {/* Forgot Password option only in Login mode */}
-      {!isRegister && (
-        <p className={styles.forgotPassword}>
-          <button type="button" onClick={() => navigate("/forgot-password")}>
-            Forgot Password?
-          </button>
-        </p>
-      )}
 
       <p className={styles.toggleAuth}>
         {isRegister ? (

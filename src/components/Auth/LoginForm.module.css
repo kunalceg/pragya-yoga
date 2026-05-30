@@ -67,6 +67,31 @@
   text-decoration: underline;
 }
 
+/* AuthButtons.module.css */
+
+.buttonRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px; /* space between buttons */
+  margin-top: 20px;
+}
+
+.buttonRow button {
+  flex: 1; /* equal width */
+  padding: 12px;
+  background-color: #f25c05; /* your orange color */
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.buttonRow button:hover {
+  background-color: #d94f04; /* darker orange on hover */
+}
+
 /* ── Responsive ── */
 @media (max-width: 500px) {
   .authForm {

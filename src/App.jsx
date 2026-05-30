@@ -10,6 +10,10 @@ import Events from './pages/Events';
 import Login from './pages/Login';
 import ForgotPassword from './components/Auth/ForgotPassword';
 import ResetPassword from './components/Auth/ResetPassword';
+import Profile from './components/Profile/Profile';
+import StudentDashboard from './components/Profile/StudentDashboard';
+
+import YogaAdmin from './components/Admin/YogaAdmin';
 
 const App = () => {
   const [tasks, setTasks] = useState([]);
@@ -37,6 +41,9 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword/>} />
         <Route path="/reset-password" element={<ResetPassword/>} />
+        <Route path='/profile' element={<Profile/>} />
+        <Route path='/studentdashboard' element={<StudentDashboard/>} />
+        <Route path='/yogaadmin' element={<YogaAdmin/>} />
         
         {/* Example: A dedicated route just to see the SQLite tasks */}
         <Route path="/tasks" element={
