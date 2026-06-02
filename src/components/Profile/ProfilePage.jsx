@@ -3,7 +3,9 @@ import s from "./Dashboard.shared.module.css";
 import { updateStudentProfile } from "../api/StudentServices";
 
 export default function ProfilePage({ student, onUpdateSuccess }) {
+  // 🎯 SAFETY DEFENSE: Fallback defaults shield the layout metrics from structural nesting drops
   const p = student ?? {};
+  const stats = p.stats || { classes: 0, attendancePct: 0 };
 
   const [isEditing,    setIsEditing]    = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -60,16 +62,21 @@ export default function ProfilePage({ student, onUpdateSuccess }) {
     setErrorMessage("");
 
     try {
-      // updateStudentProfile now only needs formData — token handled inside service
+      // 1. Send update parameters via services engine
       const savedData = await updateStudentProfile(formData);
 
+      // 2. Clear out legacy string states
+      setErrorMessage("");
+
       if (typeof onUpdateSuccess === "function") {
-        onUpdateSuccess(savedData); // Refreshes sidebar name/plan instantly
+        onUpdateSuccess(savedData); // Refreshes state values down the tree pipeline
       }
 
       setIsEditing(false);
     } catch (error) {
-      setErrorMessage(error.message || "Could not save your profile. Please try again.");
+      console.error("Profile Save Failure:", error);
+      // Fallback message extraction parsing logic
+      setErrorMessage(error.message || "Could not save your profile. Please check connection.");
     } finally {
       setIsSubmitting(false);
     }
@@ -89,13 +96,15 @@ export default function ProfilePage({ student, onUpdateSuccess }) {
       <h1 className={s.pageTitle}>Profile</h1>
 
       {errorMessage && (
-        <div className={s.errorNotification}>{errorMessage}</div>
+        <div className={s.errorNotification} style={{ color: "#ff4d4d", marginBottom: "15px", fontWeight: "bold" }}>
+          {errorMessage}
+        </div>
       )}
 
       {/* ── Metrics Banner ── */}
       <div className={s.metrics}>
         <div className={s.metric}>
-          <p className={s.metricNum}>{p.stats?.classes ?? 0}</p>
+          <p className={s.metricNum}>{stats.classes ?? 0}</p>
           <p className={s.metricLbl}>Classes</p>
         </div>
         <div className={s.metric}>
@@ -103,7 +112,7 @@ export default function ProfilePage({ student, onUpdateSuccess }) {
           <p className={s.metricLbl}>Months</p>
         </div>
         <div className={s.metric}>
-          <p className={s.metricNum}>{p.stats?.attendancePct ?? 0}%</p>
+          <p className={s.metricNum}>{stats.attendancePct ?? 0}%</p>
           <p className={s.metricLbl}>Attendance</p>
         </div>
         <div className={s.metric}>
@@ -161,7 +170,8 @@ export default function ProfilePage({ student, onUpdateSuccess }) {
                   value={formData[name]}
                   onChange={handleInputChange}
                   className={s.editInput}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || name === "email"} // Email locked from structural editing crashes
+                  maxLength={50}
                   autoComplete="off"
                 />
               ) : (

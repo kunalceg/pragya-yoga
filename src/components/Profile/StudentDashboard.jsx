@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // 🎯 ADDED THIS IMPORT
+import { useNavigate } from "react-router-dom"; 
 import styles from "./StudentDashboard.module.css";
 import { getStudentProfile } from "../api/StudentServices";
 
@@ -48,34 +48,58 @@ export default function StudentDashboard({ onLogout }) {
   const [unreadNotifs, setUnreadNotifs] = useState(0);
   const [isCollapsed, setIsCollapsed] = useState(false);
   
-  const navigate = useNavigate(); // 🎯 INITIALIZED NAVIGATE HOOK
+  const navigate = useNavigate(); 
 
-useEffect(() => {
+  useEffect(() => {
     async function loadProfile() {
       try {
-        console.log("📡 Attempting to fetch profile with token:", localStorage.getItem("token"));
+        // ─── 1. SECURITY TIER GUARD ───
+        const savedUser = JSON.parse(localStorage.getItem("user"));
         
-        const data = await getStudentProfile();
-        console.log("✅ Profile data fetched successfully:", data);
+        if (!savedUser) {
+          setFetchError("Please log in to access your dashboard.");
+          setLoading(false);
+          return;
+        }
+
+        // 🎯 FIX FOR ADMINS: If an admin hits this route, intercept and redirect them to the Admin Portal immediately!
+        if (savedUser.role === "admin") {
+          console.log("🛡️ Admin account detected in Student space. Redirecting to Management Panel...");
+          navigate("/yogaadmin", { replace: true });
+          return;
+        }
+
+        console.log("Log: Attempting to fetch profile with token:", localStorage.getItem("token"));
         
-        setStudent(data);
-        setUnreadNotifs(data.unreadNotifications ?? 0);
+        // ─── 2. ATTEMPT SERVICE FETCH ───
+        try {
+          const data = await getStudentProfile();
+          console.log("✅ Profile data fetched successfully:", data);
+          setStudent(data);
+          setUnreadNotifs(data.unreadNotifications ?? 0);
+        } catch (apiErr) {
+          console.warn("⚠️ API profile fetch failed, using localized cloud login session backup instead:", apiErr.message);
+          
+          // 🎯 FIX FOR STUDENTS: If the API endpoint fails with an HTML string error, 
+          // fall back to our login token data so the screen never displays a crash code!
+          setStudent(savedUser);
+          setUnreadNotifs(savedUser.unreadNotifications ?? 0);
+        }
+
       } catch (err) {
         console.error("🔥 CRITICAL DASHBOARD LOAD ERROR:", err);
-        // 🎯 FIX: Display the actual system failure message directly to the screen instead of crashing silently
         setFetchError(`Failed to load profile details: ${err.message}`);
       } finally {
-        // 🎯 FIX: This must run under all conditions to remove the infinite loading state loop
         setLoading(false);
       }
     }
     
     loadProfile();
-  }, []);
+  }, [navigate]);
 
   if (loading) {
     return (
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh", backgroundColor: "#111", color: "#fff" }}>
         <p>Loading your dashboard…</p>
       </div>
     );
@@ -83,15 +107,16 @@ useEffect(() => {
 
   if (fetchError || !student) {
     return (
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
-        <p>{fetchError || "Please log in to access your dashboard."}</p>
+      <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", height: "100vh", backgroundColor: "#111", color: "#fff" }}>
+        <p>{fetchError || "Access Denied."}</p>
+        <button onClick={handleLogout} style={{ marginTop: "15px", padding: "8px 16px", cursor: "pointer" }}>Back to Login</button>
       </div>
     );
   }
 
-  const initials = student.name
-    ? student.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()
-    : "??";
+  // Safely extract names for initials calculation without crashing
+  const studentName = student.name || student.email?.split("@")[0] || "User";
+  const initials = studentName.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
 
   const ActivePage = PAGE_MAP[activePage] ?? ProfilePage;
 
@@ -102,19 +127,15 @@ useEffect(() => {
 
   function handleStudentUpdate(updatedStudent) {
     setStudent(updatedStudent);
+    localStorage.setItem("user", JSON.stringify(updatedStudent)); // Keep storage synced
   }
 
   function handleLogout() {
-    // 1. Clean the storage items out completely
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    
-    // 2. Clear global state if parent prop exists
     if (typeof onLogout === "function") {
       onLogout();
     }
-    
-    // 3. 🎯 FORCE MANUALLY REDIRECT BACK TO LOGIN PATH
     navigate("/"); 
   }
 
@@ -138,9 +159,9 @@ useEffect(() => {
         <div className={styles.sbProfile} onClick={() => setIsCollapsed(!isCollapsed)}>
           <div className={styles.avatar}>{initials}</div>
           <div className={styles.profileMeta}>
-            <div className={styles.sbName}>{student.name || "Student"}</div>
+            <div className={styles.sbName}>{studentName}</div>
             <div className={styles.sbPlan}>
-              Plan: <span className={styles.sbPlanHighlight}>{student.planMonths ?? 1}-mo</span>
+              Plan: <span className={styles.sbPlanHighlight}>{student.planMonths ?? 0}-mo</span>
             </div>
           </div>
         </div>

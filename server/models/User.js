@@ -50,6 +50,5 @@ const UserSchema = new mongoose.Schema(
     timestamps: true 
   }
 );
-
-// ✅ Checks if the 'User' model is already compiled to avoid OverwriteModelError.
-module.exports = mongoose.models.User || mongoose.model("User", UserSchema);
+// Change the last line of user.js to explicitly name your collection (e.g., "User" or "users")
+module.exports = mongoose.models.User || mongoose.model("User", UserSchema, "User");

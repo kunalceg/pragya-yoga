@@ -5,6 +5,7 @@
 
 const User        = require("../models/User");
 const ActivityLog = require("../models/ActivityLog.model");
+const bcrypt      = require("bcryptjs"); // 🚀 Performance: Moved to top
 
 // ── Helper: log every admin action to MongoDB ──
 async function logAction(action, performedBy, targetUser = null) {
@@ -17,7 +18,6 @@ async function logAction(action, performedBy, targetUser = null) {
 
 // ============================================================
 // 📊 OVERVIEW — dashboard summary stats
-// GET /api/admin/overview
 // ============================================================
 exports.getOverview = async (req, res) => {
   try {
@@ -43,7 +43,6 @@ exports.getOverview = async (req, res) => {
 
 // ============================================================
 // 👥 STUDENTS — view all
-// GET /api/admin/students
 // ============================================================
 exports.getAllStudents = async (req, res) => {
   try {
@@ -59,7 +58,6 @@ exports.getAllStudents = async (req, res) => {
 
 // ============================================================
 // 👤 STUDENTS — get one by ID
-// GET /api/admin/students/:id
 // ============================================================
 exports.getStudentById = async (req, res) => {
   try {
@@ -74,7 +72,6 @@ exports.getStudentById = async (req, res) => {
 
 // ============================================================
 // ➕ STUDENTS — add new student (admin creates directly)
-// POST /api/admin/students
 // ============================================================
 exports.addStudent = async (req, res) => {
   try {
@@ -83,22 +80,23 @@ exports.addStudent = async (req, res) => {
     const existing = await User.findOne({ email });
     if (existing) return res.status(400).json({ error: "Email already registered" });
 
-    const bcrypt = require("bcryptjs");
+    // Ensure we provide a robust fallback if password is empty or falsy
+    const rawPassword = (password && password.trim() !== "") ? password : "Yoga@1234";
     const salt   = await bcrypt.genSalt(10);
-    const hashed = await bcrypt.hash(password || "Yoga@1234", salt);
+    const hashed = await bcrypt.hash(rawPassword, salt);
 
-   const student = await User.create({
-  name,
-  email,
-  password: hashed,
-  phone:      phone      ?? "",
-  city:       city       ?? "",
-  style:      style      ?? "Hatha",
-  level:      level      ?? "Beginner",
-  planMonths: planMonths ?? 1,
-  role:       "student", // 🎯 FIXED: Kept the valid one here and removed the broken duplicate
-  status:     "active",
-});
+    const student = await User.create({
+      name,
+      email,
+      password: hashed,
+      phone:      phone      ?? "",
+      city:       city       ?? "",
+      style:      style      ?? "Hatha",
+      level:      level      ?? "Beginner",
+      planMonths: planMonths ?? 1,
+      role:       "student", 
+      status:     "active",
+    });
 
     await logAction(`Added student: ${email}`, req.user.id, student._id);
 
@@ -112,10 +110,19 @@ exports.addStudent = async (req, res) => {
 
 // ============================================================
 // ✏️ STUDENTS — edit student details
-// PUT /api/admin/students/:id
 // ============================================================
 exports.editStudent = async (req, res) => {
   try {
+    const { email } = req.body;
+
+    // 🔒 Security: Prevent duplicate emails across users
+    if (email !== undefined) {
+      const emailOwner = await User.findOne({ email });
+      if (emailOwner && emailOwner._id.toString() !== req.params.id) {
+        return res.status(400).json({ error: "Email is already taken by another account" });
+      }
+    }
+
     const allowed = ["name", "email", "phone", "city", "style", "level", "planMonths", "status"];
     const updates = {};
     allowed.forEach((field) => {
@@ -125,7 +132,7 @@ exports.editStudent = async (req, res) => {
     const updated = await User.findByIdAndUpdate(
       req.params.id,
       { $set: updates },
-      { returnDocument: "after", runValidators: true }
+      { new: true, runValidators: true } // 'new: true' is alias for returnDocument: "after"
     ).select("-password");
 
     if (!updated) return res.status(404).json({ error: "Student not found" });
@@ -140,7 +147,6 @@ exports.editStudent = async (req, res) => {
 
 // ============================================================
 // 🗑️ STUDENTS — delete student
-// DELETE /api/admin/students/:id
 // ============================================================
 exports.deleteStudent = async (req, res) => {
   try {
@@ -157,14 +163,13 @@ exports.deleteStudent = async (req, res) => {
 
 // ============================================================
 // ✅ STUDENTS — approve
-// PUT /api/admin/students/:id/approve
 // ============================================================
 exports.approveStudent = async (req, res) => {
   try {
     const student = await User.findByIdAndUpdate(
       req.params.id,
       { $set: { status: "active" } },
-      { returnDocument: "after" }
+      { new: true }
     ).select("-password");
 
     if (!student) return res.status(404).json({ error: "Student not found" });
@@ -179,14 +184,13 @@ exports.approveStudent = async (req, res) => {
 
 // ============================================================
 // 🚫 STUDENTS — ban
-// PUT /api/admin/students/:id/ban
 // ============================================================
 exports.banStudent = async (req, res) => {
   try {
     const student = await User.findByIdAndUpdate(
       req.params.id,
       { $set: { status: "banned" } },
-      { returnDocument: "after" }
+      { new: true }
     ).select("-password");
 
     if (!student) return res.status(404).json({ error: "Student not found" });
@@ -201,14 +205,13 @@ exports.banStudent = async (req, res) => {
 
 // ============================================================
 // 🔓 STUDENTS — unban
-// PUT /api/admin/students/:id/unban
 // ============================================================
 exports.unbanStudent = async (req, res) => {
   try {
     const student = await User.findByIdAndUpdate(
       req.params.id,
       { $set: { status: "active" } },
-      { returnDocument: "after" }
+      { new: true }
     ).select("-password");
 
     if (!student) return res.status(404).json({ error: "Student not found" });
@@ -223,8 +226,6 @@ exports.unbanStudent = async (req, res) => {
 
 // ============================================================
 // 📋 PLANS — assign plan to student
-// POST /api/admin/plans/assign
-// Body: { studentId, planMonths }
 // ============================================================
 exports.assignPlan = async (req, res) => {
   try {
@@ -236,7 +237,7 @@ exports.assignPlan = async (req, res) => {
     const student = await User.findByIdAndUpdate(
       studentId,
       { $set: { planMonths: Number(planMonths), status: "active" } },
-      { returnDocument: "after" }
+      { new: true }
     ).select("-password");
 
     if (!student) return res.status(404).json({ error: "Student not found" });
@@ -255,14 +256,13 @@ exports.assignPlan = async (req, res) => {
 
 // ============================================================
 // ❌ PLANS — revoke plan
-// PUT /api/admin/plans/revoke/:id
 // ============================================================
 exports.revokePlan = async (req, res) => {
   try {
     const student = await User.findByIdAndUpdate(
       req.params.id,
       { $set: { planMonths: 0 } },
-      { returnDocument: "after" }
+      { new: true }
     ).select("-password");
 
     if (!student) return res.status(404).json({ error: "Student not found" });
@@ -277,7 +277,6 @@ exports.revokePlan = async (req, res) => {
 
 // ============================================================
 // 💰 PAYMENTS — get all (from stats embedded in User)
-// GET /api/admin/payments
 // ============================================================
 exports.getAllPayments = async (req, res) => {
   try {
@@ -285,7 +284,6 @@ exports.getAllPayments = async (req, res) => {
       .select("name email planMonths createdAt status")
       .sort({ createdAt: -1 });
 
-    // Map into a payments-style list based on plan data
     const payments = students.map((s) => ({
       studentId:  s._id,
       name:       s.name,
@@ -304,8 +302,6 @@ exports.getAllPayments = async (req, res) => {
 
 // ============================================================
 // 📅 ATTENDANCE — update student attendance stats
-// PUT /api/admin/attendance/:id
-// Body: { classes, attendancePct }
 // ============================================================
 exports.updateAttendance = async (req, res) => {
   try {
@@ -317,7 +313,7 @@ exports.updateAttendance = async (req, res) => {
     const student = await User.findByIdAndUpdate(
       req.params.id,
       { $set: updates },
-      { returnDocument: "after" }
+      { new: true }
     ).select("-password");
 
     if (!student) return res.status(404).json({ error: "Student not found" });
@@ -332,7 +328,6 @@ exports.updateAttendance = async (req, res) => {
 
 // ============================================================
 // 📜 ACTIVITY LOGS — get all logs
-// GET /api/admin/logs
 // ============================================================
 exports.getActivityLogs = async (req, res) => {
   try {

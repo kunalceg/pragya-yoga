@@ -44,9 +44,14 @@ export const getStudentProfile = async () => {
 // Called when student clicks Save in ProfilePage
 // ──────────────────────────────────────────
 export async function updateStudentProfile(formData) {
-  const res = await fetch(`${BASE_URL}/profile`, {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch("http://localhost:5000/api/auth/profile", {
     method: "PUT",
-    headers: authHeaders(),
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    },
     body: JSON.stringify(formData),
   });
 
@@ -55,5 +60,5 @@ export async function updateStudentProfile(formData) {
     throw new Error(err.error || "Failed to update profile");
   }
 
-  return res.json(); // Returns updated user object from MongoDB
+  return res.json(); // Clean JSON returned back to handleSave execution
 }
