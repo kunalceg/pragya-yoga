@@ -5,8 +5,8 @@ const bcrypt = require('bcrypt');
 const User = require('./models/user'); 
 
 const app = express();
-const PORT = 5000;
-
+// 🎯 FIX: Dynamically read the environment port assigned by Choreo
+const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(cors({
   origin: "http://localhost:5173",
