@@ -1,10 +1,12 @@
 import React from "react";
 import LoginForm from "../components/Auth/LoginForm";
 
-const Login = () => {
+// 🎯 FIX: Explicitly accept the onLoginSuccess prop from App.jsx
+const Login = ({ onLoginSuccess }) => {
   return (
     <div>
-      <LoginForm />
+      {/* 🎯 FIX: Pass that prop straight down to LoginForm */}
+      <LoginForm onLoginSuccess={onLoginSuccess} />
     </div>
   );
 };

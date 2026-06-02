@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./LoginForm.module.css";
 
-const LoginForm = ({ onLoginSuccess, onToggleToRegister }) => {
+const LoginForm = ({ onLoginSuccess }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -19,23 +19,33 @@ const LoginForm = ({ onLoginSuccess, onToggleToRegister }) => {
       const data = await res.json();
 
       if (res.ok) {
-        // Save the session details inside the web browser's local storage
+        // 1. Save session details cleanly to local storage
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
         
         alert(data.msg || "Login successful!");
         
-        // Pass session details up to App.jsx global state manager
+        // 🔍 DEBUG LOGGER: Make sure role is actually printing out here!
+        console.log("👤 User payload received from API:", data.user);
+        console.log("🛡️ User role extracted:", data.user?.role);
+
+        // 2. Pass session details up to App.jsx global state manager
         if (onLoginSuccess) {
           onLoginSuccess(data.token, data.user); 
         }
 
-        // Direct Adaptive Routing based on Database User Role
-        if (data.user && data.user.role === "admin") {
-          navigate("/yogaadmin");
-        } else {
-          navigate("/studentdashboard");
-        }
+        // 3. 🎯 FIX: Use a tiny timeout to let App.jsx register the state update, 
+        // then route safely based on the explicit server response property
+        setTimeout(() => {
+          if (data.user && data.user.role === "admin") {
+            console.log("➡️ Moving to Admin Portal...");
+            navigate("/yogaadmin", { replace: true });
+          } else {
+            console.log("➡️ Moving to Student Dashboard...");
+            navigate("/studentdashboard", { replace: true });
+          }
+        }, 100);
+
       } else {
         alert(data.error || "Invalid credentials");
       }
@@ -75,7 +85,6 @@ const LoginForm = ({ onLoginSuccess, onToggleToRegister }) => {
 
       <p className={styles.toggleAuth}>
         Don’t have an account?{" "}
-        {/* 🎯 FIXED: Changed onClick to trigger react-router navigation directly to /register */}
         <button type="button" onClick={() => navigate("/newuser")}>
           New User
         </button>

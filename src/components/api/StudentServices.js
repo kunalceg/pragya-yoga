@@ -19,19 +19,25 @@ function authHeaders() {
 // GET /profile — fetch logged-in student data
 // Called when studentdashboard page loads
 // ──────────────────────────────────────────
-export async function getStudentProfile() {
-  const res = await fetch(`${BASE_URL}/profile`, {
+export const getStudentProfile = async () => {
+  // 🎯 FIX: Always read the fresh token directly from storage inside the function execution block
+  const token = localStorage.getItem("token");
+
+  const res = await fetch("http://localhost:5000/api/auth/profile", {
     method: "GET",
-    headers: authHeaders(),
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}` // Sends the fresh bearer token safely
+    }
   });
 
   if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.error || "Failed to fetch profile");
+    const errorData = await res.json();
+    throw new Error(errorData.error || "Failed to fetch student profile");
   }
 
-  return res.json(); // Returns full user object from MongoDB
-}
+  return await res.json();
+};
 
 // ──────────────────────────────────────────
 // PUT /profile — save edited profile fields

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // 🎯 ADDED THIS IMPORT
 import styles from "./StudentDashboard.module.css";
 import { getStudentProfile } from "../api/StudentServices";
 
@@ -45,23 +46,30 @@ export default function StudentDashboard({ onLogout }) {
   const [fetchError, setFetchError]   = useState("");
   const [activePage, setActivePage]   = useState("profile");
   const [unreadNotifs, setUnreadNotifs] = useState(0);
-  
-  // 🎯 State controlling whether the sidebar template is compressed
   const [isCollapsed, setIsCollapsed] = useState(false);
+  
+  const navigate = useNavigate(); // 🎯 INITIALIZED NAVIGATE HOOK
 
-  useEffect(() => {
+useEffect(() => {
     async function loadProfile() {
       try {
+        console.log("📡 Attempting to fetch profile with token:", localStorage.getItem("token"));
+        
         const data = await getStudentProfile();
+        console.log("✅ Profile data fetched successfully:", data);
+        
         setStudent(data);
         setUnreadNotifs(data.unreadNotifications ?? 0);
       } catch (err) {
-        console.error("Failed to load student profile:", err);
-        setFetchError("Session expired. Please log in again.");
+        console.error("🔥 CRITICAL DASHBOARD LOAD ERROR:", err);
+        // 🎯 FIX: Display the actual system failure message directly to the screen instead of crashing silently
+        setFetchError(`Failed to load profile details: ${err.message}`);
       } finally {
+        // 🎯 FIX: This must run under all conditions to remove the infinite loading state loop
         setLoading(false);
       }
     }
+    
     loadProfile();
   }, []);
 
@@ -97,19 +105,24 @@ export default function StudentDashboard({ onLogout }) {
   }
 
   function handleLogout() {
+    // 1. Clean the storage items out completely
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    if (typeof onLogout === "function") onLogout();
+    
+    // 2. Clear global state if parent prop exists
+    if (typeof onLogout === "function") {
+      onLogout();
+    }
+    
+    // 3. 🎯 FORCE MANUALLY REDIRECT BACK TO LOGIN PATH
+    navigate("/"); 
   }
 
   return (
-    // 🎯 The shell wrapper needs both class styles based on the active state value
     <div className={`${styles.shell} ${isCollapsed ? styles.shellCollapsed : ""}`}>
       
-      {/* ── SIDEBAR CONTAINER ── */}
       <aside className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ""}`}>
         
-        {/* Toggle Collapse and Expand Header */}
         <div className={styles.toggleHeader}>
           {!isCollapsed && <span className={styles.brandTitle}>Workspace</span>}
           <button 
@@ -122,7 +135,6 @@ export default function StudentDashboard({ onLogout }) {
           </button>
         </div>
 
-        {/* Profile Card Summary Section */}
         <div className={styles.sbProfile} onClick={() => setIsCollapsed(!isCollapsed)}>
           <div className={styles.avatar}>{initials}</div>
           <div className={styles.profileMeta}>
@@ -133,7 +145,6 @@ export default function StudentDashboard({ onLogout }) {
           </div>
         </div>
 
-        {/* Dynamic Buttons List */}
         <nav className={styles.nav} aria-label="Dashboard Navigation">
           {NAV.map(({ id, label, icon }) => {
             const isActive = activePage === id;
@@ -156,7 +167,6 @@ export default function StudentDashboard({ onLogout }) {
           })}
         </nav>
 
-        {/* Side Draw Footer Action Controls */}
         <div className={styles.sbFooter}>
           <button type="button" className={styles.enrollBtn} onClick={() => handleNav("classes")}>
             <i className="ti ti-plus" aria-hidden="true" />
@@ -169,7 +179,6 @@ export default function StudentDashboard({ onLogout }) {
         </div>
       </aside>
 
-      {/* ── MAIN LAYOUT INTERFACE VIEWPORT ── */}
       <main className={styles.main}>
         <ActivePage
           student={student}

@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
+// 🎯 FIX: Added 'useRef' to the React import line
+import React, { useState, useEffect, useRef } from "react"; 
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaFacebookF, FaInstagram, FaYoutube, FaXTwitter } from "react-icons/fa6";
 import styles from "./Navbar.module.css";
@@ -50,18 +51,20 @@ const Navbar = ({ user, onLogout }) => {
     : "YS";
 
   const handleLogoutClick = () => {
-    localStorage.removeItem("token");
     setDropOpen(false);
-    onLogout?.();
+    onLogout?.(); // This triggers our parent cleanup engine in App.jsx
     navigate("/login");
   };
 
+  // 🎯 FIX 1: Dynamically determine dashboard home path based on active user security roles
+  const dashboardPath = user?.role === "admin" ? "/yogaadmin" : "/studentdashboard";
+
   // Sub-menu structure map array loop configuration for dashboard tools
   const dropdownItems = [
-    { label: "Dashboard", path: "/dashboard", icon: <DashIcon />, hasBadge: user?.planActive },
-    { label: "Profile",   path: "/dashboard", icon: <UserIcon /> },
-    { label: "Payments",  path: "/dashboard", icon: <ReceiptIcon /> },
-    { label: "Settings",  path: "/settings",  icon: <SettingsIcon /> },
+    { label: "Dashboard", path: dashboardPath, icon: <DashIcon />, hasBadge: user?.role !== "admin" && user?.planActive },
+    { label: "Profile",   path: "/profile",     icon: <UserIcon /> },
+    { label: "Payments",  path: user?.role === "admin" ? "/yogaadmin" : "/studentdashboard", icon: <ReceiptIcon /> },
+    { label: "Settings",  path: "/settings",    icon: <SettingsIcon /> },
   ];
 
   return (
@@ -99,20 +102,15 @@ const Navbar = ({ user, onLogout }) => {
             </Link>
           ))}
           
-          {/* ── Mobile-Drawer Guest Links ── */}
           {!user && (
             <>
               <Link className={`${styles.navLink} ${location.pathname === "/login" ? styles.active : ""}`} to="/login" onClick={() => setMenuOpen(false)}>
                 Login
               </Link>
-              
-              {/* 🎯 FIXED: Wrapped inside fragment tags so React compiles cleanly without errors
-              <Link className={`${styles.navLink} ${location.pathname === "/newuser" ? styles.active : ""}`} to="/newuser" onClick={() => setMenuOpen(false)}>
-                New User
-              </Link> */}
             </>
           )}
         </div>
+
         {/* User Auth Context Cluster Control */}
         <div className={styles.userSection}>
           {user ? (
@@ -137,11 +135,13 @@ const Navbar = ({ user, onLogout }) => {
                       <p className={styles.ddName}>{user.name}</p>
                       <p className={styles.ddPlan}>
                         {user.role === "admin" ? "Admin Access" : (user.planMonths ? `${user.planMonths}-month` : "Student")}
+                        
+                        {/* 🎯 FIX 2: Only check for expired plans if the logged-in identity is NOT an administrator */}
                         {user.role !== "admin" && (
                           <>
                             {" · "}
-                            <span className={user.planActive ? styles.ddActive : styles.ddExpired}>
-                              {user.planActive ? "Active" : "Expired"}
+                            <span className={user.planMonths > 0 ? styles.ddActive : styles.ddExpired}>
+                              {user.planMonths > 0 ? "Active" : "Expired"}
                             </span>
                           </>
                         )}
@@ -186,7 +186,7 @@ const Navbar = ({ user, onLogout }) => {
 
 export default Navbar;
 
-/* ─── Optimized SVG Layout Icons Vector Icons ─── */
+/* ─── SVG Layout Icons Vector Icons ─── */
 const ChevronIcon = ({ className }) => (
   <svg className={className} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
     <polyline points="6 9 12 15 18 9" />
