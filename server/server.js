@@ -13,6 +13,13 @@ const app = express();
 // 🎯 Port configuration
 const PORT = process.env.PORT || 5000;
 
+// const cors = require('cors');
+app.use(cors({
+  origin: 'https://pragya-yoga.vercel.app', // Front end vercel url
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
+
 // Middleware
 app.use(cors({
   origin: "http://localhost:5173",
