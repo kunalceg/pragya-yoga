@@ -2,7 +2,7 @@
   "name": "yoga",
   "version": "1.0.0",
   "description": "This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.",
-  "main": "eslint.config.js",
+  "main": "main.jsx",
   "dependencies": {
     "accepts": "^2.0.0",
     "acorn": "^8.16.0",
