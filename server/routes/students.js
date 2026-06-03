@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/user'); // 🎯 CRITICAL FIX: Point to your main User model file
+const User = require('../models/User'); // 🎯 CRITICAL FIX: Point to your main User model file
 
 // PUT route to update user profile data safely
 router.put('/profile/:id', async (req, res) => {

@@ -3,7 +3,7 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
-import User from './models/user.js'; // Ensure .js extension is included
+import User from './models/User.js'; // Ensure .js extension is included
 
 // Initialize environment variables
 dotenv.config();
