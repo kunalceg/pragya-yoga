@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from 'mongoose';
 
 const UserSchema = new mongoose.Schema(
   {
@@ -7,21 +7,20 @@ const UserSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
 
-    // ── 🎯 CHANGER IDENTIFIER ROLE NODE ──
-    // This dictates whether the system serves the Student Dashboard or the YogaAdmin Panel
+    // Role: Determines if the user is a student or admin
     role: { 
       type: String, 
-      enum: ["student", "admin"], // Prevents accidental typing mistakes
-      default: "student"         // Automatically makes every registration a student by default
+      enum: ["student", "admin"], 
+      default: "student"         
     },
 
-    // ── Extended profile fields ──
+    // Extended profile fields
     phone: { type: String, default: "" },
     city: { type: String, default: "" },
-    style: { type: String, default: "" }, // e.g. Hatha, Vinyasa, Ashtanga
-    level: { type: String, default: "" }, // e.g. Beginner, Intermediate, Advanced
+    style: { type: String, default: "" }, 
+    level: { type: String, default: "" },
 
-    // ── Plan & stats (for dashboard metrics) ──
+    // Plan & stats
     planMonths: { type: Number, default: 0 },
     referralCount: { type: Number, default: 0 },
     stats: {
@@ -40,15 +39,16 @@ const UserSchema = new mongoose.Schema(
       meditation: { type: Number, default: 0 },
     },
 
-    // ── Notifications ──
+    // Notifications
     unreadNotifications: { type: Number, default: 0 },
-
     badges: { type: [String], default: [] },
   },
   { 
-    // 🚀 FIXED: Timestamps must live in their own options configuration object as the 2nd parameter
     timestamps: true 
   }
 );
-// Change the last line of user.js to explicitly name your collection (e.g., "User" or "users")
-module.exports = mongoose.models.User || mongoose.model("User", UserSchema, "User");
+
+// Use the ES Module export syntax
+const User = mongoose.models.User || mongoose.model("User", UserSchema, "User");
+
+export default User;
