@@ -10,21 +10,32 @@ dotenv.config();
 
 const app = express();
 
-// 🎯 Port configuration
+// Port configuration
 const PORT = process.env.PORT || 5000;
 
-// const cors = require('cors');
+// 🎯 FIX: Define a whitelist array containing both production and local development origins
+const allowedOrigins = [
+  'https://pragya-yoga.vercel.app',
+  'http://localhost:5173'
+];
+
+// 🎯 FIX: Use a single unified CORS instance that checks incoming origins against the whitelist
 app.use(cors({
-  origin: 'https://pragya-yoga.vercel.app', // Front end vercel url
+  origin: function (origin, callback) {
+    // Allow server-to-server or tools requests with no origin (like Postman or curl)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('Blocked by CORS policy'), false);
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true
 }));
 
 // Middleware
-app.use(cors({
-  origin: "http://localhost:5173",
-  credentials: true
-}));
 app.use(express.json());
 
 const uri = "mongodb+srv://kunalnsu_db_user:Kunal%40123@kunalcluster.kk6cpbt.mongodb.net/pragyayoga?appName=KunalCluster";
