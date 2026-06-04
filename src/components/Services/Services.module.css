@@ -19,7 +19,7 @@ body {
 
 /* ===== HEADERS ===== */
 .header {
-  text-align: center; /* ensures all header content is centered */
+  text-align: center;
   margin-bottom: 2.5rem;
 }
 .headerLabel {
@@ -41,10 +41,11 @@ body {
 .headerSub {
   font-size: 1rem;
   color: #b5a898;
-  max-width: 720px;       /* keeps text from stretching too wide */
-  margin: 0 auto 2rem;    /* centers and adds spacing below */
+  max-width: 720px;
+  margin: 0 auto 2rem;
   line-height: 1.7;
 }
+
 /* ===== GRID ===== */
 .grid {
   display: grid;
@@ -61,6 +62,8 @@ body {
   border: 1px solid rgba(242, 92, 5, 0.15);
   box-shadow: 0 8px 24px rgba(0,0,0,0.4);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 .card:hover {
@@ -114,6 +117,17 @@ body {
 .cardBody {
   padding: 1.5rem;
   text-align: left;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.cardShort {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #f25c05;
+  margin: 0 0 0.4rem;
 }
 
 .cardTitle {
@@ -150,39 +164,156 @@ body {
   color: #f25c05;
 }
 
-
-.carousel {
-  display: flex;
-  gap: 1rem;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  padding: 1rem 0;
-}
-
-.carousel::-webkit-scrollbar {
-  display: none; /* hide scrollbar */
-}
-
-.carouselItem {
-  flex: 0 0 200px;
-  scroll-snap-align: start;
-  text-align: center;
-}
-
-.carouselItem img {
+/* ===== STYLES OF YOGA — SLIDER VIEWPORT ===== */
+.sliderViewport {
+  position: relative;
   width: 100%;
-  height: 140px;
+  overflow: hidden;
+  margin: 1.25rem 0 1rem;
+  border-radius: 10px;
+}
+
+.sliderTrack {
+  display: flex;
+  width: 100%;
+  transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Individual yoga-style sub-card structured as a slide element */
+.styleSubCard {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 100%;
+  width: 100%;
+  min-width: 100%;
+  box-sizing: border-box;
+  border-radius: 10px;
+  overflow: hidden;
+  text-decoration: none;
+  color: #e8ddd0;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(242, 92, 5, 0.12);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  position: relative;
+}
+
+.styleSubCard:hover {
+  border-color: rgba(242, 92, 5, 0.45);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+/* Image area inside slide */
+.styleSubCardImg {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+
+.styleSubCardImg img {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  border-radius: 12px;
-  margin-bottom: 0.5rem;
+  display: block;
+  transition: transform 0.35s ease;
 }
 
-.carouselLabel {
-  font-size: 0.95rem;
+.styleSubCard:hover .styleSubCardImg img {
+  transform: scale(1.05);
+}
+
+/* Text body inside slide */
+.styleSubCardBody {
+  padding: 0.75rem;
+  flex: 1;
+}
+
+.styleSubCardTitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
   color: #f25c05;
-  font-weight: 500;
+  margin: 0 0 0.2rem;
+  line-height: 1.2;
 }
 
+.styleSubCardDesc {
+  font-size: 0.8rem;
+  color: #b5a898;
+  margin: 0;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2; /* 🎯 FIX: Added the standard property along with vendor prefix */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Arrow indicator inside slide */
+.styleSubCardArrow {
+  display: inline-block;
+  padding: 0.25rem 0.75rem 0.75rem;
+  font-size: 0.9rem;
+  color: rgba(242, 92, 5, 0.5);
+  align-self: flex-end;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.styleSubCard:hover .styleSubCardArrow {
+  color: #f25c05;
+  transform: translateX(4px);
+}
+
+/* ===== CAROUSEL OVERLAY NAV CONTROLS ===== */
+.sliderNavBtn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(15, 11, 5, 0.85);
+  color: #f25c05;
+  border: 1px solid rgba(242, 92, 5, 0.3);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  z-index: 5;
+  transition: all 0.2s ease;
+}
+
+.sliderNavBtn:hover {
+  background: #f25c05;
+  color: #fff;
+  border-color: #f25c05;
+}
+
+.prevBtn { left: 8px; }
+.nextBtn { right: 8px; }
+
+/* Pagination Indicator Dots */
+.dotsContainer {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+  background-color: rgba(255, 255, 255, 0.2);
+  transition: background-color 0.3s ease;
+}
+
+.dotActive {
+  background-color: #f25c05;
+}
 
 /* ===== BUTTONS ===== */
 .btnPrimary,
@@ -195,7 +326,7 @@ body {
   cursor: pointer;
   transition: all 0.3s ease;
   text-decoration: none;
-  margin-top: 1rem;
+  margin-top: auto; 
 }
 
 .btnPrimary {
@@ -214,7 +345,6 @@ body {
   background: transparent;
   border: 2px solid #f25c05;
   color: #f25c05;
-  margin-left: 1rem;
 }
 
 .btnOutline:hover {
@@ -284,15 +414,9 @@ body {
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 900px) {
-  .section {
-    padding: 3rem 1.5rem;
-  }
-  .headerTitle {
-    font-size: 2rem;
-  }
-  .grid {
-    gap: 1.5rem;
-  }
+  .section { padding: 3rem 1.5rem; }
+  .headerTitle { font-size: 2rem; }
+  .grid { gap: 1.5rem; }
   .footer-container {
     grid-template-columns: 1fr 1fr;
     gap: 40px;
@@ -312,20 +436,19 @@ body {
   .headerSub {
     font-size: 0.95rem;
     line-height: 1.6;
-    padding: 0 1rem; /* adds breathing room on mobile */
+    padding: 0 1rem;
   }
   .grid {
     grid-template-columns: 1fr;
     gap: 1.2rem;
   }
-  .cardBody {
-    text-align: center;
-  }
+  .cardBody { text-align: center; }
   .btnPrimary,
   .btnOutline {
     width: 100%;
     margin-left: 0;
     text-align: center;
+    box-sizing: border-box;
   }
   .cta {
     flex-direction: column;
