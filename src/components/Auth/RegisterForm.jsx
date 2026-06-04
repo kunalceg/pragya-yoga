@@ -15,8 +15,12 @@ const RegisterForm = ({ onRegisterSuccess, onToggleToLogin }) => {
       return;
     }
 
+    // 🎯 FIX: Read dynamic API URL from Vite environment variables with a fallback to your Render production URL
+    const API_URL = import.meta.env.VITE_API_URL || 'https://pragya-yoga.onrender.com';
+
     try {
-      const res = await fetch("http://localhost:5000/api/auth/register", {
+      // Send registration request to dynamic API URL instead of hardcoded localhost
+      const res = await fetch(`${API_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, password }),

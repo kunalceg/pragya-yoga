@@ -10,9 +10,12 @@ const LoginForm = ({ onLoginSuccess }) => {
   const handleLogin = async (e) => {
     e.preventDefault();
 
+    // 🎯 FIX: Read dynamic API URL from Vite environment variables with a fallback to your Render production URL
+    const API_URL = import.meta.env.VITE_API_URL || 'https://pragya-yoga.onrender.com';
+
     try {
-      // 1. Send authentication request to Express API
-      const res = await fetch("http://localhost:5000/api/auth/login", {
+      // 1. Send authentication request to dynamic API URL instead of hardcoded localhost
+      const res = await fetch(`${API_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.trim(), password }),
@@ -21,7 +24,7 @@ const LoginForm = ({ onLoginSuccess }) => {
       const data = await res.json();
 
       if (res.ok) {
-        // 2. 🎯 FIX: Formulate a comprehensive payload layout.
+        // 2. Formulate a comprehensive payload layout.
         // This guarantees that dashboard metrics (flexibility, badges, etc.)
         // have structure variables to read, completely avoiding blank page runtime crashes.
         const cleanUser = {
