@@ -1,17 +1,19 @@
 // ─────────────────────────────────────────────────────────
-// StudentServices.js
+// studentservice.jsx
 // All API calls for the student dashboard.
 // JWT token is read from localStorage and sent as Bearer header.
 // ─────────────────────────────────────────────────────────
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api/auth";
+// Dynamically sets the domain based on environment variables with your production Render server as the default fallback
+const API_DOMAIN = import.meta.env.VITE_API_URL || "https://pragya-yoga.onrender.com";
+const BASE_URL = `${API_DOMAIN}/api/auth`;
 
-// Helper: returns headers with Authorization token
+// Helper: returns headers with Authorization token automatically injected
 function authHeaders() {
   const token = localStorage.getItem("token");
   return {
     "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`,
+    "Authorization": `Bearer ${token}`,
   };
 }
 
@@ -20,15 +22,9 @@ function authHeaders() {
 // Called when studentdashboard page loads
 // ──────────────────────────────────────────
 export const getStudentProfile = async () => {
-  // 🎯 FIX: Always read the fresh token directly from storage inside the function execution block
-  const token = localStorage.getItem("token");
-
-  const res = await fetch("http://localhost:5000/api/auth/profile", {
+  const res = await fetch(`${BASE_URL}/profile`, {
     method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}` // Sends the fresh bearer token safely
-    }
+    headers: authHeaders()
   });
 
   if (!res.ok) {
@@ -44,14 +40,9 @@ export const getStudentProfile = async () => {
 // Called when student clicks Save in ProfilePage
 // ──────────────────────────────────────────
 export async function updateStudentProfile(formData) {
-  const token = localStorage.getItem("token");
-
-  const res = await fetch("http://localhost:5000/api/auth/profile", {
+  const res = await fetch(`${BASE_URL}/profile`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`
-    },
+    headers: authHeaders(),
     body: JSON.stringify(formData),
   });
 
@@ -60,5 +51,5 @@ export async function updateStudentProfile(formData) {
     throw new Error(err.error || "Failed to update profile");
   }
 
-  return res.json(); // Clean JSON returned back to handleSave execution
+  return res.json(); 
 }
