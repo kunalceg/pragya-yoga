@@ -14,6 +14,13 @@ import ResetPassword from './components/Auth/ResetPassword';
 import Profile from './components/Profile/Profile';
 import StudentDashboard from './components/Profile/StudentDashboard';
 import YogaAdmin from './components/Admin/YogaAdmin';
+import PaymentPage from './components/Payment/PaymentPage';
+
+
+
+
+
+
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -68,7 +75,7 @@ const App = () => {
         <Route path="/classes" element={<Classes />} />
         <Route path="/yttc" element={<YTTC />} />
         <Route path="/events" element={<Events />} />
-        
+        <Route path="/payment" element={<PaymentPage />} />        
         {/* Pass the login status handler down to your Login form component */}
         <Route 
           path="/login" 
