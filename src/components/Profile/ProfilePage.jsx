@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import s from "./Dashboard.shared.module.css";
-import { updateStudentProfile } from "../api/StudentServices";
+import { updateStudentProfile } from "../api/StudentServices.js";
 
 export default function ProfilePage({ student, onUpdateSuccess }) {
   // 🎯 SAFETY DEFENSE: Fallback defaults shield the layout metrics from structural nesting drops

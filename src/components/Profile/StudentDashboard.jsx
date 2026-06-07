@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom"; 
 import styles from "./StudentDashboard.module.css";
-import { getStudentProfile } from "../api/StudentServices";
+import { getStudentProfile } from "../api/StudentServices.js";
 
 import ProfilePage from "./ProfilePage";
 import ActivePlanPage from "./ActivePlanPage";
