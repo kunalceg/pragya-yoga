@@ -6,6 +6,7 @@ import authRoutes    from './routes/auth.js';
 import studentRoutes from './routes/students.js';
 import batchRoutes   from './routes/batches.js';
 import bookingRoutes from './routes/bookings.js';
+import leadRoutes    from './routes/Leads.js';
 
 dotenv.config();
 
@@ -29,9 +30,7 @@ app.use(cors({
 
 app.use(express.json());
 
-const uri = process.env.MONGO_URI;
-
-mongoose.connect(uri, { retryWrites: false, w: 1 })
+mongoose.connect(process.env.MONGO_URI, { retryWrites: false, w: 1 })
   .then(() => console.log('🚀 Connected to MongoDB Atlas M0!'))
   .catch((err) => console.error('❌ MongoDB connection error:', err));
 
@@ -39,6 +38,7 @@ app.use('/api/auth',     authRoutes);
 app.use('/api/students', studentRoutes);
 app.use('/api/batches',  batchRoutes);
 app.use('/api/bookings', bookingRoutes);
+app.use('/api/leads',    leadRoutes);
 
 app.get('/', (req, res) => res.json({ status: 'Pragya Yoga API is running ✅' }));
 

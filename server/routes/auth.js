@@ -96,19 +96,40 @@ router.post("/register", async (req, res) => {
 });
 
 // ==========================================
-// 🔐 LOGIN
+// 🔐 LOGIN — returns role so frontend can route correctly
 // ==========================================
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: email.toLowerCase().trim() });
     if (!user) return res.status(400).json({ error: "Invalid credentials" });
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ error: "Invalid credentials" });
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
-    res.json({ msg: "Login successful", token, user: { name: user.name, email: user.email } });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+
+    res.json({
+      msg: "Login successful",
+      token,
+      user: {
+        id:    user._id,
+        name:  user.name,
+        email: user.email,
+        role:  user.role,          // ← THE FIX
+        phone: user.phone || "",
+        city:  user.city  || "",
+        style: user.style || "",
+        level: user.level || "",
+        planMonths:    user.planMonths    || 0,
+        referralCount: user.referralCount || 0,
+        months:        user.months        || 0,
+        certifs:       user.certifs       || 0,
+        stats:    user.stats    || { classes: 0, attendancePct: 0 },
+        progress: user.progress || { flexibility: 0, strength: 0, breathing: 0, meditation: 0 },
+        badges:   user.badges   || [],
+      }
+    });
   } catch (err) {
     console.error("Login error:", err);
     res.status(500).json({ error: "Server error" });
