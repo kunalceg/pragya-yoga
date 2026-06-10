@@ -27,7 +27,7 @@ const instructors = [
     bio: 'Leads advanced training and mentors aspiring yoga teachers with rigour and heart.',
     tags: ['Training', 'Mentorship'],
     color: 'green',
-     image: 'images/instructor/Mrityunjay.png'
+    image: 'images/instructor/Mrityunjay.png'
   },
   {
     initials: 'VK',
@@ -56,7 +56,6 @@ const instructors = [
     color: 'pink',
     image: 'images/instructor/Sunil.png'
   },
-  
   {
     initials: 'DK',
     name: 'Deepak Kumar',
@@ -77,10 +76,12 @@ const avatarColors = {
   teal:   { bg: '#E1F5EE', color: '#085041' },
 };
 
-const CARD_WIDTH = 174; // card width (160) + gap (14)
+// Updated width for the wider, modern cards (240px card + 24px gap)
+const CARD_WIDTH = 264; 
 
 const InstructorCard = ({ initials, name, role, bio, tags, color, image }) => {
-  const { bg, color: textColor } = avatarColors[color];
+  const { bg, color: textColor } = avatarColors[color] || avatarColors.orange;
+  
   return (
     <div className="instructor-card">
       <div className="av-ring">
@@ -105,33 +106,36 @@ const InstructorCard = ({ initials, name, role, bio, tags, color, image }) => {
   );
 };
 
-
 const InstructorsSection = () => {
-  const trackRef = useRef(null);
   const outerRef = useRef(null);
   const [current, setCurrent] = useState(0);
   const [visibleCount, setVisibleCount] = useState(4);
 
   useEffect(() => {
-    const update = () => {
+    const updateVisibleCount = () => {
       if (outerRef.current) {
-        setVisibleCount(Math.floor(outerRef.current.offsetWidth / CARD_WIDTH));
+        const count = Math.floor(outerRef.current.offsetWidth / CARD_WIDTH);
+        setVisibleCount(count > 0 ? count : 1);
       }
     };
-    update();
-    window.addEventListener('resize', update);
-    return () => window.removeEventListener('resize', update);
+    
+    updateVisibleCount();
+    window.addEventListener('resize', updateVisibleCount);
+    return () => window.removeEventListener('resize', updateVisibleCount);
   }, []);
 
   const maxIndex = Math.max(0, instructors.length - visibleCount);
   const pages = maxIndex + 1;
 
+  useEffect(() => {
+    if (current > maxIndex) {
+      setCurrent(maxIndex);
+    }
+  }, [maxIndex, current]);
+
   const goTo = (idx) => {
     const clamped = Math.max(0, Math.min(idx, maxIndex));
     setCurrent(clamped);
-    if (trackRef.current) {
-      trackRef.current.style.transform = `translateX(-${clamped * CARD_WIDTH}px)`;
-    }
   };
 
   return (
@@ -149,10 +153,16 @@ const InstructorsSection = () => {
           className="scroll-btn"
           onClick={() => goTo(current - 1)}
           disabled={current === 0}
-        >&#8249;</button>
+          aria-label="Previous instructors"
+        >
+          &#8249;
+        </button>
 
         <div className="track-outer" ref={outerRef}>
-          <div className="track" ref={trackRef}>
+          <div 
+            className="track" 
+            style={{ transform: `translateX(-${current * CARD_WIDTH}px)` }}
+          >
             {instructors.map((inst) => (
               <InstructorCard key={inst.name} {...inst} />
             ))}
@@ -163,7 +173,10 @@ const InstructorsSection = () => {
           className="scroll-btn"
           onClick={() => goTo(current + 1)}
           disabled={current >= maxIndex}
-        >&#8250;</button>
+          aria-label="Next instructors"
+        >
+          &#8250;
+        </button>
       </div>
 
       <div className="dots">
@@ -172,10 +185,12 @@ const InstructorsSection = () => {
             key={i}
             className={`dot${i === current ? ' active' : ''}`}
             onClick={() => goTo(i)}
+            aria-label={`Go to slide group ${i + 1}`}
           />
         ))}
       </div>
     </section>
   );
 };
+
 export default InstructorsSection;

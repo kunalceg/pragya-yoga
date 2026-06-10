@@ -1,42 +1,41 @@
 /* ── Philosophy.module.css ── */
 
 .section {
-  padding: clamp(60px, 7vw, 100px) clamp(24px, 5vw, 80px);
+  padding: clamp(3.75rem, 7vw, 6.25rem) clamp(1.5rem, 5vw, 5rem);
   background: linear-gradient(160deg, #1a1208 0%, #0f0b05 60%, #1c1006 100%);
   color: #e8ddd0;
   font-family: 'Jost', sans-serif;
 }
 
-/* ── HEADER ── */
 .header {
   text-align: center;
-  max-width: 860px;
-  margin: 0 auto clamp(36px, 4vw, 56px);
+  max-width: 53.75rem;
+  margin: 0 auto clamp(2.25rem, 4vw, 3.5rem);
 }
 
 .headerLabel {
-  font-size: clamp(10px, 0.8vw, 12px);
+  font-size: clamp(0.625rem, 0.8vw, 0.75rem);
   text-transform: uppercase;
   letter-spacing: 0.3em;
   color: #f25c05;
-  margin-bottom: 12px;
+  margin-bottom: 0.75rem;
   display: block;
   font-weight: 400;
 }
 
 .headerTitle {
   font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(28px, 3.5vw, 52px);
+  font-size: clamp(2rem, 4vw, 4rem);
   font-weight: 600;
   color: #f25c05;
-  margin: 0 0 16px;
+  margin: 0 0 1rem;
   line-height: 1.2;
 }
 
 .headerSub {
-  font-size: clamp(14px, 1.1vw, 17px);
+  font-size: clamp(0.9375rem, 1.2vw, 1.25rem);
   color: #c9bcb0;
-  max-width: 680px;
+  max-width: 42.5rem;
   margin: 0 auto;
   line-height: 1.9;
   font-weight: 300;
@@ -46,67 +45,64 @@
 .headerSub strong { color: #e8ddd0; font-weight: 500; }
 .headerSub em     { color: #ffaa5c; font-style: italic; }
 
-/* ── LAYOUT ── */
 .layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: clamp(24px, 3vw, 48px);
+  gap: clamp(1.5rem, 3vw, 3rem);
   align-items: start;
-  max-width: 1200px;
-  margin: 0 auto clamp(32px, 3vw, 48px);
+  max-width: 75rem;
+  margin: 0 auto clamp(2rem, 3vw, 3rem);
 }
 
 .imageWrap img {
-  width: 100%; border-radius: 14px;
-  box-shadow: 0 12px 32px rgba(242,92,5,0.3);
+  width: 100%; border-radius: 0.875rem;
+  box-shadow: 0 0.75rem 2rem rgba(242,92,5,0.3);
   object-fit: cover;
   display: block;
 }
 
 .content {
   display: flex; flex-direction: column;
-  gap: clamp(14px, 1.5vw, 22px);
+  gap: clamp(0.875rem, 1.5vw, 1.375rem);
 }
 
-/* ── CARDS ── */
 .card {
   background: rgba(255,255,255,0.05);
   backdrop-filter: blur(12px);
-  border-radius: 14px;
-  padding: clamp(16px, 1.5vw, 24px);
+  border-radius: 0.875rem;
+  padding: clamp(1rem, 1.5vw, 1.5rem);
   border: 1px solid rgba(242,92,5,0.15);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   text-align: left;
 }
 
 .card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 28px rgba(242,92,5,0.25);
+  transform: translateY(-0.3125rem);
+  box-shadow: 0 0.75rem 1.75rem rgba(242,92,5,0.25);
 }
 
 .cardTitle {
   font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(18px, 1.4vw, 22px);
-  color: #f25c05; margin-bottom: 8px; font-weight: 600;
+  font-size: clamp(1.25rem, 1.6vw, 1.75rem);
+  color: #f25c05; margin-bottom: 0.625rem; font-weight: 600;
 }
 
 .cardDesc {
-  font-size: clamp(13px, 0.95vw, 15px);
-  color: #b5a898; line-height: 1.7; margin: 0;
+  font-size: clamp(0.9375rem, 1.1vw, 1.1875rem);
+  color: #c9bcb0; line-height: 1.8; margin: 0;
 }
 
-/* ── CTA ── */
 .cta {
   display: flex; flex-wrap: wrap;
-  gap: 14px; justify-content: center;
-  max-width: 1200px; margin: 0 auto;
+  gap: 0.875rem; justify-content: center;
+  max-width: 75rem; margin: 0 auto;
 }
 
 .btnPrimary, .btnOutline {
   display: inline-block;
-  padding: clamp(10px, 1vw, 13px) clamp(18px, 1.5vw, 24px);
-  border-radius: 8px;
-  font-size: clamp(13px, 0.95vw, 15px);
+  padding: clamp(0.625rem, 1vw, 0.8125rem) clamp(1.125rem, 1.5vw, 1.5rem);
+  border-radius: 0.5rem;
+  font-size: clamp(0.8125rem, 0.95vw, 0.9375rem);
   font-weight: 500; cursor: pointer;
   transition: all 0.3s ease;
   text-decoration: none;
@@ -119,7 +115,7 @@
 
 .btnPrimary:hover {
   background: #f25c05;
-  box-shadow: 0 0 16px rgba(242,92,5,0.55);
+  box-shadow: 0 0 1rem rgba(242,92,5,0.55);
   transform: translateY(-2px);
 }
 
@@ -130,7 +126,6 @@
 
 .btnOutline:hover { background: #f25c05; color: #fff; transform: translateY(-2px); }
 
-/* ── RESPONSIVE ── */
 @media (max-width: 900px) {
   .layout { grid-template-columns: 1fr; }
   .imageWrap { order: -1; }
@@ -138,7 +133,7 @@
 }
 
 @media (max-width: 600px) {
-  .section { padding: 48px 18px; }
+  .section { padding: 3rem 1.125rem; }
   .header { max-width: 100%; }
   .cta { flex-direction: column; align-items: stretch; }
   .btnPrimary, .btnOutline { width: 100%; text-align: center; }

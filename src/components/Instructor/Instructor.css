@@ -2,43 +2,48 @@
   --brand: #E87722;
 }
 
+/* 1. SECTION CONTAINER */
 .instructors-section {
   padding: 4rem 2rem;
   max-width: 1200px;
   margin: 0 auto;
+  overflow: hidden; /* Prevents slider track from leaking out of bounds */
 }
 
+/* 2. HEADERS & TYPOGRAPHY (Optimized for Dark Theme) */
 .sec-label {
   text-align: center;
-  font-size: 11px;
-  font-weight: 500;
+  font-size: 12px;
+  font-weight: 600;
   letter-spacing: 4px;
   text-transform: uppercase;
-  color: #888;
-  margin-bottom: 4px;
+  color: var(--brand); /* Crisp orange accent against the dark theme */
+  margin-bottom: 8px;
 }
 
 .sec-title {
   text-align: center;
   font-family: 'Cormorant Garamond', serif;
-  font-size: 2.2rem;
+  font-size: 2.5rem;
   font-weight: 400;
-  color: #2C2C2C;
+  color: #ffffff; /* Bright white title text */
   margin-bottom: 8px;
 }
 
+/* 3. SECTION DIVIDER (Fixed Infinite Stretching) */
 .divider {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
 }
 
 .divider-line {
   display: block;
   height: 2px;
   width: 40px;
+  flex: 0 0 40px; /* Constrains line width from expanding */
   background: var(--brand);
   border-radius: 2px;
 }
@@ -47,48 +52,48 @@
   display: block;
   width: 6px;
   height: 6px;
+  flex: 0 0 6px;
   background: var(--brand);
   border-radius: 50%;
 }
 
+/* 4. SLIDER WRAPPER & CONTROLS */
 .slider-wrap {
   display: flex;
   align-items: center;
-  gap: 0;
+  gap: 12px;
 }
 
 .scroll-btn {
   flex-shrink: 0;
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: 1.5px solid var(--brand);
-  background: #fff;
+  background: #141414; /* Dark fill matching the dark site layout */
   color: var(--brand);
-  font-size: 20px;
+  font-size: 24px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.15s, color 0.15s;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
-  line-height: 1;
+  z-index: 10;
 }
 
 .scroll-btn:hover {
   background: var(--brand);
-  color: #fff;
+  color: #ffffff;
+  transform: scale(1.05);
 }
 
 .scroll-btn:disabled {
-  border-color: #ddd;
-  color: #ccc;
-  cursor: default;
-}
-
-.scroll-btn:disabled:hover {
+  border-color: #333333;
+  color: #555555;
   background: transparent;
-  color: #ccc;
+  cursor: default;
+  transform: none;
 }
 
 .track-outer {
@@ -99,39 +104,31 @@
 
 .track {
   display: flex;
-  gap: 14px;
-  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  gap: 24px; /* Generous breathing room between cards */
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
+/* 5. PREMIUM INSTRUCTOR CARDS */
 .instructor-card {
-  flex: 0 0 160px;
+  flex: 0 0 240px; /* Modern wider footprint */
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: #fff;
-  border: 0.5px solid #e5e5e5;
-  border-radius: 12px;
-  padding: 1.2rem 0.8rem 1rem;
+  background: #ffffff; /* Contrast card block */
+  border-radius: 16px;
+  padding: 2rem 1.5rem;
   position: relative;
-  overflow: hidden;
-  transition: border-color 0.2s;
-}
-
-.instructor-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: var(--brand);
-  border-radius: 12px 12px 0 0;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); /* Premium drop shadow depth */
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease;
 }
 
 .instructor-card:hover {
-  border-color: var(--brand);
+  transform: translateY(-6px); /* Elegant elevation lift */
+  box-shadow: 0 20px 40px rgba(232, 119, 34, 0.15); /* Soft branded shadow glow */
 }
 
+/* 6. AVATARS & IMAGES (Perfectly Proportioned Alignment) */
 .av-ring {
   width: 76px;
   height: 76px;
@@ -140,7 +137,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 0.8px;
+  margin-bottom: 12px;
   flex-shrink: 0;
 }
 
@@ -155,81 +152,92 @@
   font-weight: bold;
 }
 
+.av-img {
+  width: 66px; /* Tailored seamlessly inside the 76px .av-ring container */
+  height: 66px;
+  border-radius: 50%;
+  object-fit: cover; /* Keeps headshots proportional without squeezing */
+}
+
+/* 7. INNER CARD CONTENT */
 .c-name {
-  font-size: 12px;
+  font-size: 1.15rem;
   font-weight: 600;
-  color: #2C2C2C;
+  color: #1A1A1A;
   text-align: center;
-  line-height: 1.3;
-  margin-bottom: 3px;
+  margin-bottom: 4px;
 }
 
 .c-role {
-  font-size: 10px;
+  font-size: 0.85rem;
   color: var(--brand);
   text-align: center;
-  font-weight: 500;
-  letter-spacing: 0.3px;
-  margin-bottom: 6px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
 }
 
 .c-hr {
-  width: 24px;
-  height: 1px;
-  background: #e5e5e5;
-  margin: 0 auto 6px;
+  width: 32px;
+  height: 2px;
+  background: #eef0f2;
+  margin: 0 auto 14px;
+  border-radius: 2px;
 }
 
 .c-bio {
-  font-size: 10.5px;
-  color: #666;
+  font-size: 0.85rem;
+  color: #555555;
   text-align: center;
-  line-height: 1.5;
+  line-height: 1.6;
+  margin-bottom: 16px;
+  flex-grow: 1; /* Automatically pushes tags to sit uniformly at the base */
 }
 
+/* 8. EXPERTISE TAG PILLS */
 .c-tags {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 3px;
-  margin-top: 8px;
+  gap: 6px;
+  margin-top: auto;
 }
 
 .tag {
-  font-size: 9.5px;
-  padding: 2px 6px;
-  border-radius: 20px;
-  background: #f5f5f5;
-  color: #666;
-  border: 0.5px solid #e5e5e5;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 100px;
+  background: #f4f5f7;
+  color: #4a5568;
 }
 
+/* 9. PAGINATION INDICATORS (High Contrast Dark Background Visibility) */
 .dots {
   display: flex;
   justify-content: center;
-  gap: 6px;
-  margin-top: 1.2rem;
+  gap: 8px;
+  margin-top: 2rem;
 }
 
 .dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 20px;
-  background: #ddd;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25); /* Visible baseline against black */
   border: none;
   cursor: pointer;
   padding: 0;
-  transition: background 0.2s, width 0.2s;
+  transition: background 0.25s, width 0.25s;
+}
+
+.dot:hover {
+  background: rgba(255, 255, 255, 0.5);
 }
 
 .dot.active {
-  width: 18px;
+  width: 24px; /* Stretches dynamically when active */
+  border-radius: 100px;
   background: var(--brand);
-}
-.av-img {
-  width: 100px;       /* smaller size */
-  height: 100px;      /* same height as width */
-  border-radius: 50%; /* force circular crop */
-  object-fit: cover;  /* ensures image fills circle without distortion */
-  border: 3px solid #e87722; /* optional brand border */
 }
