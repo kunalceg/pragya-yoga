@@ -21,28 +21,28 @@ const JSON_LD = {
 const YOGA_STYLES = [
   {
     title: "Hatha Yoga",
-    img: "/images/styles/hatha.jpg",
+    img: "/images/services/Hatha_yoga.png",
     alt: "Hatha Yoga class in Jaipur",
     desc: "Classical foundations of breath, posture, and alignment for all levels.",
     href: "/styles/hatha",
   },
   {
     title: "Power Yoga",
-    img: "/images/styles/power.jpg",
+    img: "/images/services/Power_Yoga.png",
     alt: "Power Yoga session in Jaipur",
     desc: "Dynamic, strength-building sequences that energise body and mind.",
     href: "/styles/power",
   },
   {
     title: "Vinyasa Yoga",
-    img: "/images/styles/vinyasa.jpg",
+    img: "/images/services/Vinyasa_Yoga.jpg",
     alt: "Vinyasa Yoga practice in Jaipur",
     desc: "Flowing movement synchronised with breath for grace and endurance.",
     href: "/styles/vinyasa",
   },
   {
     title: "Iyengar Yoga",
-    img: "/images/styles/iyengar.jpg",
+    img: "/images/services/Iyengar_Yoga.jpg",
     alt: "Iyengar Yoga class in Jaipur",
     desc: "Precision alignment using props to deepen awareness and stability.",
     href: "/styles/iyengar",
