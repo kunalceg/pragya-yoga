@@ -1,152 +1,145 @@
+/* ── Philosophy.module.css ── */
+
 .section {
-  padding: 4rem 2rem;
+  padding: clamp(60px, 7vw, 100px) clamp(24px, 5vw, 80px);
   background: linear-gradient(160deg, #1a1208 0%, #0f0b05 60%, #1c1006 100%);
   color: #e8ddd0;
   font-family: 'Jost', sans-serif;
+}
+
+/* ── HEADER ── */
+.header {
   text-align: center;
+  max-width: 860px;
+  margin: 0 auto clamp(36px, 4vw, 56px);
 }
 
 .headerLabel {
-  font-size: 0.9rem;
+  font-size: clamp(10px, 0.8vw, 12px);
   text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: 0.3em;
   color: #f25c05;
-  margin-bottom: 0.5rem;
+  margin-bottom: 12px;
+  display: block;
+  font-weight: 400;
 }
 
 .headerTitle {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 2.5rem;
+  font-size: clamp(28px, 3.5vw, 52px);
   font-weight: 600;
   color: #f25c05;
-  margin: 0.5rem 0 1rem;
-  line-height: 1.3;
+  margin: 0 0 16px;
+  line-height: 1.2;
 }
 
 .headerSub {
-  font-size: 1rem;
-  color: #b5a898;
-  max-width: 720px;
-  margin: 0 auto 2.5rem;
-  line-height: 1.7;
+  font-size: clamp(14px, 1.1vw, 17px);
+  color: #c9bcb0;
+  max-width: 680px;
+  margin: 0 auto;
+  line-height: 1.9;
+  font-weight: 300;
+  text-align: center;
 }
 
-.grid {
+.headerSub strong { color: #e8ddd0; font-weight: 500; }
+.headerSub em     { color: #ffaa5c; font-style: italic; }
+
+/* ── LAYOUT ── */
+.layout {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 2rem;
-  margin-bottom: 2.5rem;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(24px, 3vw, 48px);
+  align-items: start;
+  max-width: 1200px;
+  margin: 0 auto clamp(32px, 3vw, 48px);
 }
 
+.imageWrap img {
+  width: 100%; border-radius: 14px;
+  box-shadow: 0 12px 32px rgba(242,92,5,0.3);
+  object-fit: cover;
+  display: block;
+}
+
+.content {
+  display: flex; flex-direction: column;
+  gap: clamp(14px, 1.5vw, 22px);
+}
+
+/* ── CARDS ── */
 .card {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255,255,255,0.05);
   backdrop-filter: blur(12px);
   border-radius: 14px;
-  padding: 1.5rem;
-  border: 1px solid rgba(242, 92, 5, 0.15);
+  padding: clamp(16px, 1.5vw, 24px);
+  border: 1px solid rgba(242,92,5,0.15);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  text-align: left;
 }
 
 .card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 12px 28px rgba(242, 92, 5, 0.35);
+  transform: translateY(-5px);
+  box-shadow: 0 12px 28px rgba(242,92,5,0.25);
 }
 
 .cardTitle {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 1.4rem;
-  color: #f25c05;
-  margin-bottom: 0.8rem;
+  font-size: clamp(18px, 1.4vw, 22px);
+  color: #f25c05; margin-bottom: 8px; font-weight: 600;
 }
 
 .cardDesc {
-  font-size: 0.95rem;
-  color: #b5a898;
-  line-height: 1.6;
+  font-size: clamp(13px, 0.95vw, 15px);
+  color: #b5a898; line-height: 1.7; margin: 0;
 }
 
-.btnPrimary,
-.btnOutline {
+/* ── CTA ── */
+.cta {
+  display: flex; flex-wrap: wrap;
+  gap: 14px; justify-content: center;
+  max-width: 1200px; margin: 0 auto;
+}
+
+.btnPrimary, .btnOutline {
   display: inline-block;
-  padding: 0.75rem 1.5rem;
+  padding: clamp(10px, 1vw, 13px) clamp(18px, 1.5vw, 24px);
   border-radius: 8px;
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
+  font-size: clamp(13px, 0.95vw, 15px);
+  font-weight: 500; cursor: pointer;
   transition: all 0.3s ease;
   text-decoration: none;
-  margin: 0.5rem;
 }
 
 .btnPrimary {
   background: linear-gradient(135deg, #f25c05, #ffaa5c);
-  color: #fff;
-  border: none;
+  color: #fff; border: none;
 }
 
 .btnPrimary:hover {
   background: #f25c05;
-  box-shadow: 0 0 12px rgba(242,92,5,0.6);
+  box-shadow: 0 0 16px rgba(242,92,5,0.55);
+  transform: translateY(-2px);
 }
 
 .btnOutline {
   background: transparent;
-  border: 2px solid #f25c05;
-  color: #f25c05;
+  border: 1.5px solid #f25c05; color: #f25c05;
 }
 
-.btnOutline:hover {
-  background: #f25c05;
-  color: #fff;
-}
+.btnOutline:hover { background: #f25c05; color: #fff; transform: translateY(-2px); }
 
-.layout {
-  display: grid;
-  grid-template-columns: 1fr 1fr; /* left image, right content */
-  gap: 2rem;
-  align-items: start;
-  margin-bottom: 2.5rem;
-}
-
-.imageWrap img {
-  width: 100%;
-  border-radius: 14px;
-  box-shadow: 0 12px 28px rgba(242, 92, 5, 0.35);
-  object-fit: cover;
-}
-
-.content {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-/* Responsive: stack image on top */
+/* ── RESPONSIVE ── */
 @media (max-width: 900px) {
-  .layout {
-    grid-template-columns: 1fr;
-  }
-  .imageWrap {
-    order: -1; /* image comes first on mobile */
-  }
+  .layout { grid-template-columns: 1fr; }
+  .imageWrap { order: -1; }
+  .card { text-align: center; }
 }
 
-
-/* Responsive */
 @media (max-width: 600px) {
-  .headerTitle {
-    font-size: 1.8rem;
-  }
-  .headerSub {
-    font-size: 0.95rem;
-    padding: 0 1rem;
-  }
-  .grid {
-    grid-template-columns: 1fr;
-  }
-  .btnPrimary,
-  .btnOutline {
-    width: 100%;
-    margin: 0.5rem 0;
-  }
+  .section { padding: 48px 18px; }
+  .header { max-width: 100%; }
+  .cta { flex-direction: column; align-items: stretch; }
+  .btnPrimary, .btnOutline { width: 100%; text-align: center; }
 }

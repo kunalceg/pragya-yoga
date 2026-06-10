@@ -1,119 +1,130 @@
+/* ── PricingBanner.module.css ── */
+
 .section {
-  padding: 4rem 2rem;
+  padding: clamp(60px, 7vw, 100px) clamp(24px, 5vw, 80px);
   background: linear-gradient(160deg, #1a1208 0%, #0f0b05 60%, #1c1006 100%);
   color: #e8ddd0;
   font-family: 'Jost', sans-serif;
 }
 
+/* ── HEADER ── */
 .header {
   text-align: center;
-  margin-bottom: 2.5rem;
+  max-width: 860px;
+  margin: 0 auto clamp(36px, 4vw, 56px);
 }
 
 .headerLabel {
-  font-size: 0.9rem;
+  font-size: clamp(10px, 0.8vw, 12px);
   text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: 0.3em;
   color: #f25c05;
+  margin-bottom: 12px;
+  display: block;
+  font-weight: 400;
 }
 
 .headerTitle {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 2.5rem;
+  font-size: clamp(28px, 3.5vw, 52px);
   font-weight: 600;
   color: #f25c05;
-  margin: 0.5rem 0 1rem;
+  margin: 0 0 16px;
+  line-height: 1.2;
 }
 
 .headerSub {
-  font-size: 1rem;
-  color: #b5a898;
-  max-width: 720px;
-  margin: 0 auto 2.5rem;
-  line-height: 1.7;
+  font-size: clamp(14px, 1.1vw, 17px);
+  color: #c9bcb0;
+  max-width: 680px;
+  margin: 0 auto;
+  line-height: 1.9;
+  font-weight: 300;
+  text-align: center;
 }
 
-/* Membership cards */
+.headerSub strong { color: #e8ddd0; font-weight: 500; }
+
+/* ── GRID ── */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 2rem;
+  gap: clamp(16px, 2vw, 28px);
+  max-width: 900px;
+  margin: 0 auto;
 }
 
+/* ── CARDS ── */
 .card {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255,255,255,0.05);
   backdrop-filter: blur(12px);
   border-radius: 16px;
-  padding: 2rem;
-  border: 1px solid rgba(242, 92, 5, 0.15);
+  padding: clamp(24px, 2.5vw, 36px);
+  border: 1px solid rgba(242,92,5,0.15);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   text-align: center;
 }
 
 .card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 12px 28px rgba(242, 92, 5, 0.35);
+  box-shadow: 0 16px 32px rgba(242,92,5,0.28);
+  border-color: rgba(242,92,5,0.35);
 }
 
 .cardTitle {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 1.6rem;
-  color: #f25c05;
-  margin-bottom: 0.5rem;
+  font-size: clamp(20px, 1.6vw, 26px);
+  color: #f25c05; margin-bottom: 8px; font-weight: 600;
 }
 
 .cardPrice {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #ffaa5c;
-  margin-bottom: 1rem;
+  font-size: clamp(16px, 1.3vw, 20px);
+  font-weight: 600; color: #ffaa5c; margin-bottom: 14px;
 }
 
 .cardDesc {
-  font-size: 0.95rem;
-  color: #b5a898;
-  margin-bottom: 1rem;
+  font-size: clamp(13px, 0.95vw, 15px);
+  color: #b5a898; margin-bottom: 14px; line-height: 1.7;
 }
 
 .cardBenefits {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 1.5rem;
+  list-style: none; padding: 0;
+  margin: 0 0 clamp(16px, 1.5vw, 24px);
 }
 
 .cardBenefits li {
-  font-size: 0.9rem;
-  color: #e8ddd0;
-  margin-bottom: 0.4rem;
+  font-size: clamp(13px, 0.9vw, 15px);
+  color: #e8ddd0; margin-bottom: 6px;
+  display: flex; align-items: center;
+  justify-content: center; gap: 8px;
 }
 
-/* Buttons */
+.cardBenefits li::before {
+  content: '✦'; color: #f25c05; font-size: 10px;
+}
+
+/* ── BUTTON ── */
 .btnPrimary {
   display: inline-block;
-  padding: 0.75rem 1.5rem;
+  padding: clamp(10px, 1vw, 14px) clamp(20px, 1.8vw, 28px);
   border-radius: 8px;
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
+  font-size: clamp(13px, 0.95vw, 15px);
+  font-weight: 500; cursor: pointer;
   transition: all 0.3s ease;
   text-decoration: none;
   background: linear-gradient(135deg, #f25c05, #ffaa5c);
-  color: #fff;
-  border: none;
+  color: #fff; border: none;
 }
 
 .btnPrimary:hover {
   background: #f25c05;
-  box-shadow: 0 0 12px rgba(242,92,5,0.6);
+  box-shadow: 0 0 16px rgba(242,92,5,0.55);
+  transform: translateY(-2px);
 }
 
-/* Responsive */
+/* ── RESPONSIVE ── */
 @media (max-width: 600px) {
-  .headerTitle {
-    font-size: 1.8rem;
-  }
-  .headerSub {
-    font-size: 0.95rem;
-    padding: 0 1rem;
-  }
+  .section { padding: 48px 18px; }
+  .header { max-width: 100%; }
+  .grid { grid-template-columns: 1fr; }
 }

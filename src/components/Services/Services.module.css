@@ -1,66 +1,72 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Jost:wght@300;400;500&display=swap');
 
-/* ===== GLOBAL ===== */
 body {
   font-family: 'Jost', sans-serif;
-  margin: 0;
-  padding: 0;
+  margin: 0; padding: 0;
   background: #0f0b05;
   color: #e8ddd0;
 }
 
-/* ===== SECTION WRAPPER ===== */
+/* ── SECTION ── */
 .section {
-  padding: 4rem 2rem;
+  padding: clamp(60px, 7vw, 100px) clamp(24px, 5vw, 80px);
   background: linear-gradient(160deg, #1a1208 0%, #0f0b05 60%, #1c1006 100%);
   position: relative;
   overflow: hidden;
 }
 
-/* ===== HEADERS ===== */
+/* ── HEADER ── */
 .header {
   text-align: center;
-  margin-bottom: 2.5rem;
-}
-.headerLabel {
-  font-size: 0.9rem;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  color: #f25c05;
-  margin-bottom: 0.5rem;
-  display: block;
-}
-.headerTitle {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 2.5rem;
-  font-weight: 600;
-  color: #f25c05;
-  margin: 0.5rem 0 1rem;
-  line-height: 1.3;
-}
-.headerSub {
-  font-size: 1rem;
-  color: #b5a898;
-  max-width: 720px;
-  margin: 0 auto 2rem;
-  line-height: 1.7;
+  max-width: 860px;
+  margin: 0 auto clamp(36px, 4vw, 56px);
 }
 
-/* ===== GRID ===== */
+.headerLabel {
+  font-size: clamp(10px, 0.8vw, 12px);
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  color: #f25c05;
+  margin-bottom: 12px;
+  display: block;
+  font-weight: 400;
+}
+
+.headerTitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(28px, 3.5vw, 52px);
+  font-weight: 600;
+  color: #f25c05;
+  margin: 0 0 16px;
+  line-height: 1.2;
+}
+
+.headerSub {
+  font-size: clamp(14px, 1.1vw, 17px);
+  color: #c9bcb0;
+  max-width: 640px;
+  margin: 0 auto;
+  line-height: 1.85;
+  font-weight: 300;
+}
+
+/* ── GRID ── */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 2rem;
+  gap: clamp(16px, 2vw, 28px);
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
-/* ===== SERVICE CARD ===== */
+/* ── CARD ── */
 .card {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255,255,255,0.05);
   backdrop-filter: blur(12px);
   border-radius: 16px;
   overflow: hidden;
-  border: 1px solid rgba(242, 92, 5, 0.15);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  border: 1px solid rgba(242,92,5,0.15);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   display: flex;
   flex-direction: column;
@@ -68,394 +74,223 @@ body {
 
 .card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 12px 32px rgba(242, 92, 5, 0.35);
+  box-shadow: 0 16px 36px rgba(242,92,5,0.3);
+}
+
+.cardFeatured {
+  border-color: rgba(242,92,5,0.35);
 }
 
 .cardImgWrap {
   position: relative;
-  height: 220px;
+  height: clamp(180px, 18vw, 240px);
   overflow: hidden;
 }
 
 .cardImgWrap img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
+  transition: transform 0.4s ease;
 }
 
+.card:hover .cardImgWrap img { transform: scale(1.05); }
+
 .cardTag {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  background: #f25c05;
-  color: #fff;
-  padding: 0.3rem 0.6rem;
-  border-radius: 6px;
-  font-size: 0.8rem;
+  position: absolute; top: 12px; left: 12px;
+  background: #f25c05; color: #fff;
+  padding: 4px 10px; border-radius: 6px;
+  font-size: clamp(10px, 0.75vw, 12px); font-weight: 500;
 }
 
 .cardBadge {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  background: #ffaa5c;
-  color: #1a1208;
-  padding: 0.3rem 0.6rem;
-  border-radius: 6px;
-  font-size: 0.8rem;
+  position: absolute; top: 12px; right: 12px;
+  background: #ffaa5c; color: #1a1208;
+  padding: 4px 10px; border-radius: 6px;
+  font-size: clamp(10px, 0.75vw, 12px); font-weight: 500;
 }
 
 .cardIcon {
-  position: absolute;
-  bottom: 12px;
-  right: 12px;
-  font-size: 1.8rem;
-  color: #f25c05;
+  position: absolute; bottom: 12px; right: 12px;
+  font-size: clamp(1.4rem, 1.8vw, 2rem);
 }
 
 .cardBody {
-  padding: 1.5rem;
+  padding: clamp(16px, 1.5vw, 24px);
   text-align: left;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
+  display: flex; flex-direction: column; flex: 1;
 }
 
 .cardShort {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  color: #f25c05;
-  margin: 0 0 0.4rem;
+  font-size: clamp(9px, 0.7vw, 11px);
+  text-transform: uppercase; letter-spacing: 0.15em;
+  color: #f25c05; margin: 0 0 6px; font-weight: 500;
 }
 
 .cardTitle {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 1.4rem;
-  margin-bottom: 0.5rem;
-  color: #f25c05;
+  font-size: clamp(18px, 1.5vw, 24px);
+  margin-bottom: 8px; color: #f25c05; font-weight: 600;
 }
 
 .cardDesc {
-  font-size: 0.95rem;
-  color: #b5a898;
-  margin-bottom: 1rem;
+  font-size: clamp(13px, 0.95vw, 15px);
+  color: #b5a898; margin-bottom: 14px; line-height: 1.65;
 }
 
 .cardBenefits {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 1rem;
+  list-style: none; padding: 0; margin: 0 0 14px;
 }
 
 .cardBenefits li {
-  font-size: 0.9rem;
-  color: #e8ddd0;
-  margin-bottom: 0.4rem;
-  position: relative;
-  padding-left: 16px;
+  font-size: clamp(12px, 0.88vw, 14px);
+  color: #e8ddd0; margin-bottom: 5px;
+  position: relative; padding-left: 16px;
 }
 
 .cardBenefits li::before {
-  content: '•';
-  position: absolute;
-  left: 0;
-  color: #f25c05;
+  content: '•'; position: absolute; left: 0; color: #f25c05;
 }
 
-/* ===== STYLES OF YOGA — SLIDER VIEWPORT ===== */
+/* ── STYLES SLIDER ── */
+.stylesCard { overflow: visible; }
+
 .sliderViewport {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-  margin: 1.25rem 0 1rem;
+  position: relative; width: 100%;
+  overflow: hidden; margin: 16px 0 12px;
   border-radius: 10px;
 }
 
 .sliderTrack {
-  display: flex;
-  width: 100%;
-  transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1);
+  display: flex; width: 100%;
+  transition: transform 0.45s cubic-bezier(0.25,1,0.5,1);
 }
 
-/* Individual yoga-style sub-card structured as a slide element */
 .styleSubCard {
-  display: flex;
-  flex-direction: column;
-  flex: 0 0 100%;
-  width: 100%;
-  min-width: 100%;
-  box-sizing: border-box;
-  border-radius: 10px;
-  overflow: hidden;
-  text-decoration: none;
+  display: flex; flex-direction: column;
+  flex: 0 0 100%; width: 100%; min-width: 100%;
+  box-sizing: border-box; border-radius: 10px;
+  overflow: hidden; text-decoration: none;
   color: #e8ddd0;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(242, 92, 5, 0.12);
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(242,92,5,0.12);
+  transition: border-color 0.25s ease;
   position: relative;
 }
 
-.styleSubCard:hover {
-  border-color: rgba(242, 92, 5, 0.45);
-  background: rgba(255, 255, 255, 0.07);
-}
+.styleSubCard:hover { border-color: rgba(242,92,5,0.45); }
 
-/* Image area inside slide */
-.styleSubCardImg {
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  overflow: hidden;
-}
-
+.styleSubCardImg { width: 100%; aspect-ratio: 4/3; overflow: hidden; }
 .styleSubCardImg img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
+  width: 100%; height: 100%; object-fit: cover; display: block;
   transition: transform 0.35s ease;
 }
+.styleSubCard:hover .styleSubCardImg img { transform: scale(1.05); }
 
-.styleSubCard:hover .styleSubCardImg img {
-  transform: scale(1.05);
-}
-
-/* Text body inside slide */
-.styleSubCardBody {
-  padding: 0.75rem;
-  flex: 1;
-}
+.styleSubCardBody { padding: 12px; flex: 1; }
 
 .styleSubCardTitle {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #f25c05;
-  margin: 0 0 0.2rem;
-  line-height: 1.2;
+  font-size: clamp(15px, 1.2vw, 18px);
+  font-weight: 600; color: #f25c05;
+  margin: 0 0 4px; line-height: 1.2;
 }
 
 .styleSubCardDesc {
-  font-size: 0.8rem;
-  color: #b5a898;
-  margin: 0;
-  line-height: 1.45;
+  font-size: clamp(11px, 0.82vw, 13px);
+  color: #b5a898; margin: 0; line-height: 1.5;
   display: -webkit-box;
   -webkit-line-clamp: 2;
-  line-clamp: 2; /* 🎯 FIX: Added the standard property along with vendor prefix */
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-/* Arrow indicator inside slide */
 .styleSubCardArrow {
   display: inline-block;
-  padding: 0.25rem 0.75rem 0.75rem;
-  font-size: 0.9rem;
-  color: rgba(242, 92, 5, 0.5);
+  padding: 4px 12px 12px;
+  font-size: 14px; color: rgba(242,92,5,0.5);
   align-self: flex-end;
-  transition: color 0.2s ease, transform 0.2s ease;
+  transition: color 0.2s, transform 0.2s;
 }
 
-.styleSubCard:hover .styleSubCardArrow {
-  color: #f25c05;
-  transform: translateX(4px);
-}
+.styleSubCard:hover .styleSubCardArrow { color: #f25c05; transform: translateX(4px); }
 
-/* ===== CAROUSEL OVERLAY NAV CONTROLS ===== */
 .sliderNavBtn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background: rgba(15, 11, 5, 0.85);
-  color: #f25c05;
-  border: 1px solid rgba(242, 92, 5, 0.3);
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-  z-index: 5;
+  position: absolute; top: 50%; transform: translateY(-50%);
+  background: rgba(15,11,5,0.85); color: #f25c05;
+  border: 1px solid rgba(242,92,5,0.3); border-radius: 50%;
+  width: 32px; height: 32px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem; z-index: 5;
   transition: all 0.2s ease;
 }
 
-.sliderNavBtn:hover {
-  background: #f25c05;
-  color: #fff;
-  border-color: #f25c05;
-}
-
+.sliderNavBtn:hover { background: #f25c05; color: #fff; border-color: #f25c05; }
 .prevBtn { left: 8px; }
 .nextBtn { right: 8px; }
 
-/* Pagination Indicator Dots */
 .dotsContainer {
-  display: flex;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-bottom: 1.25rem;
+  display: flex; justify-content: center;
+  gap: 8px; margin-bottom: 16px;
 }
 
 .dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  padding: 0;
-  border: none;
-  cursor: pointer;
-  background-color: rgba(255, 255, 255, 0.2);
-  transition: background-color 0.3s ease;
+  width: 7px; height: 7px; border-radius: 50%;
+  padding: 0; border: none; cursor: pointer;
+  background: rgba(255,255,255,0.2);
+  transition: background 0.3s;
 }
 
-.dotActive {
-  background-color: #f25c05;
-}
+.dotActive { background: #f25c05; transform: scale(1.3); }
 
-/* ===== BUTTONS ===== */
-.btnPrimary,
-.btnOutline {
+/* ── BUTTONS ── */
+.btnPrimary, .btnOutline {
   display: inline-block;
-  padding: 0.75rem 1.5rem;
+  padding: clamp(10px, 1vw, 13px) clamp(18px, 1.5vw, 24px);
   border-radius: 8px;
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
+  font-size: clamp(13px, 0.95vw, 15px);
+  font-weight: 500; cursor: pointer;
   transition: all 0.3s ease;
-  text-decoration: none;
-  margin-top: auto; 
+  text-decoration: none; margin-top: auto;
 }
 
 .btnPrimary {
   background: linear-gradient(135deg, #f25c05, #ffaa5c);
-  color: #fff;
-  border: none;
+  color: #fff; border: none;
 }
 
 .btnPrimary:hover {
   background: #f25c05;
-  box-shadow: 0 0 12px rgba(242,92,5,0.6);
+  box-shadow: 0 0 16px rgba(242,92,5,0.55);
   transform: translateY(-2px);
 }
 
 .btnOutline {
   background: transparent;
-  border: 2px solid #f25c05;
-  color: #f25c05;
+  border: 1.5px solid #f25c05; color: #f25c05;
 }
 
 .btnOutline:hover {
-  background: #f25c05;
-  color: #fff;
+  background: #f25c05; color: #fff;
   transform: translateY(-2px);
 }
 
-/* CTA container */
 .cta {
-  margin-top: 2.5rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  justify-content: center;
+  margin-top: clamp(24px, 3vw, 40px);
+  display: flex; flex-wrap: wrap;
+  gap: 14px; justify-content: center;
 }
 
-/* ===== FOOTER ===== */
-.footer {
-  background: linear-gradient(160deg, #1a1208 0%, #0f0b05 60%, #1c1006 100%);
-  color: #e8ddd0;
-  font-family: 'Jost', sans-serif;
-  position: relative;
-  overflow: hidden;
-}
-
-.footer::before {
-  content: '';
-  display: block;
-  height: 3px;
-  background: linear-gradient(90deg, transparent, #f25c05, #ffaa5c, #f25c05, transparent);
-}
-
-.footer-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 70px 50px 50px;
-  display: grid;
-  grid-template-columns: 1.4fr 0.8fr 1.2fr;
-  gap: 60px;
-  position: relative;
-  z-index: 1;
-}
-
-.footer-section h3 {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 22px;
-  font-weight: 600;
-  color: #f25c05;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  margin-bottom: 28px;
-  position: relative;
-  padding-bottom: 14px;
-}
-
-.footer-section h3::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 36px;
-  height: 2px;
-  background: linear-gradient(90deg, #f25c05, transparent);
-  border-radius: 2px;
-}
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 900px) {
-  .section { padding: 3rem 1.5rem; }
-  .headerTitle { font-size: 2rem; }
-  .grid { gap: 1.5rem; }
-  .footer-container {
-    grid-template-columns: 1fr 1fr;
-    gap: 40px;
-    padding: 50px 30px 40px;
-  }
+/* ── RESPONSIVE ── */
+@media (max-width: 1024px) {
+  .grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 600px) {
-  .section {
-    padding: 2.5rem 1rem;
-    text-align: center;
-  }
-  .headerTitle {
-    font-size: 1.8rem;
-    line-height: 1.3;
-  }
-  .headerSub {
-    font-size: 0.95rem;
-    line-height: 1.6;
-    padding: 0 1rem;
-  }
-  .grid {
-    grid-template-columns: 1fr;
-    gap: 1.2rem;
-  }
+  .section { padding: 48px 18px; }
+  .header { max-width: 100%; }
+  .grid { grid-template-columns: 1fr; }
   .cardBody { text-align: center; }
-  .btnPrimary,
-  .btnOutline {
-    width: 100%;
-    margin-left: 0;
-    text-align: center;
-    box-sizing: border-box;
-  }
-  .cta {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .footer-container {
-    grid-template-columns: 1fr;
-    padding: 40px 24px 30px;
-  }
+  .cta { flex-direction: column; align-items: stretch; }
+  .btnPrimary, .btnOutline { width: 100%; text-align: center; }
 }
