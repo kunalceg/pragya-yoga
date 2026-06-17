@@ -9,7 +9,8 @@ export default function Profile() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    fetch("http://localhost:5000/api/auth/profile", {
+    const API_URL = import.meta.env.VITE_API_URL || "https://pragya-yoga.onrender.com";
+    fetch(`${API_URL}/api/auth/profile`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {

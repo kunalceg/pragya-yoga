@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import styles from "./StudentDashboard.module.css";
 import { getStudentProfile } from "../api/StudentServices.js";
 
@@ -40,6 +41,12 @@ const PAGE_MAP = {
   notifications: NotificationsPage,
 };
 
+const pageVariants = {
+  initial: { opacity: 0, y: 16 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } },
+  exit:    { opacity: 0, y: -10, transition: { duration: 0.2, ease: [0.22, 1, 0.36, 1] } },
+};
+
 export default function StudentDashboard({ onLogout }) {
   const [student, setStudent]         = useState(null);
   const [loading, setLoading]         = useState(true);
@@ -47,69 +54,81 @@ export default function StudentDashboard({ onLogout }) {
   const [activePage, setActivePage]   = useState("profile");
   const [unreadNotifs, setUnreadNotifs] = useState(0);
   const [isCollapsed, setIsCollapsed] = useState(false);
-  
-  const navigate = useNavigate(); 
+
+  const navigate = useNavigate();
 
   useEffect(() => {
-    async function loadProfile() {
+    loadProfile();
+  }, [navigate]);
+
+  async function loadProfile() {
       try {
         // ─── 1. SECURITY TIER GUARD ───
         const savedUser = JSON.parse(localStorage.getItem("user"));
-        
+
         if (!savedUser) {
           setFetchError("Please log in to access your dashboard.");
           setLoading(false);
           return;
         }
 
-        // 🎯 FIX FOR ADMINS: If an admin hits this route, intercept and redirect them to the Admin Portal immediately!
+        // 🎯 FIX FOR ADMINS: If an admin hits this route, redirect to the Admin Portal.
         if (savedUser.role === "admin") {
-          console.log("🛡️ Admin account detected in Student space. Redirecting to Management Panel...");
           navigate("/yogaadmin", { replace: true });
           return;
         }
 
-        console.log("Log: Attempting to fetch profile with token:", localStorage.getItem("token"));
-        
         // ─── 2. ATTEMPT SERVICE FETCH ───
         try {
           const data = await getStudentProfile();
-          console.log("✅ Profile data fetched successfully:", data);
           setStudent(data);
           setUnreadNotifs(data.unreadNotifications ?? 0);
         } catch (apiErr) {
-          console.warn("⚠️ API profile fetch failed, using localized cloud login session backup instead:", apiErr.message);
-          
-          // 🎯 FIX FOR STUDENTS: If the API endpoint fails with an HTML string error, 
-          // fall back to our login token data so the screen never displays a crash code!
+          // Fall back to the cached login session so the screen never crashes.
+          console.warn("Profile fetch failed, using cached session:", apiErr.message);
           setStudent(savedUser);
           setUnreadNotifs(savedUser.unreadNotifications ?? 0);
         }
-
       } catch (err) {
-        console.error("🔥 CRITICAL DASHBOARD LOAD ERROR:", err);
+        console.error("Dashboard load error:", err);
         setFetchError(`Failed to load profile details: ${err.message}`);
       } finally {
         setLoading(false);
       }
+  }
+
+  // Re-fetch the aggregated dashboard after any mutating action so every
+  // widget reflects the new MongoDB state.
+  async function reloadStudent() {
+    try {
+      const data = await getStudentProfile();
+      setStudent(data);
+      setUnreadNotifs(data.unreadNotifications ?? 0);
+      return data;
+    } catch (err) {
+      console.warn("reloadStudent failed:", err.message);
     }
-    
-    loadProfile();
-  }, [navigate]);
+  }
 
   if (loading) {
     return (
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh", backgroundColor: "#111", color: "#fff" }}>
-        <p>Loading your dashboard…</p>
+      <div className={styles.bootScreen}>
+        <div className={styles.bootCard}>
+          <span className={styles.bootSpinner} aria-hidden="true" />
+          <p>Loading your dashboard…</p>
+        </div>
       </div>
     );
   }
 
   if (fetchError || !student) {
     return (
-      <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", height: "100vh", backgroundColor: "#111", color: "#fff" }}>
-        <p>{fetchError || "Access Denied."}</p>
-        <button onClick={handleLogout} style={{ marginTop: "15px", padding: "8px 16px", cursor: "pointer" }}>Back to Login</button>
+      <div className={styles.bootScreen}>
+        <div className={styles.bootCard}>
+          <span className={styles.bootIcon} aria-hidden="true"><i className="ti ti-lock" /></span>
+          <p>{fetchError || "Access Denied."}</p>
+          <button onClick={handleLogout} className={styles.bootBtn}>Back to Login</button>
+        </div>
       </div>
     );
   }
@@ -136,35 +155,39 @@ export default function StudentDashboard({ onLogout }) {
     if (typeof onLogout === "function") {
       onLogout();
     }
-    navigate("/"); 
+    navigate("/");
   }
 
   return (
     <div className={`${styles.shell} ${isCollapsed ? styles.shellCollapsed : ""}`}>
-      
+
       <aside className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ""}`}>
-        
+
         <div className={styles.toggleHeader}>
+          <span className={styles.brandMark} aria-hidden="true"><i className="ti ti-lotus" /></span>
           {!isCollapsed && <span className={styles.brandTitle}>Workspace</span>}
-          <button 
+          <button
             type="button"
-            className={styles.toggleCollapseBtn} 
+            className={styles.toggleCollapseBtn}
             onClick={() => setIsCollapsed(!isCollapsed)}
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
-            <i className={`ti ${isCollapsed ? "ti-layout-sidebar-expand" : "ti-layout-sidebar-collapse"}`} />
+            <i className={`ti ${isCollapsed ? "ti-layout-sidebar-right-expand" : "ti-layout-sidebar-left-collapse"}`} />
           </button>
         </div>
 
-        <div className={styles.sbProfile} onClick={() => setIsCollapsed(!isCollapsed)}>
-          <div className={styles.avatar}>{initials}</div>
+        <button type="button" className={styles.sbProfile} onClick={() => handleNav("profile")}>
+          <div className={styles.avatar}>
+            {initials}
+            <span className={styles.avatarDot} aria-hidden="true" />
+          </div>
           <div className={styles.profileMeta}>
             <div className={styles.sbName}>{studentName}</div>
             <div className={styles.sbPlan}>
               Plan: <span className={styles.sbPlanHighlight}>{student.planMonths ?? 0}-mo</span>
             </div>
           </div>
-        </div>
+        </button>
 
         <nav className={styles.nav} aria-label="Dashboard Navigation">
           {NAV.map(({ id, label, icon }) => {
@@ -178,6 +201,14 @@ export default function StudentDashboard({ onLogout }) {
                 aria-current={isActive ? "page" : undefined}
                 title={isCollapsed ? label : undefined}
               >
+                {isActive && (
+                  <motion.span
+                    layoutId="studentNavPill"
+                    className={styles.navPill}
+                    transition={{ type: "spring", stiffness: 420, damping: 34 }}
+                    aria-hidden="true"
+                  />
+                )}
                 <i className={`ti ${icon}`} aria-hidden="true" />
                 <span className={styles.navLabel}>{label}</span>
                 {id === "notifications" && unreadNotifs > 0 && !isCollapsed && (
@@ -193,6 +224,10 @@ export default function StudentDashboard({ onLogout }) {
             <i className="ti ti-plus" aria-hidden="true" />
             <span className={styles.navLabel}>Enroll / Book</span>
           </button>
+          <button type="button" className={styles.navItem} onClick={() => navigate("/")} title={isCollapsed ? "Back to Website" : undefined}>
+            <i className="ti ti-arrow-left" aria-hidden="true" />
+            <span className={styles.navLabel}>Back to Website</span>
+          </button>
           <button type="button" className={styles.logoutBtn} onClick={handleLogout}>
             <i className="ti ti-logout" aria-hidden="true" />
             <span className={styles.navLabel}>Sign Out</span>
@@ -201,10 +236,23 @@ export default function StudentDashboard({ onLogout }) {
       </aside>
 
       <main className={styles.main}>
-        <ActivePage
-          student={student}
-          onUpdateSuccess={handleStudentUpdate}
-        />
+        <div className={styles.mainInner}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activePage}
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              <ActivePage
+                student={student}
+                onUpdateSuccess={handleStudentUpdate}
+                reload={reloadStudent}
+              />
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </main>
     </div>
   );

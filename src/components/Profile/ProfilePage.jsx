@@ -1,23 +1,26 @@
 import { useState, useEffect } from "react";
-import s from "./Dashboard.shared.module.css";
+import { motion } from "framer-motion";
+import w from "./widgets/DashboardWidgets.module.css";
+import p from "./ProfilePage.module.css";
+import { Stagger, Item, StatCard, Panel, PrimaryButton, GhostButton, Pill } from "./widgets/DashboardWidgets";
 import { updateStudentProfile } from "../api/StudentServices.js";
 
 export default function ProfilePage({ student, onUpdateSuccess }) {
   // 🎯 SAFETY DEFENSE: Fallback defaults shield the layout metrics from structural nesting drops
-  const p = student ?? {};
-  const stats = p.stats || { classes: 0, attendancePct: 0 };
+  const pData = student ?? {};
+  const stats = pData.stats || { classes: 0, attendancePct: 0 };
 
   const [isEditing,    setIsEditing]    = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   const [formData, setFormData] = useState({
-    name:  p.name  ?? "",
-    email: p.email ?? "",
-    phone: p.phone ?? "",
-    city:  p.city  ?? "",
-    style: p.style ?? "",
-    level: p.level ?? "",
+    name:  pData.name  ?? "",
+    email: pData.email ?? "",
+    phone: pData.phone ?? "",
+    city:  pData.city  ?? "",
+    style: pData.style ?? "",
+    level: pData.level ?? "",
   });
 
   // Sync form whenever parent refreshes the student prop
@@ -46,12 +49,12 @@ export default function ProfilePage({ student, onUpdateSuccess }) {
 
   function handleCancel() {
     setFormData({
-      name:  p.name  ?? "",
-      email: p.email ?? "",
-      phone: p.phone ?? "",
-      city:  p.city  ?? "",
-      style: p.style ?? "",
-      level: p.level ?? "",
+      name:  pData.name  ?? "",
+      email: pData.email ?? "",
+      phone: pData.phone ?? "",
+      city:  pData.city  ?? "",
+      style: pData.style ?? "",
+      level: pData.level ?? "",
     });
     setErrorMessage("");
     setIsEditing(false);
@@ -91,96 +94,97 @@ export default function ProfilePage({ student, onUpdateSuccess }) {
     { icon: "ti-chart-bar", label: "Level", name: "level", type: "text"  },
   ];
 
+  const studentName = pData.name || pData.email?.split("@")[0] || "User";
+  const initials = studentName.split(" ").map((x) => x[0]).join("").slice(0, 2).toUpperCase();
+
   return (
-    <div>
-      <h1 className={s.pageTitle}>Profile</h1>
+    <Stagger>
+      {/* ── Hero ── */}
+      <Item className={p.hero} as="header">
+        <div className={p.heroDeco} aria-hidden="true">
+          <span className={p.heroOrb} />
+          <span className={p.heroOrb2} />
+        </div>
 
-      {errorMessage && (
-        <div className={s.errorNotification} style={{ color: "#ff4d4d", marginBottom: "15px", fontWeight: "bold" }}>
-          {errorMessage}
-        </div>
-      )}
-
-      {/* ── Metrics Banner ── */}
-      <div className={s.metrics}>
-        <div className={s.metric}>
-          <p className={s.metricNum}>{stats.classes ?? 0}</p>
-          <p className={s.metricLbl}>Classes</p>
-        </div>
-        <div className={s.metric}>
-          <p className={s.metricNum}>{p.planMonths ?? 0}</p>
-          <p className={s.metricLbl}>Months</p>
-        </div>
-        <div className={s.metric}>
-          <p className={s.metricNum}>{stats.attendancePct ?? 0}%</p>
-          <p className={s.metricLbl}>Attendance</p>
-        </div>
-        <div className={s.metric}>
-          <p className={s.metricNum}>{p.referralCount ?? 0}</p>
-          <p className={s.metricLbl}>Referrals</p>
-        </div>
-      </div>
-
-      {/* ── Personal Info Card ── */}
-      <div className={s.card}>
-        <div className={s.cardHead}>
-          <h2 className={s.cardTitle}>Personal details</h2>
-          <div className={s.cardActions}>
-            {!isEditing ? (
-              <button type="button" className={s.btnSm} onClick={handleEdit}>
-                <i className="ti ti-edit" aria-hidden="true" />
-                {" Edit"}
-              </button>
-            ) : (
-              <>
-                <button
-                  type="button"
-                  className={s.btnSm}
-                  onClick={handleCancel}
-                  disabled={isSubmitting}
-                >
-                  <i className="ti ti-x" aria-hidden="true" />
-                  {" Cancel"}
-                </button>
-                <button
-                  type="button"
-                  className={`${s.btnSm} ${s.btnSave}`}
-                  onClick={handleSave}
-                  disabled={isSubmitting}
-                >
-                  <i className="ti ti-check" aria-hidden="true" />
-                  {isSubmitting ? " Saving…" : " Save"}
-                </button>
-              </>
-            )}
+        <div className={p.heroMain}>
+          <div className={p.heroAvatar}>
+            {initials}
+            <span className={p.heroAvatarDot} aria-hidden="true" />
+          </div>
+          <div className={p.heroText}>
+            <h1 className={p.heroName}>{pData.name || studentName}</h1>
+            {pData.email && <p className={p.heroEmail}><i className="ti ti-mail" aria-hidden="true" />{pData.email}</p>}
+            <div className={p.heroPills}>
+              {pData.level && <Pill tone="orange" icon="ti-chart-bar">{pData.level}</Pill>}
+              {pData.style && <Pill tone="neutral" icon="ti-yoga">{pData.style}</Pill>}
+              {pData.city  && <Pill tone="neutral" icon="ti-map-pin">{pData.city}</Pill>}
+            </div>
           </div>
         </div>
 
-        <div className={s.cardBody}>
+        <div className={p.heroAction}>
+          {!isEditing ? (
+            <PrimaryButton icon="ti-edit" onClick={handleEdit}>Edit</PrimaryButton>
+          ) : (
+            <>
+              <GhostButton icon="ti-x" onClick={handleCancel} disabled={isSubmitting}>Cancel</GhostButton>
+              <PrimaryButton icon="ti-check" onClick={handleSave} disabled={isSubmitting}>
+                {isSubmitting ? "Saving…" : "Save"}
+              </PrimaryButton>
+            </>
+          )}
+        </div>
+      </Item>
+
+      {errorMessage && (
+        <motion.div
+          className={p.errorNote}
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <i className="ti ti-alert-triangle" aria-hidden="true" />
+          {errorMessage}
+        </motion.div>
+      )}
+
+      {/* ── KPI widgets ── */}
+      <div className={w.statGrid}>
+        <StatCard tone="orange" icon="ti-yoga"           label="Classes"    value={stats.classes ?? 0} index={0} />
+        <StatCard tone="blue"   icon="ti-calendar-stats" label="Months"     value={pData.planMonths ?? 0} index={1} />
+        <StatCard tone="green"  icon="ti-calendar-check" label="Attendance" value={stats.attendancePct ?? 0} suffix="%" progress={stats.attendancePct ?? 0} index={2} />
+        <StatCard tone="amber"  icon="ti-share"          label="Referrals"  value={pData.referralCount ?? 0} index={3} />
+      </div>
+
+      {/* ── Personal details ── */}
+      <Panel title="Personal details" icon="ti-id-badge-2">
+        <div className={p.fieldGrid}>
           {personalDetailsFields.map(({ icon, label, name, type }) => (
-            <div className={s.row} key={name}>
-              <span className={s.rowLabel}>
-                <i className={`ti ${icon}`} aria-hidden="true" />
-                {label}
-              </span>
-              {isEditing ? (
-                <input
-                  type={type}
-                  name={name}
-                  value={formData[name]}
-                  onChange={handleInputChange}
-                  className={s.editInput}
-                  disabled={isSubmitting || name === "email"} // Email locked from structural editing crashes
-                  maxLength={50}
-                  autoComplete="off"
-                />
-              ) : (
-                <span className={s.rowVal}>{formData[name] || "—"}</span>
+            <div className={`${p.field} ${isEditing ? p.fieldEditing : ""}`} key={name}>
+              <span className={p.fieldIcon}><i className={`ti ${icon}`} aria-hidden="true" /></span>
+              <div className={p.fieldBody}>
+                <span className={p.fieldLabel}>{label}</span>
+                {isEditing ? (
+                  <input
+                    type={type}
+                    name={name}
+                    value={formData[name]}
+                    onChange={handleInputChange}
+                    className={p.fieldInput}
+                    disabled={isSubmitting || name === "email"} // Email locked from structural editing crashes
+                    maxLength={50}
+                    autoComplete="off"
+                  />
+                ) : (
+                  <span className={p.fieldValue}>{formData[name] || "—"}</span>
+                )}
+              </div>
+              {name === "email" && isEditing && (
+                <span className={p.fieldLock} title="Email cannot be edited"><i className="ti ti-lock" aria-hidden="true" /></span>
               )}
             </div>
           ))}
         </div>
-      </div>
-    </div>
+      </Panel>
+    </Stagger>
   );
 }
