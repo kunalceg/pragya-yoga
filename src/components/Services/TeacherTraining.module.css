@@ -1,16 +1,16 @@
 .section {
-  padding: 4rem 2rem;
-  background: linear-gradient(160deg, #1a1208 0%, #0f0b05 60%, #1c1006 100%);
-  color: #e8ddd0;
-  font-family: 'Jost', sans-serif;
+  padding: var(--space-20) var(--space-6);
+  background: var(--color-bg-secondary);
 }
 
 .container {
   display: flex;
   flex-wrap: wrap;
-  gap: 2rem;
+  gap: var(--space-8);
   align-items: center;
   justify-content: space-between;
+  max-width: var(--container-xl);
+  margin: 0 auto;
 }
 
 .content {
@@ -18,44 +18,43 @@
 }
 
 .title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 2.2rem;
-  font-weight: 600;
-  color: #f25c05;
-  margin-bottom: 1rem;
+  font-family: var(--font-heading);
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  color: var(--color-dark);
+  margin-bottom: var(--space-4);
 }
 
 .desc {
-  font-size: 1rem;
+  font-size: var(--text-base);
   line-height: 1.7;
-  color: #b5a898;
-  margin-bottom: 1rem;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-4);
 }
 
 .actions {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-top: 1.5rem;
+  gap: var(--space-4);
+  margin-top: var(--space-6);
 }
 
 .btnPrimary {
-  background: #f25c05;
-  color: #fff;
-  padding: 0.8rem 1.6rem;
-  border-radius: 8px;
-  text-decoration: none;
+  font-family: var(--font-heading);
   font-weight: 600;
-  transition: background 0.3s ease;
+  font-size: var(--text-base);
+  color: var(--color-text-inverse);
+  background: var(--color-primary);
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-base);
+  box-shadow: 0 4px 14px rgba(250, 129, 18, 0.35);
 }
 
 .btnPrimary:hover {
-  background: #ffaa5c;
-}
-
-.whatsapp img {
-  width: 40px;
-  height: 40px;
+  background: var(--color-primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(250, 129, 18, 0.45);
 }
 
 .imageWrap {
@@ -64,33 +63,25 @@
 
 .imageWrap img {
   width: 100%;
-  border-radius: 12px;
+  border-radius: var(--radius-xl);
   object-fit: cover;
+  box-shadow: var(--shadow-lg);
 }
 
-/* ── Responsive ── */
 @media (max-width: 900px) {
   .container {
     flex-direction: column;
     text-align: center;
   }
-
   .content {
     flex: 1 1 100%;
   }
-
   .imageWrap {
     flex: 1 1 100%;
   }
-
   .title {
-    font-size: 1.8rem;
+    font-size: var(--text-2xl);
   }
-
-  .desc {
-    font-size: 0.95rem;
-  }
-
   .actions {
     justify-content: center;
   }
