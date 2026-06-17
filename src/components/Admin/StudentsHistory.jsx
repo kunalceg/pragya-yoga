@@ -1,27 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import s from './YogaAdmin.module.css';
 import Badge from './Badge';
+import { PageHeader, KpiCard, Drawer, Avatar, trendSeed } from './ui/Primitives';
+import { getStudents, deleteStudent } from '../api/AdminServices.js';
+import {
+  LuUserPlus, LuX, LuSearch, LuTrash2, LuUsers, LuBadgeCheck, LuClock,
+  LuMail, LuPhone, LuMapPin, LuActivity, LuStickyNote,
+} from 'react-icons/lu';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-
-export default function StudentsHistory({ form, setForm, onSave, feedback }) {
+export default function StudentsHistory({ form, setForm, onSave, onChanged, feedback }) {
   const [students, setStudents]     = useState([]);
   const [loading, setLoading]       = useState(true);
   const [error, setError]           = useState('');
   const [search, setSearch]         = useState('');
   const [deletingId, setDeletingId] = useState(null);
   const [showForm, setShowForm]     = useState(false);
+  const [quickFilter, setQuickFilter] = useState('all');
+  const [selected, setSelected]     = useState(null);
 
   const fetchStudents = async () => {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch(`${API_URL}/api/students`);
-      if (!res.ok) throw new Error();
-      const data = await res.json();
+      const data = await getStudents();
       setStudents(data);
-    } catch {
-      setError('Could not load students. Check your server connection.');
+    } catch (err) {
+      setError(err.message || 'Could not load students. Check your server connection.');
     } finally {
       setLoading(false);
     }
@@ -40,9 +44,10 @@ export default function StudentsHistory({ form, setForm, onSave, feedback }) {
     if (!window.confirm(`Remove ${name} from the system? This cannot be undone.`)) return;
     setDeletingId(id);
     try {
-      const res = await fetch(`${API_URL}/api/students/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error();
+      await deleteStudent(id);
       setStudents(prev => prev.filter(st => st._id !== id));
+      setSelected(prev => (prev && prev._id === id ? null : prev));
+      onChanged?.();
     } catch {
       alert('Failed to delete student. Try again.');
     } finally {
@@ -50,53 +55,49 @@ export default function StudentsHistory({ form, setForm, onSave, feedback }) {
     }
   };
 
-  const filtered = students.filter(st =>
-    st.name.toLowerCase().includes(search.toLowerCase()) ||
-    st.email.toLowerCase().includes(search.toLowerCase()) ||
-    (st.city || '').toLowerCase().includes(search.toLowerCase())
-  );
-
   const getPlanStatus = (st) => {
     if (!st.planMonths || st.planMonths === 0) return 'Pending';
     return 'Active';
   };
 
+  const bySearch = students.filter(st =>
+    st.name.toLowerCase().includes(search.toLowerCase()) ||
+    st.email.toLowerCase().includes(search.toLowerCase()) ||
+    (st.city || '').toLowerCase().includes(search.toLowerCase())
+  );
+  const filtered = bySearch.filter(st => {
+    if (quickFilter === 'active') return st.planMonths > 0;
+    if (quickFilter === 'pending') return !st.planMonths || st.planMonths === 0;
+    return true;
+  });
+
+  const counts = {
+    all: students.length,
+    active: students.filter(st => st.planMonths > 0).length,
+    pending: students.filter(st => !st.planMonths || st.planMonths === 0).length,
+  };
+
   return (
     <div>
-      {/* ── Header ── */}
-      <div className={s.pageHeader}>
-        <div>
-          <h2 className={s.pageTitle}>Student CRM Directory</h2>
-          <p className={s.pageSub}>Manage profiles, history & memberships</p>
-        </div>
+      <PageHeader title="Student CRM Directory" subtitle="Manage profiles, history & memberships">
         <button
           type="button"
           className={`${s.btn} ${showForm ? '' : s.btnPrimary} ${s.btnSm}`}
           onClick={() => setShowForm(v => !v)}
         >
-          {showForm ? '✕ Cancel' : '+ Add Student'}
+          {showForm ? <><LuX size={14} /> Cancel</> : <><LuUserPlus size={14} /> Add Student</>}
         </button>
-      </div>
+      </PageHeader>
 
-      {/* ── Feedback Banner ── */}
       {feedback?.message && (
-        <div style={{
-          padding: '10px 16px',
-          marginBottom: '16px',
-          borderRadius: '8px',
-          fontSize: '13px',
-          background: feedback.type === 'success' ? '#dcfce7' : '#fee2e2',
-          color:      feedback.type === 'success' ? '#15803d' : '#dc2626',
-          border:     `1px solid ${feedback.type === 'success' ? '#86efac' : '#fca5a5'}`,
-        }}>
-          {feedback.type === 'success' ? '✅' : '⚠️'} {feedback.message}
+        <div className={`${s.feedbackInline} ${feedback.type === 'success' ? s.bannerSuccess : s.bannerError}`}>
+          <span className={s.bannerIcon}>{feedback.type === 'success' ? '✓' : '⚠'}</span>{feedback.message}
         </div>
       )}
 
-      {/* ── Register Form ── */}
       {showForm && (
         <form onSubmit={onSave} className={s.card} style={{ marginBottom: '20px' }}>
-          <h3 className={s.cardTitle}>◈ Register New Profile</h3>
+          <h3 className={s.cardTitle}><span className={s.cardTitleIcon}><LuUserPlus /></span>Register New Profile</h3>
           <div className={s.grid3} style={{ marginBottom: '12px' }}>
             <input type="text"  placeholder="Full name *"     value={form.name}  onChange={e => setForm({ ...form, name: e.target.value })}  required />
             <input type="email" placeholder="Email address *" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} required />
@@ -111,100 +112,150 @@ export default function StudentsHistory({ form, setForm, onSave, feedback }) {
         </form>
       )}
 
-      {/* ── Stats Row ── */}
       <div className={s.statsGrid} style={{ gridTemplateColumns: 'repeat(3,1fr)', marginBottom: '20px' }}>
-        {[
-          { label: 'Total Students', value: students.length,                                          cls: s.statOrange, valCls: s.valOrange },
-          { label: 'Active Plans',   value: students.filter(st => st.planMonths > 0).length,          cls: s.statGreen,  valCls: s.valGreen  },
-          { label: 'No Plan Yet',    value: students.filter(st => !st.planMonths || st.planMonths === 0).length, cls: s.statAmber, valCls: s.valAmber },
-        ].map(stat => (
-          <div key={stat.label} className={`${s.statCard} ${stat.cls}`}>
-            <div className={s.statLabel}>{stat.label}</div>
-            <div className={`${s.statVal} ${stat.valCls}`}>{stat.value}</div>
-          </div>
-        ))}
+        <KpiCard icon={<LuUsers />} accent="orange" label="Total Students" value={counts.all} spark={trendSeed('total', 8)} />
+        <KpiCard icon={<LuBadgeCheck />} accent="green" label="Active Plans" value={counts.active} spark={trendSeed('activep', 8)} />
+        <KpiCard icon={<LuClock />} accent="amber" label="No Plan Yet" value={counts.pending} spark={trendSeed('pend', 8)} />
       </div>
 
-      {/* ── Search ── */}
-      <div style={{ marginBottom: '16px' }}>
-        <input
-          type="text"
-          placeholder="Search by name, email or city…"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          style={{ width: '100%', boxSizing: 'border-box' }}
-        />
+      {/* Search + quick filters */}
+      <div style={{ display: 'flex', gap: 12, marginBottom: 16, flexWrap: 'wrap', alignItems: 'center' }}>
+        <div className={s.topSearch} style={{ maxWidth: 360, display: 'flex', height: 42 }}>
+          <LuSearch size={16} />
+          <input placeholder="Search by name, email or city…" value={search} onChange={e => setSearch(e.target.value)} />
+        </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          {[['all', 'All'], ['active', 'Active'], ['pending', 'Pending']].map(([k, lbl]) => (
+            <button key={k} type="button" className={`${s.chip} ${quickFilter === k ? s.chipActive : ''}`} onClick={() => setQuickFilter(k)}>
+              {lbl} <span className={s.chipCount}>{counts[k]}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* ── Table ── */}
       <div className={`${s.card} ${s.cardNoPad}`}>
         {loading ? (
-          <div style={{ padding: '48px', textAlign: 'center', color: '#9ca3af', fontSize: '13px' }}>
-            Loading students…
+          <div style={{ padding: 22 }}>
+            {[...Array(5)].map((_, i) => <div key={i} className={`${s.skel} ${s.skelRow}`} />)}
           </div>
         ) : error ? (
-          <div style={{ padding: '48px', textAlign: 'center', color: '#dc2626', fontSize: '13px' }}>
-            {error}
-            <br />
-            <button type="button" className={`${s.btn} ${s.btnSm}`} style={{ marginTop: '12px' }} onClick={fetchStudents}>
-              Retry
-            </button>
+          <div className={`${s.emptyState} ${s.stateError}`}>
+            {error}<br />
+            <button type="button" className={`${s.btn} ${s.btnSm}`} style={{ marginTop: '12px' }} onClick={fetchStudents}>Retry</button>
           </div>
         ) : filtered.length === 0 ? (
-          <div style={{ padding: '48px', textAlign: 'center', color: '#9ca3af', fontSize: '13px' }}>
-            {search ? 'No students match your search.' : 'No students registered yet — add one above!'}
+          <div className={s.emptyState}>
+            <div className={s.emptyIcon}>👤</div>
+            {search || quickFilter !== 'all' ? 'No students match your filters.' : 'No students registered yet — add one above!'}
           </div>
         ) : (
-          <table className={s.table}>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Contact</th>
-                <th>City</th>
-                <th>Style / Level</th>
-                <th>Plan</th>
-                <th>Status</th>
-                <th>Joined</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map(st => (
-                <tr key={st._id}>
-                  <td><strong>{st.name}</strong></td>
-                  <td className={s.tdMuted}>
-                    <div>{st.email}</div>
-                    {st.phone && <div style={{ fontSize: '11px', marginTop: '2px' }}>{st.phone}</div>}
-                  </td>
-                  <td>{st.city || '—'}</td>
-                  <td>
-                    <div>{st.style || '—'}</div>
-                    {st.level && <div style={{ fontSize: '11px', color: '#9ca3af', marginTop: '2px' }}>{st.level}</div>}
-                  </td>
-                  <td>{st.planMonths ? `${st.planMonths} mo` : <span className={s.tdMuted}>None</span>}</td>
-                  <td><Badge label={getPlanStatus(st)} /></td>
-                  <td className={s.tdMuted} style={{ fontSize: '11px' }}>
-                    {st.createdAt
-                      ? new Date(st.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
-                      : '—'}
-                  </td>
-                  <td>
-                    <button
-                      type="button"
-                      className={`${s.btn} ${s.btnSm}`}
-                      style={{ color: '#dc2626', borderColor: '#fca5a5' }}
-                      onClick={() => handleDelete(st._id, st.name)}
-                      disabled={deletingId === st._id}
-                    >
-                      {deletingId === st._id ? '…' : 'Delete'}
-                    </button>
-                  </td>
+          <div className={s.tableWrap}>
+            <table className={s.table}>
+              <thead>
+                <tr>
+                  <th>Student</th><th>Contact</th><th>City</th><th>Style / Level</th><th>Plan</th><th>Status</th><th>Joined</th><th></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filtered.map(st => (
+                  <tr key={st._id} className={s.rowClickable} onClick={() => setSelected(st)}>
+                    <td>
+                      <div className={s.cellUser}>
+                        <Avatar name={st.name} size={s.avatarSm} />
+                        <strong>{st.name}</strong>
+                      </div>
+                    </td>
+                    <td className={s.tdMuted}>
+                      <div>{st.email}</div>
+                      {st.phone && <div style={{ fontSize: '11px', marginTop: '2px' }}>{st.phone}</div>}
+                    </td>
+                    <td>{st.city || '—'}</td>
+                    <td>
+                      <div>{st.style || '—'}</div>
+                      {st.level && <div style={{ fontSize: '11px', color: 'var(--text-3)', marginTop: '2px' }}>{st.level}</div>}
+                    </td>
+                    <td>{st.planMonths ? `${st.planMonths} mo` : <span className={s.tdMuted}>None</span>}</td>
+                    <td><Badge label={getPlanStatus(st)} /></td>
+                    <td className={s.tdMuted} style={{ fontSize: '11px' }}>
+                      {st.createdAt
+                        ? new Date(st.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+                        : '—'}
+                    </td>
+                    <td onClick={e => e.stopPropagation()}>
+                      <button
+                        type="button"
+                        className={`${s.btn} ${s.btnSm} ${s.btnDanger}`}
+                        onClick={() => handleDelete(st._id, st.name)}
+                        disabled={deletingId === st._id}
+                      >
+                        {deletingId === st._id ? '…' : <LuTrash2 size={14} />}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
+
+      {/* Detail drawer */}
+      <Drawer open={!!selected} onClose={() => setSelected(null)}>
+        {selected && (
+          <>
+            <div className={s.drawerHeader}>
+              <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
+                <Avatar name={selected.name} size={s.avatarLg} />
+                <div>
+                  <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 18, letterSpacing: '-0.02em' }}>{selected.name}</div>
+                  <div style={{ fontSize: 12.5, color: 'var(--text-2)', marginTop: 3 }}>{selected.style || 'Yoga Student'} · {selected.level || 'Beginner'}</div>
+                  <div style={{ marginTop: 8 }}><Badge label={getPlanStatus(selected)} /></div>
+                </div>
+              </div>
+              <button type="button" className={s.drawerClose} onClick={() => setSelected(null)}><LuX /></button>
+            </div>
+            <div className={s.drawerBody}>
+              <div className={s.drawerSection}>
+                <div className={s.drawerSectionTitle}>Membership</div>
+                <div className={s.drawerStatRow}>
+                  <div className={s.drawerStat}><div className={s.drawerStatLabel}>Plan</div><div className={s.drawerStatVal}>{selected.planMonths ? `${selected.planMonths} mo` : 'None'}</div></div>
+                  <div className={s.drawerStat}><div className={s.drawerStatLabel}>Status</div><div className={s.drawerStatVal} style={{ fontSize: 15 }}>{getPlanStatus(selected)}</div></div>
+                </div>
+              </div>
+
+              <div className={s.drawerSection}>
+                <div className={s.drawerSectionTitle}>Profile</div>
+                <div className={s.infoRow}><span className={s.infoLabel}><LuMail size={13} style={{ verticalAlign: '-2px', marginRight: 6 }} />Email</span><span className={s.infoVal}>{selected.email}</span></div>
+                <div className={s.infoRow}><span className={s.infoLabel}><LuPhone size={13} style={{ verticalAlign: '-2px', marginRight: 6 }} />Phone</span><span className={s.infoVal}>{selected.phone || '—'}</span></div>
+                <div className={s.infoRow}><span className={s.infoLabel}><LuMapPin size={13} style={{ verticalAlign: '-2px', marginRight: 6 }} />City</span><span className={s.infoVal}>{selected.city || '—'}</span></div>
+                <div className={s.infoRow}><span className={s.infoLabel}>Joined</span><span className={s.infoVal}>{selected.createdAt ? new Date(selected.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}</span></div>
+              </div>
+
+              <div className={s.drawerSection}>
+                <div className={s.drawerSectionTitle}><LuActivity size={12} style={{ verticalAlign: '-1px', marginRight: 5 }} />Recent Activity</div>
+                <div className={s.timeline}>
+                  <div className={s.timeItem}><div className={s.timeIcon}><LuUserPlus size={15} /></div><div className={s.timeBody}><div className={s.timeTitle}>Profile created</div><div className={s.timeMeta}>{selected.createdAt ? new Date(selected.createdAt).toLocaleDateString('en-IN') : 'Recently'}</div></div></div>
+                  {selected.planMonths > 0 && <div className={s.timeItem}><div className={s.timeIconGreen}><LuBadgeCheck size={15} /></div><div className={s.timeBody}><div className={s.timeTitle}>Membership active</div><div className={s.timeMeta}>{selected.planMonths} month plan</div></div></div>}
+                </div>
+              </div>
+
+              <div className={s.drawerSection}>
+                <div className={s.drawerSectionTitle}><LuStickyNote size={12} style={{ verticalAlign: '-1px', marginRight: 5 }} />Notes</div>
+                <textarea className={s.textarea} placeholder="Add a private note about this student…" style={{ height: 70 }} />
+              </div>
+
+              <button
+                type="button"
+                className={`${s.btn} ${s.btnDanger}`}
+                onClick={() => handleDelete(selected._id, selected.name)}
+                disabled={deletingId === selected._id}
+              >
+                <LuTrash2 size={14} /> {deletingId === selected._id ? 'Removing…' : 'Remove Student'}
+              </button>
+            </div>
+          </>
+        )}
+      </Drawer>
     </div>
   );
 }

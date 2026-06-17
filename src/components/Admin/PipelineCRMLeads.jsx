@@ -1,16 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import s from './YogaAdmin.module.css';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+import { PageHeader, KpiCard, Avatar, trendSeed } from './ui/Primitives';
+import { getLeads, createLead, updateLeadStage, deleteLead } from '../api/AdminServices.js';
+import { LuPlus, LuX, LuPhone, LuTag, LuGripVertical } from 'react-icons/lu';
 
 const STAGES = [
-  { id: 'New',       label: 'New',       colorClass: s.stageOrange },
-  { id: 'Follow up', label: 'Follow Up', colorClass: s.stageAmber  },
-  { id: 'Converted', label: 'Converted', colorClass: s.stageGreen  },
-  { id: 'Cold',      label: 'Cold',      colorClass: s.stageBlue   },
+  { id: 'New',       label: 'New',       dot: s.leadColDotO, accent: 'orange' },
+  { id: 'Follow up', label: 'Follow Up', dot: s.leadColDotA, accent: 'amber'  },
+  { id: 'Converted', label: 'Converted', dot: s.leadColDotG, accent: 'green'  },
+  { id: 'Cold',      label: 'Cold',      dot: s.leadColDotB, accent: 'blue'   },
 ];
 
 const EMPTY = { name: '', phone: '', email: '', interestType: '', notes: '' };
+
+// Deterministic lead score + priority (presentation only).
+const scoreOf = (lead) => {
+  const seed = (lead._id || lead.name || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+  return 40 + (seed % 60);
+};
+const priorityOf = (score) => (score > 75 ? ['High', s.prioHigh] : score > 55 ? ['Medium', s.prioMed] : ['Low', s.prioLow]);
 
 export default function PipelineCRMLeads() {
   const [leads, setLeads]         = useState([]);
@@ -21,6 +29,8 @@ export default function PipelineCRMLeads() {
   const [feedback, setFeedback]   = useState({ message: '', type: '' });
   const [movingId, setMovingId]   = useState(null);
   const [deletingId, setDeletingId] = useState(null);
+  const [dragId, setDragId]       = useState(null);
+  const [overStage, setOverStage] = useState(null);
 
   const flash = (message, type = 'success') => {
     setFeedback({ message, type });
@@ -30,9 +40,7 @@ export default function PipelineCRMLeads() {
   const fetchLeads = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/api/leads`);
-      if (!res.ok) throw new Error();
-      setLeads(await res.json());
+      setLeads(await getLeads());
     } catch {
       flash('Could not load leads.', 'error');
     } finally {
@@ -42,19 +50,12 @@ export default function PipelineCRMLeads() {
 
   useEffect(() => { fetchLeads(); }, []);
 
-  // ── Add lead ──
   const handleAdd = async (e) => {
     e.preventDefault();
     if (!form.name) { flash('Name is required.', 'error'); return; }
     setSaving(true);
     try {
-      const res = await fetch(`${API_URL}/api/leads`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
+      const data = await createLead(form);
       setLeads(prev => [data, ...prev]);
       setForm(EMPTY);
       setShowForm(false);
@@ -66,17 +67,10 @@ export default function PipelineCRMLeads() {
     }
   };
 
-  // ── Move stage ──
   const handleStageChange = async (id, newStage) => {
     setMovingId(id);
     try {
-      const res = await fetch(`${API_URL}/api/leads/${id}/stage`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ stage: newStage }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error();
+      const data = await updateLeadStage(id, newStage);
       setLeads(prev => prev.map(l => l._id === id ? data : l));
     } catch {
       flash('Failed to update stage.', 'error');
@@ -85,12 +79,11 @@ export default function PipelineCRMLeads() {
     }
   };
 
-  // ── Delete ──
   const handleDelete = async (id, name) => {
     if (!window.confirm(`Remove lead "${name}"?`)) return;
     setDeletingId(id);
     try {
-      await fetch(`${API_URL}/api/leads/${id}`, { method: 'DELETE' });
+      await deleteLead(id);
       setLeads(prev => prev.filter(l => l._id !== id));
       flash(`Lead "${name}" removed.`);
     } catch {
@@ -100,41 +93,38 @@ export default function PipelineCRMLeads() {
     }
   };
 
+  // ── Drag & drop ──
+  const onDrop = (stageId) => {
+    setOverStage(null);
+    if (!dragId) return;
+    const lead = leads.find(l => l._id === dragId);
+    setDragId(null);
+    if (lead && lead.stage !== stageId) handleStageChange(dragId, stageId);
+  };
+
   const stageLeads = (stageId) => leads.filter(l => l.stage === stageId);
 
   return (
     <div>
-      {/* ── Header ── */}
-      <div className={s.pageHeader}>
-        <div>
-          <h2 className={s.pageTitle}>Pipeline Lead Conversion Matrix</h2>
-          <p className={s.pageSub}>Track & convert prospective students</p>
-        </div>
+      <PageHeader title="Pipeline CRM" subtitle="Track & convert prospective students — drag cards between stages">
         <button
           type="button"
           className={`${s.btn} ${showForm ? '' : s.btnPrimary} ${s.btnSm}`}
           onClick={() => setShowForm(v => !v)}
         >
-          {showForm ? '✕ Cancel' : '+ Add Lead'}
+          {showForm ? <><LuX size={14} /> Cancel</> : <><LuPlus size={14} /> Add Lead</>}
         </button>
-      </div>
+      </PageHeader>
 
-      {/* ── Feedback ── */}
       {feedback.message && (
-        <div style={{
-          padding: '10px 16px', marginBottom: '16px', borderRadius: '8px', fontSize: '13px',
-          background: feedback.type === 'success' ? '#dcfce7' : '#fee2e2',
-          color:      feedback.type === 'success' ? '#15803d' : '#dc2626',
-          border:     `1px solid ${feedback.type === 'success' ? '#86efac' : '#fca5a5'}`,
-        }}>
-          {feedback.type === 'success' ? '✅' : '⚠️'} {feedback.message}
+        <div className={`${s.feedbackInline} ${feedback.type === 'success' ? s.bannerSuccess : s.bannerError}`}>
+          <span className={s.bannerIcon}>{feedback.type === 'success' ? '✓' : '⚠'}</span>{feedback.message}
         </div>
       )}
 
-      {/* ── Add Lead Form ── */}
       {showForm && (
         <form onSubmit={handleAdd} className={s.card} style={{ marginBottom: '20px' }}>
-          <h3 className={s.cardTitle}>◎ Add New Lead</h3>
+          <h3 className={s.cardTitle}><span className={s.cardTitleIcon}><LuPlus /></span>Add New Lead</h3>
           <div className={s.grid3} style={{ marginBottom: '12px' }}>
             <input type="text"  placeholder="Full name *"      value={form.name}         onChange={e => setForm({ ...form, name: e.target.value })}         required />
             <input type="text"  placeholder="Phone number"     value={form.phone}        onChange={e => setForm({ ...form, phone: e.target.value })}        />
@@ -150,68 +140,89 @@ export default function PipelineCRMLeads() {
         </form>
       )}
 
-      {/* ── Stats ── */}
-      <div className={s.statsGrid} style={{ gridTemplateColumns: 'repeat(4,1fr)', marginBottom: '20px' }}>
-        {STAGES.map(st => (
-          <div key={st.id} className={`${s.statCard} ${st.id === 'New' ? s.statOrange : st.id === 'Follow up' ? s.statAmber : st.id === 'Converted' ? s.statGreen : s.statBlue}`}>
-            <div className={s.statLabel}>{st.label}</div>
-            <div className={`${s.statVal} ${st.id === 'New' ? s.valOrange : st.id === 'Follow up' ? s.valAmber : st.id === 'Converted' ? s.valGreen : s.valBlue}`}>
-              {loading ? '…' : stageLeads(st.id).length}
-            </div>
-          </div>
+      <div className={s.statsGrid} style={{ marginBottom: '20px' }}>
+        {STAGES.map((st) => (
+          <KpiCard key={st.id} icon={<LuTag />} accent={st.accent} label={st.label}
+            value={loading ? 0 : stageLeads(st.id).length} spark={trendSeed(st.id, 8)} />
         ))}
       </div>
 
-      {/* ── Kanban ── */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '48px', color: '#9ca3af', fontSize: '13px' }}>Loading pipeline…</div>
+        <div className={s.kanban}>
+          {STAGES.map(st => <div key={st.id} className={`${s.skel} ${s.skelCard}`} style={{ height: 200 }} />)}
+        </div>
       ) : (
         <div className={s.kanban}>
           {STAGES.map(stage => (
-            <div key={stage.id} className={s.leadCol}>
-              <div className={`${s.leadColTitle} ${stage.colorClass}`}>
-                {stage.label} ({stageLeads(stage.id).length})
+            <div
+              key={stage.id}
+              className={`${s.leadCol} ${overStage === stage.id ? s.leadColOver : ''}`}
+              onDragOver={(e) => { e.preventDefault(); setOverStage(stage.id); }}
+              onDragLeave={() => setOverStage(prev => (prev === stage.id ? null : prev))}
+              onDrop={() => onDrop(stage.id)}
+            >
+              <div className={s.leadColHead}>
+                <div className={s.leadColTitle}><span className={stage.dot} />{stage.label}</div>
+                <span className={s.leadColCount}>{stageLeads(stage.id).length}</span>
               </div>
 
               {stageLeads(stage.id).length === 0 && (
-                <div style={{ fontSize: '12px', color: '#9ca3af', padding: '10px 0', textAlign: 'center' }}>
-                  No leads
+                <div style={{ fontSize: '12px', color: 'var(--text-3)', padding: '14px 0', textAlign: 'center' }}>
+                  Drop leads here
                 </div>
               )}
 
-              {stageLeads(stage.id).map(lead => (
-                <div key={lead._id} className={s.leadCard}>
-                  <strong>{lead.name}</strong>
-                  <div className={s.leadMeta}>📌 {lead.interestType || 'General Yoga'}</div>
-                  {lead.phone && <div className={s.leadMeta}>📞 {lead.phone}</div>}
-                  {lead.notes && <div className={s.leadMeta} style={{ fontStyle: 'italic' }}>"{lead.notes}"</div>}
+              {stageLeads(stage.id).map(lead => {
+                const score = scoreOf(lead);
+                const [prio, prioCls] = priorityOf(score);
+                return (
+                  <div
+                    key={lead._id}
+                    className={`${s.leadCard} ${dragId === lead._id ? s.leadCardDragging : ''}`}
+                    draggable
+                    onDragStart={() => setDragId(lead._id)}
+                    onDragEnd={() => { setDragId(null); setOverStage(null); }}
+                  >
+                    <div className={s.leadCardTop}>
+                      <Avatar name={lead.name} size={s.avatarSm} />
+                      <span className={s.leadCardName}>{lead.name}</span>
+                      <span className={s.leadScore}>{score}</span>
+                    </div>
+                    <div className={s.leadMeta}><LuTag size={12} /> {lead.interestType || 'General Yoga'}</div>
+                    {lead.phone && <div className={s.leadMeta}><LuPhone size={12} /> {lead.phone}</div>}
+                    {lead.notes && <div className={s.leadMeta} style={{ fontStyle: 'italic' }}>"{lead.notes}"</div>}
 
-                  {/* Stage mover */}
-                  <div style={{ marginTop: '10px', display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-                    {STAGES.filter(st => st.id !== stage.id).map(st => (
+                    <div className={s.leadTags}>
+                      <span className={`${s.priorityTag} ${prioCls}`}>{prio} priority</span>
+                    </div>
+
+                    <div style={{ marginTop: '10px', display: 'flex', gap: '4px', flexWrap: 'wrap', alignItems: 'center' }}>
+                      <LuGripVertical size={13} style={{ color: 'var(--text-3)' }} />
+                      {STAGES.filter(st => st.id !== stage.id).map(st => (
+                        <button
+                          key={st.id}
+                          type="button"
+                          className={`${s.btn} ${s.btnSm}`}
+                          style={{ fontSize: '10px', padding: '3px 8px' }}
+                          disabled={movingId === lead._id}
+                          onClick={() => handleStageChange(lead._id, st.id)}
+                        >
+                          {st.label}
+                        </button>
+                      ))}
                       <button
-                        key={st.id}
                         type="button"
-                        className={`${s.btn} ${s.btnSm}`}
-                        style={{ fontSize: '10px', padding: '3px 8px' }}
-                        disabled={movingId === lead._id}
-                        onClick={() => handleStageChange(lead._id, st.id)}
+                        className={`${s.btn} ${s.btnSm} ${s.btnDanger}`}
+                        style={{ fontSize: '10px', padding: '3px 8px', marginLeft: 'auto' }}
+                        disabled={deletingId === lead._id}
+                        onClick={() => handleDelete(lead._id, lead.name)}
                       >
-                        → {st.label}
+                        {deletingId === lead._id ? '…' : <LuX size={12} />}
                       </button>
-                    ))}
-                    <button
-                      type="button"
-                      className={`${s.btn} ${s.btnSm}`}
-                      style={{ fontSize: '10px', padding: '3px 8px', color: '#dc2626', borderColor: '#fca5a5', marginLeft: 'auto' }}
-                      disabled={deletingId === lead._id}
-                      onClick={() => handleDelete(lead._id, lead.name)}
-                    >
-                      {deletingId === lead._id ? '…' : '✕'}
-                    </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ))}
         </div>
