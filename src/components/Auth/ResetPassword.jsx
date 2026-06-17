@@ -1,32 +1,35 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import styles from "./ResetPassword.module.css";
 
 const ResetPassword = () => {
-  const { token } = useParams(); // read token from URL
+  const { token } = useParams();
   const navigate = useNavigate();
 
-  const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // ✅ check new and confirm password match
     if (newPassword !== confirmPassword) {
-      setMessage("New password and confirm password do not match!");
+      setMessage("Passwords do not match!");
       setIsError(true);
       return;
     }
 
+    setLoading(true);
+    const API_URL = import.meta.env.VITE_API_URL || 'https://pragya-yoga.onrender.com';
+
     try {
-      const res = await fetch(`http://localhost:5000/api/auth/reset-password/${token}`, {
+      const res = await fetch(`${API_URL}/api/auth/reset-password/${token}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ oldPassword, newPassword }),
+        body: JSON.stringify({ newPassword }),
       });
       const data = await res.json();
 
@@ -40,44 +43,60 @@ const ResetPassword = () => {
       }
     } catch (err) {
       console.error(err);
-      setMessage("Server error");
+      setMessage("Server error. Please try again.");
       setIsError(true);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className={styles.resetContainer}>
-      <h2>Reset Password</h2>
-      <form className={styles.resetForm} onSubmit={handleSubmit}>
-        <input
-          type="password"
-          placeholder="Enter old password"
-          value={oldPassword}
-          onChange={(e) => setOldPassword(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Enter new password"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Confirm new password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          required
-        />
-        <button type="submit">Reset Password</button>
-      </form>
+    <div className={styles.wrapper}>
+      <motion.div className={styles.formCard} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+        <div className={styles.formHeader}>
+          <div className={styles.logoMark}>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FA8112" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </div>
+          <h2 className={styles.title}>Reset Password</h2>
+          <p className={styles.subtitle}>Enter your new password below</p>
+        </div>
 
-      {message && (
-        <p className={isError ? styles.errorMessage : styles.successMessage}>
-          {message}
+        <form onSubmit={handleSubmit} className={styles.form}>
+          <div className={styles.inputGroup}>
+            <label className={styles.label}>New Password</label>
+            <div className={styles.inputWrap}>
+              <span className={styles.inputIcon}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </span>
+              <input type="password" placeholder="New password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required className={styles.input} />
+            </div>
+          </div>
+
+          <div className={styles.inputGroup}>
+            <label className={styles.label}>Confirm Password</label>
+            <div className={styles.inputWrap}>
+              <span className={styles.inputIcon}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </span>
+              <input type="password" placeholder="Confirm password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required className={styles.input} />
+            </div>
+          </div>
+
+          <motion.button type="submit" className={styles.submitBtn} disabled={loading} whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
+            {loading ? "Resetting..." : "Reset Password"}
+          </motion.button>
+        </form>
+
+        {message && (
+          <p className={isError ? styles.errorMsg : styles.successMsg}>{message}</p>
+        )}
+
+        <p className={styles.backLink}>
+          <button type="button" onClick={() => navigate("/login")}>← Back to Sign In</button>
         </p>
-      )}
+      </motion.div>
     </div>
   );
 };
