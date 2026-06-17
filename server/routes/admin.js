@@ -1,69 +1,86 @@
-const express = require('express');
+// ============================================================
+// routes/admin.js  —  mounted at /api/admin
+// All routes require an authenticated admin.
+// ============================================================
+import express from 'express';
+import { requireAuth, requireAdmin } from '../middleware/auth.js';
+import * as a from '../controllers/adminController.js';
+
 const router = express.Router();
-const User = require('../models/User'); // 🎯 Fixed: Standardized uppercase 'U' matching your other files
-const authRoutes = require('./auth'); // 🎯 Fixed: Pulls directly from your updated auth router object
+router.use(requireAuth, requireAdmin);
 
-const authMiddleware = authRoutes.authMiddleware;
+// Overview & analytics
+router.get('/overview', a.getOverview);
+router.get('/analytics/revenue', a.getRevenueAnalytics);
+router.get('/logs', a.getLogs);
 
-// Dynamic sub-middleware helper to ensure the user is an admin
-const verifyAdminRole = async (req, res, next) => {
-  try {
-    if (!req.user || !req.user.id) {
-      return res.status(401).json({ error: "Authentication data missing." });
-    }
+// Students
+router.get('/students', a.getStudents);
+router.post('/students', a.createStudent);
+router.get('/students/:id', a.getStudentById);
+router.put('/students/:id', a.updateStudent);
+router.delete('/students/:id', a.deleteStudent);
+router.patch('/students/:id/status', a.setStudentStatus);
 
-    // 🏎️ Performance: Only select the role field to optimize DB query
-    const user = await User.findById(req.user.id).select('role');
-    
-    if (!user || user.role !== 'admin') {
-      return res.status(403).json({ error: "Access denied. Administrative clearance required." });
-    }
-    next();
-  } catch (err) {
-    console.error("Admin validation error:", err);
-    res.status(500).json({ error: "Internal validation failure." });
-  }
-};
+// Plans assignment
+router.post('/plans/assign', a.assignPlan);
+router.put('/plans/revoke/:id', a.revokePlan);
 
-// ==========================================
-// 🚀 ADMINISTRATIVE API ENDPOINTS
-// ==========================================
+// Payments
+router.get('/payments', a.getPayments);
+router.post('/payments', a.createPayment);
+router.patch('/payments/:id/status', a.updatePaymentStatus);
 
-// GET all students from MongoDB for the admin dashboard
-router.get('/students', authMiddleware, verifyAdminRole, async (req, res) => {
-  try {
-    // 🔒 Security: Added .select('-password') so password hashes are never sent to the UI
-    const students = await User.find({ role: 'student' }).select('-password').sort({ createdAt: -1 });
-    res.json(students);
-  } catch (err) {
-    console.error("Get admin students error:", err);
-    res.status(500).json({ message: 'Server error pulling database records' });
-  }
-});
+// Attendance
+router.post('/attendance', a.markAttendance);
+router.get('/attendance/:id', a.getStudentAttendance);
 
-// PATCH update student status (Approve / Ban)
-router.patch('/students/:id', authMiddleware, verifyAdminRole, async (req, res) => {
-  try {
-    const { status } = req.body;
-    
-    // Validate that the incoming status payload is correct
-    if (!['active', 'banned', 'pending'].includes(status)) {
-      return res.status(400).json({ error: "Invalid status value provided" });
-    }
+// Classes
+router.get('/classes', a.classes.list);
+router.post('/classes', a.classes.create);
+router.put('/classes/:id', a.classes.update);
+router.delete('/classes/:id', a.classes.remove);
 
-    const updatedStudent = await User.findByIdAndUpdate(
-      req.params.id, 
-      { $set: { status } }, 
-      { new: true, runValidators: true }
-    ).select('-password');
+// Workshops
+router.get('/workshops', a.workshops.list);
+router.post('/workshops', a.workshops.create);
+router.put('/workshops/:id', a.workshops.update);
+router.delete('/workshops/:id', a.workshops.remove);
 
-    if (!updatedStudent) return res.status(404).json({ error: "Student not found" });
+// Downloads / content
+router.get('/downloads', a.downloads.list);
+router.post('/downloads', a.downloads.create);
+router.put('/downloads/:id', a.downloads.update);
+router.delete('/downloads/:id', a.downloads.remove);
 
-    res.json(updatedStudent);
-  } catch (err) {
-    console.error("Patch student status error:", err);
-    res.status(500).json({ message: 'Failed to update user status' });
-  }
-});
+// Courses
+router.get('/courses', a.courses.list);
+router.post('/courses', a.courses.create);
+router.put('/courses/:id', a.courses.update);
+router.delete('/courses/:id', a.courses.remove);
 
-module.exports = router;
+// Membership plans catalogue
+router.get('/membership-plans', a.plans.list);
+router.post('/membership-plans', a.plans.create);
+router.put('/membership-plans/:id', a.plans.update);
+router.delete('/membership-plans/:id', a.plans.remove);
+
+// Coupons
+router.get('/coupons', a.coupons.list);
+router.post('/coupons', a.coupons.create);
+router.put('/coupons/:id', a.coupons.update);
+router.delete('/coupons/:id', a.coupons.remove);
+
+// Consultations
+router.get('/consultations', a.getConsultations);
+router.put('/consultations/:id', a.updateConsultation);
+
+// Notifications
+router.get('/notifications', a.listNotifications);
+router.post('/notifications/broadcast', a.broadcastNotification);
+
+// Settings
+router.get('/settings', a.getSettings);
+router.put('/settings', a.updateSettings);
+
+export default router;
