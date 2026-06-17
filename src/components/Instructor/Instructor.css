@@ -1,50 +1,44 @@
-:root {
-  --brand: #E87722;
-}
-
-/* 1. SECTION CONTAINER */
 .instructors-section {
-  padding: 4rem 2rem;
-  max-width: 1200px;
+  padding: var(--space-20) var(--space-6);
+  max-width: var(--container-xl);
   margin: 0 auto;
-  overflow: hidden; /* Prevents slider track from leaking out of bounds */
+  overflow: hidden;
 }
 
-/* 2. HEADERS & TYPOGRAPHY (Optimized for Dark Theme) */
 .sec-label {
   text-align: center;
-  font-size: 12px;
+  font-family: var(--font-heading);
+  font-size: var(--text-sm);
   font-weight: 600;
-  letter-spacing: 4px;
+  letter-spacing: var(--tracking-wider);
   text-transform: uppercase;
-  color: var(--brand); /* Crisp orange accent against the dark theme */
-  margin-bottom: 8px;
+  color: var(--color-primary);
+  margin-bottom: var(--space-2);
 }
 
 .sec-title {
   text-align: center;
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 2.5rem;
-  font-weight: 400;
-  color: #ffffff; /* Bright white title text */
-  margin-bottom: 8px;
+  font-family: var(--font-heading);
+  font-size: var(--text-4xl);
+  font-weight: 700;
+  color: var(--color-dark);
+  margin-bottom: var(--space-3);
 }
 
-/* 3. SECTION DIVIDER (Fixed Infinite Stretching) */
 .divider {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  margin-bottom: 3rem;
+  gap: var(--space-2);
+  margin-bottom: var(--space-10);
 }
 
 .divider-line {
   display: block;
   height: 2px;
   width: 40px;
-  flex: 0 0 40px; /* Constrains line width from expanding */
-  background: var(--brand);
+  flex: 0 0 40px;
+  background: var(--color-primary);
   border-radius: 2px;
 }
 
@@ -53,15 +47,14 @@
   width: 6px;
   height: 6px;
   flex: 0 0 6px;
-  background: var(--brand);
+  background: var(--color-primary);
   border-radius: 50%;
 }
 
-/* 4. SLIDER WRAPPER & CONTROLS */
 .slider-wrap {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .scroll-btn {
@@ -69,28 +62,28 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  border: 1.5px solid var(--brand);
-  background: #141414; /* Dark fill matching the dark site layout */
-  color: var(--brand);
+  border: 1.5px solid var(--color-primary);
+  background: var(--color-text-inverse);
+  color: var(--color-primary);
   font-size: 24px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--transition-base);
   user-select: none;
   z-index: 10;
 }
 
 .scroll-btn:hover {
-  background: var(--brand);
-  color: #ffffff;
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
   transform: scale(1.05);
 }
 
 .scroll-btn:disabled {
-  border-color: #333333;
-  color: #555555;
+  border-color: var(--color-border);
+  color: var(--color-text-muted);
   background: transparent;
   cursor: default;
   transform: none;
@@ -99,45 +92,43 @@
 .track-outer {
   overflow: hidden;
   flex: 1;
-  margin: 0 10px;
+  margin: 0 var(--space-3);
 }
 
 .track {
   display: flex;
-  gap: 24px; /* Generous breathing room between cards */
+  gap: var(--space-6);
   transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-/* 5. PREMIUM INSTRUCTOR CARDS */
 .instructor-card {
-  flex: 0 0 240px; /* Modern wider footprint */
+  flex: 0 0 240px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: #ffffff; /* Contrast card block */
-  border-radius: 16px;
-  padding: 2rem 1.5rem;
+  background: var(--color-text-inverse);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6) var(--space-5);
   position: relative;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); /* Premium drop shadow depth */
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border-light);
+  transition: all var(--transition-base);
 }
 
 .instructor-card:hover {
-  transform: translateY(-6px); /* Elegant elevation lift */
-  box-shadow: 0 20px 40px rgba(232, 119, 34, 0.15); /* Soft branded shadow glow */
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
 }
 
-/* 6. AVATARS & IMAGES (Perfectly Proportioned Alignment) */
 .av-ring {
   width: 76px;
   height: 76px;
   border-radius: 50%;
-  border: 2px solid var(--brand);
+  border: 2px solid var(--color-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 12px;
+  margin-bottom: var(--space-3);
   flex-shrink: 0;
 }
 
@@ -153,54 +144,53 @@
 }
 
 .av-img {
-  width: 66px; /* Tailored seamlessly inside the 76px .av-ring container */
+  width: 66px;
   height: 66px;
   border-radius: 50%;
-  object-fit: cover; /* Keeps headshots proportional without squeezing */
+  object-fit: cover;
 }
 
-/* 7. INNER CARD CONTENT */
 .c-name {
+  font-family: var(--font-heading);
   font-size: 1.15rem;
   font-weight: 600;
-  color: #1A1A1A;
+  color: var(--color-dark);
   text-align: center;
   margin-bottom: 4px;
 }
 
 .c-role {
   font-size: 0.85rem;
-  color: var(--brand);
+  color: var(--color-primary);
   text-align: center;
   font-weight: 600;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  margin-bottom: 12px;
+  margin-bottom: var(--space-3);
 }
 
 .c-hr {
   width: 32px;
   height: 2px;
-  background: #eef0f2;
-  margin: 0 auto 14px;
+  background: var(--color-border);
+  margin: 0 auto var(--space-4);
   border-radius: 2px;
 }
 
 .c-bio {
   font-size: 0.85rem;
-  color: #555555;
+  color: var(--color-text-secondary);
   text-align: center;
   line-height: 1.6;
-  margin-bottom: 16px;
-  flex-grow: 1; /* Automatically pushes tags to sit uniformly at the base */
+  margin-bottom: var(--space-4);
+  flex-grow: 1;
 }
 
-/* 8. EXPERTISE TAG PILLS */
 .c-tags {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 6px;
+  gap: var(--space-2);
   margin-top: auto;
 }
 
@@ -208,36 +198,35 @@
   font-size: 0.72rem;
   font-weight: 600;
   padding: 4px 12px;
-  border-radius: 100px;
-  background: #f4f5f7;
-  color: #4a5568;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-primary);
+  color: var(--color-text-secondary);
 }
 
-/* 9. PAGINATION INDICATORS (High Contrast Dark Background Visibility) */
 .dots {
   display: flex;
   justify-content: center;
-  gap: 8px;
-  margin-top: 2rem;
+  gap: var(--space-2);
+  margin-top: var(--space-8);
 }
 
 .dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.25); /* Visible baseline against black */
+  background: var(--color-border);
   border: none;
   cursor: pointer;
   padding: 0;
-  transition: background 0.25s, width 0.25s;
+  transition: all var(--transition-fast);
 }
 
 .dot:hover {
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(250, 129, 18, 0.3);
 }
 
 .dot.active {
-  width: 24px; /* Stretches dynamically when active */
-  border-radius: 100px;
-  background: var(--brand);
+  width: 24px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
 }

@@ -1,0 +1,23 @@
+.bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  transform-origin: 0%;
+  background: linear-gradient(
+    90deg,
+    var(--color-primary) 0%,
+    #ffb45a 50%,
+    var(--color-primary) 100%
+  );
+  box-shadow: 0 0 12px rgba(250, 129, 18, 0.5);
+  z-index: var(--z-toast);
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar {
+    transition: none;
+  }
+}

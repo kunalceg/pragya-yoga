@@ -2,12 +2,12 @@ import { useEffect, useRef } from "react";
 import "./Partners.css";
 
 const PARTNERS = [
-  { id: 1, initials: "DSV", name: "Dev Sanskriti Vishwavidyalaya", type: "University", color: "blue",image: "public/images/partner/Yoga_logo13-300x55.png" },
+  { id: 1, initials: "DSV", name: "Dev Sanskriti Vishwavidyalaya", type: "University", color: "blue",image: "/images/partner/Yoga_logo13-300x55.png" },
   { id: 2, initials: "CYF", name: "Chaitanya Yoga Foundation", type: "Foundation", color: "amber" },
   { id: 3, initials: "YA",  name: "Yoga Alliance", type: "International Body", color: "coral" },
   { id: 4, initials: "AY",  name: "Aranya Yogshala", type: "Yoga School", color: "teal" },
-  { id: 5, initials: "SKM", name: "SKM Yoga", type: "Institute", color: "purple",image: "public/images/partner/skm_yoga.png" },
-  { id: 6, initials: "GYS", name: "Gyanish Yoga Studio", type: "Studio", color: "green",image: "public/images/partner/gyanish-logo-300x165.png" },
+  { id: 5, initials: "SKM", name: "SKM Yoga", type: "Institute", color: "purple",image: "/images/partner/skm_yoga.png" },
+  { id: 6, initials: "GYS", name: "Gyanish Yoga Studio", type: "Studio", color: "green",image: "/images/partner/gyanish-logo-300x165.png" },
   { id: 7, initials: "IYF", name: "Indian Yoga Federation", type: "Federation", color: "pink" },
 ];
 
