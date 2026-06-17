@@ -1,11 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import s from './YogaAdmin.module.css';
+import { useTheme } from '../../contexts/ThemeContext';
+import {
+  LuLayoutDashboard, LuUsers, LuFilter, LuRadioTower, LuGraduationCap,
+  LuReceipt, LuCalendarClock, LuFolderLock, LuMegaphone, LuTicketPercent,
+} from 'react-icons/lu';
 
 // Layout Shell Components
 import Sidebar from './Sidebar';
+import Topbar from './Topbar';
 import LogoutModal from './LogoutModal';
 
-// Section Components Aligned Explicitly to Sidebar Functions
+// Section Components
 import DashboardInsights from './DashboardInsights';
 import StudentsHistory from './StudentsHistory';
 import PipelineCRMLeads from './PipelineCRMLeads';
@@ -17,122 +23,217 @@ import ContentControl from './ContentControl';
 import CommsWebConfig from './CommsWebConfig';
 import CouponsReferrals from './CouponsReferrals';
 
-export default function YogaAdmin({
-  data = { metrics: {}, todayConsultations: [] },
-  students = [], leads = [], batches = [], courses = [],
-  plans = [], coupons = [], contentItems = [], onLogout = () => {},
-}) {
+import {
+  getOverview, getPayments, getConsultations, getStudents,
+  coursesApi, membershipPlansApi, couponsApi, downloadsApi,
+  createStudent, broadcastNotification,
+  getLeads, getBatches,
+} from '../api/AdminServices.js';
+
+export default function YogaAdmin({ onLogout = () => {} }) {
+  const { theme, toggleTheme } = useTheme();
   const [activeTab, setActiveTab] = useState('insights');
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [feedback, setFeedback] = useState({ message: '', type: '' });
+  const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Centralized Form Component States Aligned to Backend Mongoose Schemas
+  // Live data pulled from MongoDB via the admin API.
+  const [overview, setOverview] = useState({ metrics: {}, systemHealth: [], todaySchedule: [], recentStudents: [] });
+  const [students, setStudents] = useState([]);
+  const [leads, setLeads] = useState([]);
+  const [batches, setBatches] = useState([]);
+  const [courses, setCourses] = useState([]);
+  const [plans, setPlans] = useState([]);
+  const [coupons, setCoupons] = useState([]);
+  const [contentItems, setContentItems] = useState([]);
+  const [payments, setPayments] = useState([]);
+  const [consultations, setConsultations] = useState([]);
+
+  // Form states
   const [studentForm, setStudentForm] = useState({ name: '', email: '', phone: '', city: '', style: '', level: '', batch: '', plan: '' });
   const [batchForm, setBatchForm] = useState({ name: '', timing: '', trainer: '', zoomLink: '' });
   const [commForm, setCommForm] = useState({ segment: 'All', platform: 'WhatsApp', text: '' });
   const [couponForm, setCouponForm] = useState({ code: '', type: 'Percentage', value: '', isReferral: false });
 
+  const flash = (message, type = 'success') => {
+    setFeedback({ message, type });
+    setTimeout(() => setFeedback({ message: '', type: '' }), 4500);
+  };
+
+  const loadAll = useCallback(async () => {
+    const safe = (p) => p.then((v) => v).catch(() => null);
+    const [ov, st, ld, bt, co, pl, cp, dl, pay, cons] = await Promise.all([
+      safe(getOverview()), safe(getStudents()), safe(getLeads()), safe(getBatches()),
+      safe(coursesApi.list()), safe(membershipPlansApi.list()), safe(couponsApi.list()),
+      safe(downloadsApi.list()), safe(getPayments()), safe(getConsultations()),
+    ]);
+    if (ov) setOverview(ov);
+    if (st) setStudents(st);
+    if (ld) setLeads(ld);
+    if (bt) setBatches(bt);
+    if (co) setCourses(co);
+    if (pl) setPlans(pl);
+    if (cp) setCoupons(cp);
+    if (dl) setContentItems(dl);
+    if (pay) setPayments(pay);
+    if (cons) setConsultations(cons);
+  }, []);
+
+  useEffect(() => { loadAll(); }, [loadAll]);
+
   const NAV_ITEMS = [
-    { id: 'insights',       label: 'Dashboard Insights',  icon: '⬡' },
-    { id: 'students',       label: 'Students & History',   icon: '◈' },
-    { id: 'leads',          label: 'Pipeline CRM Leads',   icon: '◎' },
-    { id: 'batches',        label: 'Batches & Streams',    icon: '▶' },
-    { id: 'curriculum',     label: 'Courses & Plans',      icon: '◉' },
-    { id: 'attendance',     label: 'Reports & Invoices',   icon: '≡' },
-    { id: 'consultations',  label: 'Bookings Calendar',    icon: '◷' },
-    { id: 'content',        label: 'Content Control',      icon: '◫' },
-    { id: 'comms',          label: 'Comms & Web Config',   icon: '◈' },
-    { id: 'rewards',        label: 'Coupons & Referrals',  icon: '✦' },
+    { id: 'insights',       label: 'Dashboard',            icon: <LuLayoutDashboard /> },
+    { id: 'students',       label: 'Students',             icon: <LuUsers />,         badge: students.length || null },
+    { id: 'leads',          label: 'Pipeline CRM',         icon: <LuFilter />,        badge: (overview.totalLeads ?? leads.length) || null },
+    { id: 'batches',        label: 'Batches & Streams',    icon: <LuRadioTower /> },
+    { id: 'curriculum',     label: 'Courses & Plans',      icon: <LuGraduationCap /> },
+    { id: 'attendance',     label: 'Reports & Invoices',   icon: <LuReceipt /> },
+    { id: 'consultations',  label: 'Bookings',             icon: <LuCalendarClock /> },
+    { id: 'content',        label: 'Content Control',      icon: <LuFolderLock /> },
+    { id: 'comms',          label: 'Communication',        icon: <LuMegaphone /> },
+    { id: 'rewards',        label: 'Coupons & Referrals',  icon: <LuTicketPercent /> },
   ];
 
-  // Database Persistent Action Handler
+  // Derived feed data for the topbar (presentation only).
+  const recentStudents = overview.recentStudents?.length ? overview.recentStudents : students.slice(0, 4);
+  const topActivity = recentStudents.slice(0, 5).map((st) => ({
+    title: `${st.name || 'New student'} registered`,
+    meta: st.city || st.email || 'Student CRM',
+    color: '#7c3aed',
+  }));
+  const topNotifs = [
+    (overview.metrics?.pendingBookings ? { title: `${overview.metrics.pendingBookings} pending bookings`, meta: 'Bookings need confirmation', color: '#f59e0b' } : null),
+    (leads.length ? { title: `${overview.totalLeads ?? leads.length} active leads in pipeline`, meta: 'Pipeline CRM', color: '#6366f1' } : null),
+    (overview.metrics?.newThisMonth ? { title: `${overview.metrics.newThisMonth} new members this month`, meta: 'Growth', color: '#22c55e' } : null),
+  ].filter(Boolean);
+
+  const goCreate = () => { setActiveTab('students'); setMobileOpen(false); };
+
+  // Create a student through the admin API (persists to MongoDB).
   const handleSaveStudent = async (e) => {
     e.preventDefault();
     if (!studentForm.name || !studentForm.email || !studentForm.phone) {
-      setFeedback({ message: 'Error: Name, Email, and Phone fields are strictly mandatory.', type: 'error' });
+      flash('Error: Name, Email, and Phone are mandatory.', 'error');
       return;
     }
-
-    const payload = {
-      name: studentForm.name,
-      email: studentForm.email,
-      role: 'student',
-      phone: studentForm.phone,
-      city: studentForm.city || 'Patna',
-      style: studentForm.style || '',
-      level: studentForm.level || '',
-      planMonths: studentForm.plan === 'Annual Pass' ? 12 : studentForm.plan === 'Quarterly Pass' ? 3 : 0,
-      referralCount: 0,
-      stats: { classes: 0, attendancePct: 0 },
-      months: 0,
-      certifs: 0,
-      progress: { flexibility: 0, strength: 0, breathing: 0, meditation: 0 },
-      unreadNotifications: 0,
-      badges: []
-    };
-
-    // 🎯 FIX: Read dynamic API URL from Vite environment variables with your Render fallback
-    const API_URL = import.meta.env.VITE_API_URL || 'https://pragya-yoga.onrender.com';
-
+    const planMonths = studentForm.plan === 'Annual Pass' ? 12 : studentForm.plan === 'Quarterly Pass' ? 3 : studentForm.plan === 'Monthly Pass' ? 1 : 0;
     try {
-      // 🎯 FIX: Changed target endpoint destination from '/api/students' to your main unified '/api/auth/register'
-      const response = await fetch(`${API_URL}/api/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+      await createStudent({
+        name: studentForm.name, email: studentForm.email, phone: studentForm.phone,
+        city: studentForm.city || '', style: studentForm.style || 'Hatha',
+        level: studentForm.level || 'Beginner', planMonths,
       });
-      
-      const resData = await response.json();
-
-      if (!response.ok) {
-        throw new Error(resData.error || 'Failed to sync student record.');
-      }
-
-      setFeedback({ message: `Successfully synchronized record for ${payload.name}. Secure password credentials emailed!`, type: 'success' });
+      flash(`Student ${studentForm.name} created. Credentials emailed.`, 'success');
       setStudentForm({ name: '', email: '', phone: '', city: '', style: '', level: '', batch: '', plan: '' });
+      await loadAll();
     } catch (err) {
-      // 🎯 FIX: Dynamic clean messaging instead of hardcoded critical failures
-      setFeedback({ message: err.message || 'Critical Error: Failed write operations to database layer.', type: 'error' });
-    } finally {
-      setTimeout(() => setFeedback({ message: '', type: '' }), 4500);
+      flash(err.message || 'Failed to create student.', 'error');
     }
   };
 
+  // Create a coupon through the admin API.
+  const handleSaveCoupon = async (e) => {
+    e.preventDefault();
+    if (!couponForm.code || couponForm.value === '') {
+      flash('Coupon code and value are required.', 'error');
+      return;
+    }
+    try {
+      await couponsApi.create({
+        code: couponForm.code, discountType: couponForm.type,
+        value: Number(couponForm.value), isReferral: couponForm.isReferral,
+      });
+      flash(`Coupon ${couponForm.code.toUpperCase()} created.`, 'success');
+      setCouponForm({ code: '', type: 'Percentage', value: '', isReferral: false });
+      const cp = await couponsApi.list();
+      setCoupons(cp);
+    } catch (err) {
+      flash(err.message || 'Failed to create coupon.', 'error');
+    }
+  };
+
+  // Broadcast a notification to students.
+  const handleBroadcast = async (e) => {
+    e.preventDefault();
+    if (!commForm.text) { flash('Message text is required.', 'error'); return; }
+    try {
+      const channelMap = { WhatsApp: 'whatsapp', Email: 'email', SMS: 'sms' };
+      await broadcastNotification({
+        message: commForm.text,
+        segment: commForm.segment,
+        channels: [channelMap[commForm.platform] || 'email'],
+      });
+      flash('Notification broadcast queued.', 'success');
+      setCommForm({ segment: 'All', platform: 'WhatsApp', text: '' });
+    } catch (err) {
+      flash(err.message || 'Failed to broadcast.', 'error');
+    }
+  };
+
+  const adminUser = { name: 'Studio Admin', role: 'Studio Administrator', avatar: 'SA' };
+
   return (
     <div className={s.shell}>
-      <Sidebar 
-        activeTab={activeTab} 
-        setActiveTab={setActiveTab} 
-        navItems={NAV_ITEMS} 
-        user={{ name: 'Admin Yogi', role: 'Studio Administrator', avatar: 'AY' }}
-        onSignOut={() => setShowLogoutModal(true)} 
+      {mobileOpen && <div className={s.backdrop} onClick={() => setMobileOpen(false)} />}
+      <Sidebar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        navItems={NAV_ITEMS}
+        user={adminUser}
+        onSignOut={() => setShowLogoutModal(true)}
+        collapsed={collapsed}
+        onToggleCollapse={() => setCollapsed(v => !v)}
+        mobileOpen={mobileOpen}
+        onCloseMobile={() => setMobileOpen(false)}
+        onQuickCreate={goCreate}
       />
 
-      <main className={s.main}>
-        {activeTab === 'insights' && <DashboardInsights data={data} totalLeads={leads.length || 6} totalBatches={batches.length || 6} />}
+      <div className={s.contentArea}>
+        <Topbar
+          theme={theme}
+          onToggleTheme={toggleTheme}
+          onMobileMenu={() => setMobileOpen(true)}
+          onQuickCreate={goCreate}
+          notifications={topNotifs}
+          activity={topActivity}
+          user={adminUser}
+        />
+
+        <main className={s.main}>
+        {activeTab === 'insights' && (
+          <DashboardInsights
+            data={overview}
+            totalLeads={overview.totalLeads ?? leads.length}
+            totalBatches={overview.totalBatches ?? batches.length}
+            onRefresh={loadAll}
+          />
+        )}
         {activeTab === 'students' && (
-          <StudentsHistory 
-            students={students} 
-            form={studentForm} 
-            setForm={setStudentForm} 
-            onSave={handleSaveStudent} 
+          <StudentsHistory
+            students={students}
+            form={studentForm}
+            setForm={setStudentForm}
+            onSave={handleSaveStudent}
+            onChanged={loadAll}
             feedback={feedback}
           />
         )}
-        {activeTab === 'leads' && <PipelineCRMLeads leads={leads} />}
-        {activeTab === 'batches' && <BatchesStreams form={batchForm} setForm={setBatchForm} />}
+        {activeTab === 'leads' && <PipelineCRMLeads leads={leads} onChanged={loadAll} />}
+        {activeTab === 'batches' && <BatchesStreams form={batchForm} setForm={setBatchForm} onChanged={loadAll} />}
         {activeTab === 'curriculum' && <CoursesPlans courses={courses} plans={plans} />}
-        {activeTab === 'attendance' && <ReportsInvoices />}
-        {activeTab === 'consultations' && <BookingsCalendar consultations={data.todayConsultations} />}
+        {activeTab === 'attendance' && <ReportsInvoices payments={payments} metrics={overview.metrics} />}
+        {activeTab === 'consultations' && <BookingsCalendar consultations={consultations} onChanged={loadAll} />}
         {activeTab === 'content' && <ContentControl contentItems={contentItems} />}
-        {activeTab === 'comms' && <CommsWebConfig form={commForm} setForm={setCommForm} />}
-        {activeTab === 'rewards' && <CouponsReferrals form={couponForm} setForm={setCouponForm} coupons={coupons} />}
-      </main>
+        {activeTab === 'comms' && <CommsWebConfig form={commForm} setForm={setCommForm} onBroadcast={handleBroadcast} feedback={feedback} />}
+        {activeTab === 'rewards' && <CouponsReferrals form={couponForm} setForm={setCouponForm} coupons={coupons} onSave={handleSaveCoupon} feedback={feedback} />}
+        </main>
+      </div>
 
       {showLogoutModal && (
-        <LogoutModal 
-          onCancel={() => setShowLogoutModal(false)} 
-          onConfirm={() => { setShowLogoutModal(false); onLogout(); }} 
+        <LogoutModal
+          onCancel={() => setShowLogoutModal(false)}
+          onConfirm={() => { setShowLogoutModal(false); onLogout(); }}
         />
       )}
     </div>
