@@ -1,45 +1,36 @@
+// ============================================================
+// routes/batches.js  —  mounted at /api/batches
+// Public read; admin create/update/delete.
+// ============================================================
 import express from 'express';
+import { requireAuth, requireAdmin } from '../middleware/auth.js';
+import asyncHandler from '../utils/asyncHandler.js';
+import ApiError from '../utils/ApiError.js';
 import Batch from '../models/Batch.js';
 
 const router = express.Router();
 
-// GET /api/batches — fetch all batches
-router.get('/', async (req, res) => {
-  try {
-    const batches = await Batch.find().sort({ createdAt: -1 });
-    res.status(200).json(batches);
-  } catch (err) {
-    console.error("Fetch batches error:", err);
-    res.status(500).json({ message: "Failed to fetch batches" });
-  }
-});
+router.get('/', asyncHandler(async (req, res) => {
+  res.json(await Batch.find().sort({ createdAt: -1 }));
+}));
 
-// POST /api/batches — create new batch
-router.post('/', async (req, res) => {
-  try {
-    const { name, timing, trainer, zoomLink } = req.body;
-    if (!name || !timing || !trainer) {
-      return res.status(400).json({ message: "Name, timing and trainer are required" });
-    }
-    const batch = new Batch({ name, timing, trainer, zoomLink: zoomLink || '' });
-    await batch.save();
-    res.status(201).json(batch);
-  } catch (err) {
-    console.error("Create batch error:", err);
-    res.status(500).json({ message: "Failed to create batch" });
-  }
-});
+router.post('/', requireAuth, requireAdmin, asyncHandler(async (req, res) => {
+  const { name, timing, trainer, zoomLink, status } = req.body;
+  if (!name || !timing || !trainer) throw ApiError.badRequest('Name, timing and trainer are required');
+  const batch = await Batch.create({ name, timing, trainer, zoomLink: zoomLink || '', status: status || 'Active' });
+  res.status(201).json(batch);
+}));
 
-// DELETE /api/batches/:id — delete a batch
-router.delete('/:id', async (req, res) => {
-  try {
-    const deleted = await Batch.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ message: "Batch not found" });
-    res.status(200).json({ message: "Batch deleted" });
-  } catch (err) {
-    console.error("Delete batch error:", err);
-    res.status(500).json({ message: "Failed to delete batch" });
-  }
-});
+router.put('/:id', requireAuth, requireAdmin, asyncHandler(async (req, res) => {
+  const batch = await Batch.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true, runValidators: true });
+  if (!batch) throw ApiError.notFound('Batch not found');
+  res.json(batch);
+}));
+
+router.delete('/:id', requireAuth, requireAdmin, asyncHandler(async (req, res) => {
+  const deleted = await Batch.findByIdAndDelete(req.params.id);
+  if (!deleted) throw ApiError.notFound('Batch not found');
+  res.json({ success: true, msg: 'Batch deleted' });
+}));
 
 export default router;

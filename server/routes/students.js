@@ -1,51 +1,34 @@
+// ============================================================
+// routes/students.js  —  mounted at /api/students
+// Admin-managed student directory (used by the admin CRM UI).
+// ============================================================
 import express from 'express';
+import { requireAuth, requireAdmin } from '../middleware/auth.js';
+import asyncHandler from '../utils/asyncHandler.js';
+import ApiError from '../utils/ApiError.js';
 import User from '../models/User.js';
 
 const router = express.Router();
+router.use(requireAuth, requireAdmin);
 
-// GET /api/students — fetch all students
-router.get('/', async (req, res) => {
-  try {
-    const students = await User.find({ role: 'student' })
-      .select('-password')
-      .sort({ createdAt: -1 });
-    res.status(200).json(students);
-  } catch (error) {
-    console.error("Fetch students error:", error);
-    res.status(500).json({ message: "Failed to fetch students" });
-  }
-});
+router.get('/', asyncHandler(async (req, res) => {
+  const students = await User.find({ role: 'student' }).sort({ createdAt: -1 });
+  res.json(students);
+}));
 
-// DELETE /api/students/:id — remove a student
-router.delete('/:id', async (req, res) => {
-  try {
-    const deleted = await User.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ message: "Student not found" });
-    res.status(200).json({ message: "Student deleted successfully" });
-  } catch (error) {
-    console.error("Delete student error:", error);
-    res.status(500).json({ message: "Failed to delete student" });
-  }
-});
+router.delete('/:id', asyncHandler(async (req, res) => {
+  const deleted = await User.findByIdAndDelete(req.params.id);
+  if (!deleted) throw ApiError.notFound('Student not found');
+  res.json({ success: true, msg: 'Student deleted successfully' });
+}));
 
-// PUT /api/students/profile/:id — update student profile
-router.put('/profile/:id', async (req, res) => {
-  try {
-    const updateData = req.body;
-    if (updateData.role) delete updateData.role;
-
-    const updatedUser = await User.findByIdAndUpdate(
-      req.params.id,
-      { $set: updateData },
-      { new: true, runValidators: true }
-    ).select('-password');
-
-    if (!updatedUser) return res.status(404).json({ message: "Student not found" });
-    res.status(200).json(updatedUser);
-  } catch (error) {
-    console.error("Update student error:", error);
-    res.status(500).json({ message: "Failed to update student" });
-  }
-});
+router.put('/profile/:id', asyncHandler(async (req, res) => {
+  const updates = { ...req.body };
+  delete updates.role;
+  delete updates.password;
+  const updated = await User.findByIdAndUpdate(req.params.id, { $set: updates }, { new: true, runValidators: true });
+  if (!updated) throw ApiError.notFound('Student not found');
+  res.json(updated);
+}));
 
 export default router;
