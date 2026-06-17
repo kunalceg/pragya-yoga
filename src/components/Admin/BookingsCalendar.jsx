@@ -1,16 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import s from './YogaAdmin.module.css';
 import Badge from './Badge';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+import { PageHeader, KpiCard, Avatar, trendSeed } from './ui/Primitives';
+import { getBookings, updateBookingStatus, deleteBooking } from '../api/AdminServices.js';
+import {
+  LuRefreshCw, LuCalendarClock, LuClock, LuCircleCheck, LuCircleX,
+  LuList, LuLayoutGrid, LuTrash2,
+} from 'react-icons/lu';
 
 const STATUS_OPTIONS = ['Pending', 'Confirmed', 'Cancelled'];
+const KANBAN = ['Pending', 'Confirmed', 'Cancelled'];
 
-export default function BookingsCalendar() {
+export default function BookingsCalendar({ onChanged } = {}) {
   const [bookings, setBookings]     = useState([]);
   const [loading, setLoading]       = useState(true);
   const [error, setError]           = useState('');
   const [filter, setFilter]         = useState('All');
+  const [view, setView]             = useState('list');
   const [updatingId, setUpdatingId] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
   const [feedback, setFeedback]     = useState({ message: '', type: '' });
@@ -24,11 +30,9 @@ export default function BookingsCalendar() {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch(`${API_URL}/api/bookings`);
-      if (!res.ok) throw new Error();
-      setBookings(await res.json());
-    } catch {
-      setError('Could not load bookings. Check your server connection.');
+      setBookings(await getBookings());
+    } catch (err) {
+      setError(err.message || 'Could not load bookings. Check your server connection.');
     } finally {
       setLoading(false);
     }
@@ -36,19 +40,13 @@ export default function BookingsCalendar() {
 
   useEffect(() => { fetchBookings(); }, []);
 
-  // ── Update status ──
   const handleStatus = async (id, status) => {
     setUpdatingId(id);
     try {
-      const res = await fetch(`${API_URL}/api/bookings/${id}/status`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error();
+      const data = await updateBookingStatus(id, status);
       setBookings(prev => prev.map(b => b._id === id ? data : b));
       flash(`Booking marked as ${status}.`);
+      onChanged?.();
     } catch {
       flash('Failed to update status.', 'error');
     } finally {
@@ -56,14 +54,14 @@ export default function BookingsCalendar() {
     }
   };
 
-  // ── Delete ──
   const handleDelete = async (id, name) => {
     if (!window.confirm(`Delete booking for ${name}?`)) return;
     setDeletingId(id);
     try {
-      await fetch(`${API_URL}/api/bookings/${id}`, { method: 'DELETE' });
+      await deleteBooking(id);
       setBookings(prev => prev.filter(b => b._id !== id));
       flash('Booking deleted.');
+      onChanged?.();
     } catch {
       flash('Failed to delete booking.', 'error');
     } finally {
@@ -72,7 +70,6 @@ export default function BookingsCalendar() {
   };
 
   const filtered = filter === 'All' ? bookings : bookings.filter(b => b.status === filter);
-
   const counts = {
     All:       bookings.length,
     Pending:   bookings.filter(b => b.status === 'Pending').length,
@@ -80,150 +77,105 @@ export default function BookingsCalendar() {
     Cancelled: bookings.filter(b => b.status === 'Cancelled').length,
   };
 
-  return (
-    <div>
-      {/* ── Header ── */}
-      <div className={s.pageHeader}>
-        <div>
-          <h2 className={s.pageTitle}>Bookings Calendar</h2>
-          <p className={s.pageSub}>Manage & confirm student course bookings</p>
+  const cardCls = (st) => st === 'Confirmed' ? s.bookCardConfirmed : st === 'Cancelled' ? s.bookCardCancelled : s.bookCardPending;
+
+  const BookingCard = ({ b, compact }) => (
+    <div className={`${s.bookCard} ${cardCls(b.status)}`}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+        <div className={s.cellUser}>
+          <Avatar name={b.name} size={s.avatarSm} />
+          <div>
+            <div style={{ fontWeight: 700, fontSize: 13 }}>{b.name}</div>
+            {b.city && <div style={{ fontSize: 11, color: 'var(--text-3)' }}>{b.city}</div>}
+          </div>
         </div>
-        <button type="button" className={`${s.btn} ${s.btnSm}`} onClick={fetchBookings}>
-          ↻ Refresh
+        <Badge label={b.status} />
+      </div>
+      <div style={{ fontSize: 12.5, fontWeight: 600 }}>{b.courseName}</div>
+      {b.courseTime && <div style={{ fontSize: 11.5, color: 'var(--text-3)', marginTop: 2 }}>{b.courseTime}</div>}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10 }}>
+        <span style={{ fontWeight: 800, color: 'var(--c-primary)', fontFamily: 'var(--font-display)' }}>{b.coursePrice}</span>
+        <span style={{ fontSize: 11, color: 'var(--text-3)' }}>{b.paymentMethod}</span>
+      </div>
+      {!compact && b.email && <div style={{ fontSize: 11.5, color: 'var(--text-2)', marginTop: 8 }}>{b.email}{b.phone ? ` · ${b.phone}` : ''}</div>}
+      <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 12 }}>
+        {STATUS_OPTIONS.filter(st => st !== b.status).map(st => (
+          <button key={st} type="button" className={`${s.btn} ${s.btnSm}`} style={{ fontSize: 11, padding: '4px 9px' }}
+            disabled={updatingId === b._id} onClick={() => handleStatus(b._id, st)}>{st}</button>
+        ))}
+        <button type="button" className={`${s.btn} ${s.btnSm} ${s.btnDanger}`} style={{ fontSize: 11, padding: '4px 9px', marginLeft: 'auto' }}
+          disabled={deletingId === b._id} onClick={() => handleDelete(b._id, b.name)}>
+          {deletingId === b._id ? '…' : <LuTrash2 size={12} />}
         </button>
       </div>
+    </div>
+  );
 
-      {/* ── Feedback ── */}
+  return (
+    <div>
+      <PageHeader title="Booking Management Center" subtitle="Manage & confirm student course bookings">
+        <div className={s.segment}>
+          <button type="button" className={`${s.segBtn} ${view === 'list' ? s.segActive : ''}`} onClick={() => setView('list')}><LuList size={14} /> List</button>
+          <button type="button" className={`${s.segBtn} ${view === 'kanban' ? s.segActive : ''}`} onClick={() => setView('kanban')}><LuLayoutGrid size={14} /> Kanban</button>
+        </div>
+        <button type="button" className={`${s.btn} ${s.btnSm}`} onClick={fetchBookings}><LuRefreshCw size={14} /> Refresh</button>
+      </PageHeader>
+
       {feedback.message && (
-        <div style={{
-          padding: '10px 16px', marginBottom: '16px', borderRadius: '8px', fontSize: '13px',
-          background: feedback.type === 'success' ? '#dcfce7' : '#fee2e2',
-          color:      feedback.type === 'success' ? '#15803d' : '#dc2626',
-          border:     `1px solid ${feedback.type === 'success' ? '#86efac' : '#fca5a5'}`,
-        }}>
-          {feedback.type === 'success' ? '✅' : '⚠️'} {feedback.message}
+        <div className={`${s.feedbackInline} ${feedback.type === 'success' ? s.bannerSuccess : s.bannerError}`}>
+          <span className={s.bannerIcon}>{feedback.type === 'success' ? '✓' : '⚠'}</span>{feedback.message}
         </div>
       )}
 
-      {/* ── Stats ── */}
       <div className={s.statsGrid} style={{ marginBottom: '20px' }}>
-        {[
-          { label: 'Total Bookings', value: counts.All,       cls: s.statOrange, valCls: s.valOrange },
-          { label: 'Pending',        value: counts.Pending,   cls: s.statAmber,  valCls: s.valAmber  },
-          { label: 'Confirmed',      value: counts.Confirmed, cls: s.statGreen,  valCls: s.valGreen  },
-          { label: 'Cancelled',      value: counts.Cancelled, cls: s.statBlue,   valCls: s.valBlue   },
-        ].map(stat => (
-          <div key={stat.label} className={`${s.statCard} ${stat.cls}`}>
-            <div className={s.statLabel}>{stat.label}</div>
-            <div className={`${s.statVal} ${stat.valCls}`}>{loading ? '…' : stat.value}</div>
-          </div>
-        ))}
+        <KpiCard icon={<LuCalendarClock />} accent="orange" label="Total Bookings" value={loading ? 0 : counts.All} spark={trendSeed('tbk', 8)} />
+        <KpiCard icon={<LuClock />} accent="amber" label="Pending" value={loading ? 0 : counts.Pending} spark={trendSeed('pbk', 8)} />
+        <KpiCard icon={<LuCircleCheck />} accent="green" label="Confirmed" value={loading ? 0 : counts.Confirmed} spark={trendSeed('cbk', 8)} />
+        <KpiCard icon={<LuCircleX />} accent="blue" label="Cancelled" value={loading ? 0 : counts.Cancelled} spark={trendSeed('xbk', 8)} />
       </div>
 
-      {/* ── Filter Tabs ── */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
-        {['All', 'Pending', 'Confirmed', 'Cancelled'].map(f => (
-          <button
-            key={f}
-            type="button"
-            className={`${s.btn} ${s.btnSm} ${filter === f ? s.btnPrimary : ''}`}
-            onClick={() => setFilter(f)}
-          >
-            {f} ({counts[f] ?? 0})
-          </button>
-        ))}
-      </div>
-
-      {/* ── Table ── */}
-      <div className={`${s.card} ${s.cardNoPad}`}>
-        {loading ? (
-          <div style={{ padding: '48px', textAlign: 'center', color: '#9ca3af', fontSize: '13px' }}>
-            Loading bookings…
-          </div>
-        ) : error ? (
-          <div style={{ padding: '48px', textAlign: 'center', color: '#dc2626', fontSize: '13px' }}>
-            {error}
-            <br />
-            <button type="button" className={`${s.btn} ${s.btnSm}`} style={{ marginTop: '12px' }} onClick={fetchBookings}>
-              Retry
+      {view === 'list' && (
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
+          {['All', 'Pending', 'Confirmed', 'Cancelled'].map(f => (
+            <button key={f} type="button" className={`${s.chip} ${filter === f ? s.chipActive : ''}`} onClick={() => setFilter(f)}>
+              {f} <span className={s.chipCount}>{counts[f] ?? 0}</span>
             </button>
-          </div>
-        ) : filtered.length === 0 ? (
-          <div style={{ padding: '48px', textAlign: 'center', color: '#9ca3af', fontSize: '13px' }}>
-            {filter === 'All' ? 'No bookings yet.' : `No ${filter} bookings.`}
-          </div>
-        ) : (
-          <table className={s.table}>
-            <thead>
-              <tr>
-                <th>Student</th>
-                <th>Contact</th>
-                <th>Course</th>
-                <th>Fee</th>
-                <th>Payment</th>
-                <th>Txn ID</th>
-                <th>Status</th>
-                <th>Booked On</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map(b => (
-                <tr key={b._id}>
-                  <td>
-                    <strong>{b.name}</strong>
-                    {b.city && <div style={{ fontSize: '11px', color: '#9ca3af' }}>{b.city}</div>}
-                  </td>
-                  <td className={s.tdMuted}>
-                    <div>{b.email}</div>
-                    {b.phone && <div style={{ fontSize: '11px', marginTop: '2px' }}>{b.phone}</div>}
-                  </td>
-                  <td>
-                    <div style={{ fontWeight: 500 }}>{b.courseName}</div>
-                    {b.courseTime && <div style={{ fontSize: '11px', color: '#9ca3af' }}>{b.courseTime}</div>}
-                  </td>
-                  <td style={{ fontWeight: 600, color: '#d97706' }}>{b.coursePrice}</td>
-                  <td className={s.tdMuted}>{b.paymentMethod}</td>
-                  <td className={s.tdMuted} style={{ fontSize: '11px' }}>{b.transactionId || '—'}</td>
-                  <td><Badge label={b.status} /></td>
-                  <td className={s.tdMuted} style={{ fontSize: '11px' }}>
-                    {new Date(b.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
-                  </td>
-                  <td>
-                    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-                      {STATUS_OPTIONS.filter(st => st !== b.status).map(st => (
-                        <button
-                          key={st}
-                          type="button"
-                          className={`${s.btn} ${s.btnSm}`}
-                          style={{
-                            fontSize: '11px', padding: '4px 8px',
-                            color: st === 'Confirmed' ? '#15803d' : st === 'Cancelled' ? '#dc2626' : '#d97706',
-                            borderColor: st === 'Confirmed' ? '#86efac' : st === 'Cancelled' ? '#fca5a5' : '#fcd34d',
-                          }}
-                          disabled={updatingId === b._id}
-                          onClick={() => handleStatus(b._id, st)}
-                        >
-                          {st}
-                        </button>
-                      ))}
-                      <button
-                        type="button"
-                        className={`${s.btn} ${s.btnSm}`}
-                        style={{ fontSize: '11px', padding: '4px 8px', color: '#dc2626', borderColor: '#fca5a5' }}
-                        disabled={deletingId === b._id}
-                        onClick={() => handleDelete(b._id, b.name)}
-                      >
-                        {deletingId === b._id ? '…' : '✕'}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+          ))}
+        </div>
+      )}
+
+      {loading ? (
+        <div className={s.bookGrid}>{[...Array(4)].map((_, i) => <div key={i} className={`${s.skel} ${s.skelCard}`} style={{ height: 150 }} />)}</div>
+      ) : error ? (
+        <div className={`${s.card} ${s.emptyState} ${s.stateError}`}>
+          {error}<br />
+          <button type="button" className={`${s.btn} ${s.btnSm}`} style={{ marginTop: '12px' }} onClick={fetchBookings}>Retry</button>
+        </div>
+      ) : view === 'kanban' ? (
+        <div className={s.kanban} style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+          {KANBAN.map(col => {
+            const colBookings = bookings.filter(b => b.status === col);
+            return (
+              <div key={col} className={s.leadCol}>
+                <div className={s.leadColHead}>
+                  <div className={s.leadColTitle}>
+                    <span className={col === 'Confirmed' ? s.leadColDotG : col === 'Cancelled' ? s.leadColDotB : s.leadColDotA} />{col}
+                  </div>
+                  <span className={s.leadColCount}>{colBookings.length}</span>
+                </div>
+                {colBookings.length === 0 && <div style={{ fontSize: 12, color: 'var(--text-3)', padding: '12px 0', textAlign: 'center' }}>No bookings</div>}
+                {colBookings.map(b => <BookingCard key={b._id} b={b} compact />)}
+              </div>
+            );
+          })}
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className={`${s.card} ${s.emptyState}`}><div className={s.emptyIcon}>📅</div>{filter === 'All' ? 'No bookings yet.' : `No ${filter} bookings.`}</div>
+      ) : (
+        <div className={s.bookGrid}>
+          {filtered.map(b => <BookingCard key={b._id} b={b} />)}
+        </div>
+      )}
     </div>
   );
 }
