@@ -1,0 +1,54 @@
+.list { display: flex; flex-direction: column; gap: 12px; }
+
+.classCard {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 18px;
+  border-radius: var(--radius-xl);
+  background: #fff;
+  border: 1px solid var(--color-border-light);
+  box-shadow: var(--shadow-card);
+  transition: box-shadow var(--transition-base), border-color var(--transition-base);
+}
+
+.classCard:hover { box-shadow: var(--shadow-card-hover); border-color: var(--color-border); }
+
+.timeChip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-width: 92px;
+  padding: 10px 12px;
+  border-radius: var(--radius-lg);
+  background: var(--color-primary-light);
+  color: var(--color-primary-hover);
+  font-family: var(--font-heading);
+  font-size: 12.5px;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 0.01em;
+}
+
+.classBody {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.className {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--color-dark);
+}
+
+.classAction { margin-left: auto; flex-shrink: 0; }
+
+@media (max-width: 560px) {
+  .classCard { flex-wrap: wrap; gap: 10px; }
+  .classAction { margin-left: 0; width: 100%; }
+}

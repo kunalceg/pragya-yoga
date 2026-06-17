@@ -1,13 +1,36 @@
+import { useState } from "react";
 import s from "./Dashboard.shared.module.css";
+import { markAllNotificationsRead } from "../api/StudentServices.js";
 
 const CHANNEL_COLORS = { whatsapp:"#0F6E56", email:"#534AB7", sms:"#854F0B" };
 
-export default function NotificationsPage({ student }) {
+export default function NotificationsPage({ student, reload }) {
   const notifs = student?.notifications ?? [];
+  const [busy, setBusy] = useState(false);
+  const hasUnread = notifs.some((n) => n.unread);
+
+  async function handleMarkAll() {
+    setBusy(true);
+    try {
+      await markAllNotificationsRead();
+      await reload?.();
+    } catch {
+      /* non-fatal */
+    } finally {
+      setBusy(false);
+    }
+  }
 
   return (
     <div>
-      <p className={s.pageTitle}>Notifications</p>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+        <p className={s.pageTitle}>Notifications</p>
+        {hasUnread && (
+          <button className={s.btnSm} onClick={handleMarkAll} disabled={busy}>
+            <i className="ti ti-checks" aria-hidden="true" /> {busy ? "Marking…" : "Mark all read"}
+          </button>
+        )}
+      </div>
       <div className={s.card}>
         {notifs.length === 0 && (
           <div className={s.emptyState}><i className="ti ti-bell-off" aria-hidden="true" />No notifications yet.</div>

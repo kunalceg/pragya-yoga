@@ -1,0 +1,92 @@
+/* ── Calendar heatmap ── */
+.calGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.calDayHead {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  text-align: center;
+  padding-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.cell {
+  aspect-ratio: 1;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-secondary);
+  cursor: default;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.cell:hover { transform: scale(1.18); box-shadow: var(--shadow-md); z-index: 1; }
+
+.present { background: linear-gradient(135deg, #16a34a, #22c55e); box-shadow: inset 0 0 0 1px rgba(22,163,74,0.3); }
+.zoom    { background: linear-gradient(135deg, #4f46e5, #6366f1); box-shadow: inset 0 0 0 1px rgba(79,70,229,0.3); }
+.absent  { background: #fde8e8; box-shadow: inset 0 0 0 1px rgba(239,68,68,0.35); }
+.future  { background: var(--color-bg-secondary); }
+.empty   { background: transparent; }
+
+/* ── Legend ── */
+.legend {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-border-light);
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.legendDot { width: 12px; height: 12px; border-radius: 4px; }
+.legendDot.present { background: linear-gradient(135deg, #16a34a, #22c55e); }
+.legendDot.zoom    { background: linear-gradient(135deg, #4f46e5, #6366f1); }
+.legendDot.absent  { background: #fde8e8; box-shadow: inset 0 0 0 1px rgba(239,68,68,0.4); }
+
+/* ── Rate insight ── */
+.rateBox {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.rateMeta { display: flex; flex-direction: column; gap: 12px; flex: 1; min-width: 150px; }
+
+.rateMetaRow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 13.5px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.rateMetaRow strong {
+  margin-left: auto;
+  font-family: var(--font-heading);
+  font-size: 17px;
+  color: var(--color-dark);
+}
+
+.rateDot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+.rateDot[data-tone="green"] { background: #16a34a; }
+.rateDot[data-tone="blue"]  { background: #6366f1; }
+.rateDot[data-tone="red"]   { background: #ef4444; }
+
+@media (max-width: 560px) {
+  .rateBox { flex-direction: column; }
+}
