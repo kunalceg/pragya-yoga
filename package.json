@@ -83,6 +83,7 @@
     "flat-cache": "^4.0.1",
     "flatted": "^3.4.2",
     "forwarded": "^0.2.0",
+    "framer-motion": "^12.40.0",
     "fresh": "^2.0.0",
     "fs-constants": "^1.0.0",
     "function-bind": "^1.1.2",

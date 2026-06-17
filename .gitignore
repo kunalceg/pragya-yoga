@@ -24,4 +24,19 @@ dist-ssr
 *.sw?
 
 .vercel
+
+# Environment files
 .env*
+
+# Vite cache
+.vite/
+
+# Test coverage (if added)
+coverage/
+
+# TypeScript
+*.tsbuildinfo
+
+# Windows
+Thumbs.db
+Desktop.ini
