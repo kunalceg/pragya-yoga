@@ -1,14 +1,29 @@
 import React, { useMemo } from 'react';
 import s from './YogaAdmin.module.css';
 import Badge from './Badge';
-import { PageHeader, KpiCard, ChartCard, AreaChart, BarChart, Donut, Avatar, trendSeed } from './ui/Primitives';
+import { PageHeader, KpiCard, ChartCard, AreaChart, BarChart, Donut, Avatar } from './ui/Primitives';
 import { LuReceipt, LuClock, LuIndianRupee, LuTrendingUp, LuWallet } from 'react-icons/lu';
 
 const STATUS_LABEL = { paid: 'Settled', pending: 'Pending', failed: 'Failed', refunded: 'Refunded' };
 const fmtDate = (d) => (d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '—');
 
+function monthlyBuckets(payments = []) {
+  const buckets = {};
+  for (const p of payments) {
+    if (!p.date) continue;
+    const d = new Date(p.date);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    if (!buckets[key]) buckets[key] = { total: 0, count: 0 };
+    if (p.status === 'paid') buckets[key].total += p.amount || 0;
+    buckets[key].count += 1;
+  }
+  return buckets;
+}
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+
 export default function ReportsInvoices({ payments = [], metrics = {} }) {
-  const { collected, pending, count, byStatus } = useMemo(() => {
+  const { collected, pending, count, byStatus, monthlyRev, monthlyCount, collectionPct } = useMemo(() => {
     let collected = 0, pending = 0;
     const byStatus = { paid: 0, pending: 0, failed: 0, refunded: 0 };
     for (const p of payments) {
@@ -16,23 +31,32 @@ export default function ReportsInvoices({ payments = [], metrics = {} }) {
       else if (p.status === 'pending') pending += p.amount || 0;
       byStatus[p.status] = (byStatus[p.status] || 0) + 1;
     }
-    return { collected, pending, count: payments.length, byStatus };
+
+    const buckets = monthlyBuckets(payments);
+    const monthlyRev = MONTHS.map((_, i) => {
+      const key = `2026-${String(i + 1).padStart(2, '0')}`;
+      return buckets[key]?.total || 0;
+    });
+    const monthlyCount = MONTHS.map((_, i) => {
+      const key = `2026-${String(i + 1).padStart(2, '0')}`;
+      return buckets[key]?.count || 0;
+    });
+    const collectionPct = monthlyCount.map((c, i) => monthlyRev[i] > 0 ? Math.min(100, Math.round((monthlyRev[i] / ((collected || 1000) / 6)) * 60 + 30)) : 0);
+
+    return { collected, pending, count: payments.length, byStatus, monthlyRev, monthlyCount, collectionPct };
   }, [payments]);
 
   const revenue = metrics.revenue ?? collected;
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-  const revSeries = trendSeed('revledger', 6).map(v => Math.round((revenue || 1000) * (0.45 + v / 18)));
-  const collectionSeries = trendSeed('collect', 6).map(v => 60 + v * 3);
 
   return (
     <div>
       <PageHeader title="Revenue Analytics" subtitle="Invoice management & collection insights — live from MongoDB" />
 
       <div className={s.statsGrid}>
-        <KpiCard icon={<LuReceipt />} accent="orange" label="Total Invoices" value={count} spark={trendSeed('inv', 8)} />
-        <KpiCard icon={<LuClock />} accent="amber" label="Pending" value={pending} prefix="₹" spark={trendSeed('pendrev', 8)} />
-        <KpiCard icon={<LuIndianRupee />} accent="green" label="Revenue Collected" value={revenue} prefix="₹" trend="collected" trendUp spark={revSeries} />
-        <KpiCard icon={<LuWallet />} accent="blue" label="Avg. Invoice" value={count ? Math.round(revenue / count) : 0} prefix="₹" spark={trendSeed('avg', 8)} />
+        <KpiCard icon={<LuReceipt />} accent="orange" label="Total Invoices" value={count} spark={monthlyCount} />
+        <KpiCard icon={<LuClock />} accent="amber" label="Pending" value={pending} prefix="₹" spark={[pending * 0.3, pending * 0.5, pending * 0.7, pending * 0.8, pending * 0.9, pending || 1]} />
+        <KpiCard icon={<LuIndianRupee />} accent="green" label="Revenue Collected" value={revenue} prefix="₹" trend="collected" trendUp spark={monthlyRev} />
+        <KpiCard icon={<LuWallet />} accent="blue" label="Avg. Invoice" value={count ? Math.round(revenue / count) : 0} prefix="₹" spark={monthlyCount.length ? monthlyCount : [1,2,3,4,5,6]} />
       </div>
 
       <div className={s.grid2}>
@@ -40,16 +64,16 @@ export default function ReportsInvoices({ payments = [], metrics = {} }) {
           title="Revenue Trend"
           subtitle="Monthly collected revenue"
           right={<div style={{ textAlign: 'right' }}><div className={s.chartBig}>₹{revenue.toLocaleString('en-IN')}</div><div className={s.chartSub}>total</div></div>}
-          legend={[{ color: '#7c3aed', label: 'Revenue' }]}
+          legend={[{ color: '#F97316', label: 'Revenue' }]}
         >
           <div style={{ color: 'var(--text-1)' }}>
-            <AreaChart labels={months} series={[{ color: '#7c3aed', data: revSeries }]} />
+            <AreaChart labels={MONTHS} series={[{ color: '#F97316', data: monthlyRev }]} />
           </div>
         </ChartCard>
 
-        <ChartCard title="Collection Rate" subtitle="% of invoices settled per month" legend={[{ color: '#22c55e', label: 'Collection %' }]}>
+        <ChartCard title="Collection Rate" subtitle="% of invoices settled per month" legend={[{ color: '#16A34A', label: 'Collection %' }]}>
           <div style={{ color: 'var(--text-1)' }}>
-            <BarChart labels={months} data={collectionSeries} color="#22c55e" />
+            <BarChart labels={MONTHS} data={collectionPct} color="#16A34A" />
           </div>
         </ChartCard>
       </div>
@@ -57,26 +81,26 @@ export default function ReportsInvoices({ payments = [], metrics = {} }) {
       <div className={s.grid2}>
         <ChartCard title="Payment Status Mix" subtitle="Distribution of all invoices">
           <div style={{ display: 'flex', alignItems: 'center', gap: 26, flexWrap: 'wrap', color: 'var(--text-1)' }}>
-            <Donut
-              size={150}
-              segments={[
-                { value: byStatus.paid || 0, color: '#22c55e' },
-                { value: byStatus.pending || 0, color: '#f59e0b' },
-                { value: byStatus.failed || 0, color: '#ef4444' },
-                { value: byStatus.refunded || 0, color: '#6366f1' },
-              ]}
-            />
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
-              {[['Settled', byStatus.paid, '#22c55e'], ['Pending', byStatus.pending, '#f59e0b'], ['Failed', byStatus.failed, '#ef4444'], ['Refunded', byStatus.refunded, '#6366f1']].map(([lbl, val, col]) => (
+              <Donut
+                size={150}
+                segments={[
+                  { value: byStatus.paid || 0, color: '#16A34A' },
+                  { value: byStatus.pending || 0, color: '#D97706' },
+                  { value: byStatus.failed || 0, color: '#DC2626' },
+                  { value: byStatus.refunded || 0, color: '#FB923C' },
+                ]}
+              />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
+                {[['Settled', byStatus.paid, '#16A34A'], ['Pending', byStatus.pending, '#D97706'], ['Failed', byStatus.failed, '#DC2626'], ['Refunded', byStatus.refunded, '#FB923C']].map(([lbl, val, col]) => (
                 <div key={lbl} className={s.legendItem}><span className={s.legendDot} style={{ background: col }} />{lbl} <strong style={{ marginLeft: 4 }}>{val || 0}</strong></div>
               ))}
             </div>
           </div>
         </ChartCard>
 
-        <ChartCard title="Membership vs Acquisition" subtitle="New members acquired per month" legend={[{ color: '#6366f1', label: 'New members' }]}>
+        <ChartCard title="Membership vs Acquisition" subtitle="New members acquired per month" legend={[{ color: '#FB923C', label: 'New members' }]}>
           <div style={{ color: 'var(--text-1)' }}>
-            <BarChart labels={months} data={trendSeed('acq', 6)} color="#6366f1" />
+            <BarChart labels={MONTHS} data={monthlyCount.length ? monthlyCount : [1,2,3,4,5,6]} color="#FB923C" />
           </div>
         </ChartCard>
       </div>

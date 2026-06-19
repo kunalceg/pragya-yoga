@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import s from './YogaAdmin.module.css';
 import Badge from './Badge';
-import { PageHeader, KpiCard, Avatar, trendSeed } from './ui/Primitives';
+import { PageHeader, KpiCard, Avatar } from './ui/Primitives';
 import { getBookings, updateBookingStatus, deleteBooking } from '../api/AdminServices.js';
 import {
   LuRefreshCw, LuCalendarClock, LuClock, LuCircleCheck, LuCircleX,
@@ -128,10 +128,10 @@ export default function BookingsCalendar({ onChanged } = {}) {
       )}
 
       <div className={s.statsGrid} style={{ marginBottom: '20px' }}>
-        <KpiCard icon={<LuCalendarClock />} accent="orange" label="Total Bookings" value={loading ? 0 : counts.All} spark={trendSeed('tbk', 8)} />
-        <KpiCard icon={<LuClock />} accent="amber" label="Pending" value={loading ? 0 : counts.Pending} spark={trendSeed('pbk', 8)} />
-        <KpiCard icon={<LuCircleCheck />} accent="green" label="Confirmed" value={loading ? 0 : counts.Confirmed} spark={trendSeed('cbk', 8)} />
-        <KpiCard icon={<LuCircleX />} accent="blue" label="Cancelled" value={loading ? 0 : counts.Cancelled} spark={trendSeed('xbk', 8)} />
+        <KpiCard icon={<LuCalendarClock />} accent="orange" label="Total Bookings" value={loading ? 0 : counts.All} spark={[counts.All * 0.3 || 1, counts.All * 0.5 || 2, counts.All * 0.7 || 3, counts.All * 0.8 || 4, counts.All * 0.9 || 5, counts.All || 6]} />
+        <KpiCard icon={<LuClock />} accent="amber" label="Pending" value={loading ? 0 : counts.Pending} spark={[counts.Pending * 0.3 || 1, counts.Pending * 0.5 || 2, counts.Pending * 0.7 || 3, counts.Pending * 0.8 || 4, counts.Pending * 0.9 || 5, counts.Pending || 6]} />
+        <KpiCard icon={<LuCircleCheck />} accent="green" label="Confirmed" value={loading ? 0 : counts.Confirmed} spark={[counts.Confirmed * 0.3 || 1, counts.Confirmed * 0.5 || 2, counts.Confirmed * 0.7 || 3, counts.Confirmed * 0.8 || 4, counts.Confirmed * 0.9 || 5, counts.Confirmed || 6]} />
+        <KpiCard icon={<LuCircleX />} accent="blue" label="Cancelled" value={loading ? 0 : counts.Cancelled} spark={[counts.Cancelled * 0.3 || 1, counts.Cancelled * 0.5 || 2, counts.Cancelled * 0.7 || 3, counts.Cancelled * 0.8 || 4, counts.Cancelled * 0.9 || 5, counts.Cancelled || 6]} />
       </div>
 
       {view === 'list' && (

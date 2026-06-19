@@ -16,23 +16,19 @@ export default function ContentControl({ contentItems }) {
   const [view, setView] = useState('grid');
   const [category, setCategory] = useState('All');
 
-  const fallbackContent = contentItems?.length ? contentItems : [
-    { title: 'Asana Blueprint Handbook',  contentType: 'PDF Guide',      accessLevel: 'Plan-Specific', allowedPlans: ['Premium Tier'] },
-    { title: 'Pranayama Video Series',    contentType: 'Video (12 eps)', accessLevel: 'All Members',   allowedPlans: []               },
-    { title: 'Meditation Scripts Pack',   contentType: 'Audio + PDF',    accessLevel: 'Free Preview',  allowedPlans: []               },
-  ];
+  const items = contentItems?.length ? contentItems : [];
 
   const categories = ['All', 'PDF', 'Video', 'Audio'];
   const matches = (co) => {
     if (category === 'All') return true;
-    return (co.contentType || '').toLowerCase().includes(category.toLowerCase());
+    return (co.contentType || co.type || '').toLowerCase().includes(category.toLowerCase());
   };
-  const filtered = fallbackContent.filter(matches);
+  const filtered = items.filter(matches);
 
   const stats = {
-    total: fallbackContent.length,
-    video: fallbackContent.filter(c => (c.contentType || '').toLowerCase().includes('video')).length,
-    docs: fallbackContent.filter(c => (c.contentType || '').toLowerCase().includes('pdf') || (c.contentType || '').toLowerCase().includes('guide')).length,
+    total: items.length,
+    video: items.filter(c => (c.contentType || c.type || '').toLowerCase().includes('video')).length,
+    docs: items.filter(c => (c.contentType || c.type || '').toLowerCase().includes('pdf') || (c.contentType || c.type || '').toLowerCase().includes('guide') || (c.contentType || c.type || '').toLowerCase().includes('doc')).length,
   };
 
   return (
@@ -66,7 +62,12 @@ export default function ContentControl({ contentItems }) {
         ))}
       </div>
 
-      {view === 'grid' ? (
+      {filtered.length === 0 ? (
+        <div className={`${s.card} ${s.emptyState}`}>
+          <div className={s.emptyIcon}>📁</div>
+          {items.length === 0 ? 'No digital assets uploaded yet. Upload files above.' : 'No assets match the selected category.'}
+        </div>
+      ) : view === 'grid' ? (
         <div className={s.assetGrid}>
           {filtered.map((co, i) => (
             <div key={i} className={s.assetCard}>
@@ -85,7 +86,7 @@ export default function ContentControl({ contentItems }) {
             </div>
           ))}
         </div>
-      ) : (
+      ) : filtered.length > 0 && (
         <div className={`${s.card} ${s.cardNoPad}`}>
           <div className={s.tableWrap}>
             <table className={s.table}>
@@ -93,9 +94,9 @@ export default function ContentControl({ contentItems }) {
               <tbody>
                 {filtered.map((co, i) => (
                   <tr key={i}>
-                    <td><div className={s.cellUser}><span style={{ fontSize: 20 }}>{typeIcon(co.contentType)}</span><strong>{co.title}</strong></div></td>
-                    <td className={s.tdMuted}>{co.contentType}</td>
-                    <td><Badge label={co.accessLevel} /></td>
+                    <td><div className={s.cellUser}><span style={{ fontSize: 20 }}>{typeIcon(co.contentType || co.type)}</span><strong>{co.title}</strong></div></td>
+                    <td className={s.tdMuted}>{co.contentType || co.type || 'File'}</td>
+                    <td><Badge label={co.accessLevel || co.visibility || 'All Members'} /></td>
                     <td className={s.tdMuted}>{co.allowedPlans?.join(', ') || 'All Active Subscribers'}</td>
                   </tr>
                 ))}

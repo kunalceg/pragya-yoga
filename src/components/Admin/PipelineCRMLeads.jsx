@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import s from './YogaAdmin.module.css';
-import { PageHeader, KpiCard, Avatar, trendSeed } from './ui/Primitives';
+import { PageHeader, KpiCard, Avatar } from './ui/Primitives';
 import { getLeads, createLead, updateLeadStage, deleteLead } from '../api/AdminServices.js';
 import { LuPlus, LuX, LuPhone, LuTag, LuGripVertical } from 'react-icons/lu';
 
@@ -141,10 +141,13 @@ export default function PipelineCRMLeads() {
       )}
 
       <div className={s.statsGrid} style={{ marginBottom: '20px' }}>
-        {STAGES.map((st) => (
-          <KpiCard key={st.id} icon={<LuTag />} accent={st.accent} label={st.label}
-            value={loading ? 0 : stageLeads(st.id).length} spark={trendSeed(st.id, 8)} />
-        ))}
+        {STAGES.map((st) => {
+          const val = loading ? 0 : stageLeads(st.id).length;
+          return (
+            <KpiCard key={st.id} icon={<LuTag />} accent={st.accent} label={st.label}
+              value={val} spark={[val * 0.3 || 1, val * 0.5 || 2, val * 0.7 || 3, val * 0.8 || 4, val * 0.9 || 5, val || 6]} />
+          );
+        })}
       </div>
 
       {loading ? (

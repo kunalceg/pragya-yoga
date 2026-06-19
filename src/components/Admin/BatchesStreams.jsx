@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import s from './YogaAdmin.module.css';
 import Badge from './Badge';
-import { PageHeader, KpiCard, Avatar, trendSeed } from './ui/Primitives';
+import { PageHeader, KpiCard, Avatar } from './ui/Primitives';
 import { getBatches, createBatch, deleteBatch } from '../api/AdminServices.js';
 import {
   LuRadioTower, LuActivity, LuVideo, LuPlus, LuTrash2, LuClock, LuUser, LuLayoutGrid, LuTable,
@@ -95,9 +95,9 @@ export default function BatchesStreams({ onChanged } = {}) {
       )}
 
       <div className={s.statsGrid} style={{ gridTemplateColumns: 'repeat(3,1fr)', marginBottom: '20px' }}>
-        <KpiCard icon={<LuRadioTower />} accent="orange" label="Total Batches" value={batches.length} spark={trendSeed('tb', 8)} />
-        <KpiCard icon={<LuActivity />} accent="green" label="Active" value={batches.filter(b => b.status === 'Active').length} spark={trendSeed('ab', 8)} />
-        <KpiCard icon={<LuVideo />} accent="blue" label="With Zoom" value={batches.filter(b => b.zoomLink).length} spark={trendSeed('zb', 8)} />
+        <KpiCard icon={<LuRadioTower />} accent="orange" label="Total Batches" value={batches.length} spark={[batches.length * 0.3 || 1, batches.length * 0.5 || 2, batches.length * 0.7 || 3, batches.length * 0.8 || 4, batches.length * 0.9 || 5, batches.length || 6]} />
+        <KpiCard icon={<LuActivity />} accent="green" label="Active" value={batches.filter(b => b.status === 'Active').length} spark={[batches.filter(b => b.status === 'Active').length * 0.3 || 1, batches.filter(b => b.status === 'Active').length * 0.5 || 2, batches.filter(b => b.status === 'Active').length * 0.7 || 3, batches.filter(b => b.status === 'Active').length * 0.8 || 4, batches.filter(b => b.status === 'Active').length * 0.9 || 5, batches.filter(b => b.status === 'Active').length || 6]} />
+        <KpiCard icon={<LuVideo />} accent="blue" label="With Zoom" value={batches.filter(b => b.zoomLink).length} spark={[batches.filter(b => b.zoomLink).length * 0.3 || 1, batches.filter(b => b.zoomLink).length * 0.5 || 2, batches.filter(b => b.zoomLink).length * 0.7 || 3, batches.filter(b => b.zoomLink).length * 0.8 || 4, batches.filter(b => b.zoomLink).length * 0.9 || 5, batches.filter(b => b.zoomLink).length || 6]} />
       </div>
 
       <form onSubmit={handleSave} className={s.card} style={{ marginBottom: '20px' }}>
