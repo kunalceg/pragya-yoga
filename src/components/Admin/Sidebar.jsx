@@ -2,13 +2,13 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import s from './YogaAdmin.module.css';
 import {
-  LuChevronsLeft, LuChevronsRight, LuChevronsUpDown, LuPlus, LuLogOut, LuArrowLeft,
+  LuChevronsLeft, LuChevronsRight, LuPlus, LuLogOut, LuArrowLeft,
 } from 'react-icons/lu';
 
 const SECTIONS = [
   { label: 'Core Operations', range: [0, 4] },
   { label: 'Studio Management', range: [4, 8] },
-  { label: 'Growth & Comms', range: [8, 10] },
+  { label: 'Communications', range: [8, 10] },
 ];
 
 export default function Sidebar({
@@ -19,63 +19,81 @@ export default function Sidebar({
 
   return (
     <aside className={`${s.sidebar} ${collapsed ? s.sidebarCollapsed : ''} ${mobileOpen ? s.sidebarOpen : ''}`}>
-      <div className={s.sidebarInner}>
-        <button type="button" className={s.collapseBtn} onClick={onToggleCollapse} title={collapsed ? 'Expand' : 'Collapse'}>
-          {collapsed ? <LuChevronsRight /> : <LuChevronsLeft />}
-        </button>
 
-        {/* Workspace switcher */}
-        <div className={s.workspace}>
-          <div className={s.logoMark}>🪷</div>
-          <div>
-            <span className={s.logoTitle}>Ashram OS</span>
-            <span className={s.logoSub}>Pragya Yoga Studio</span>
-          </div>
-          <LuChevronsUpDown className={s.workspaceChevron} />
+      {/* ── Header ── */}
+      <div className={s.sbHeader}>
+        <div className={s.sbLogo}>
+          <span className={s.sbLogoIcon}>🪷</span>
+          {!collapsed && (
+            <div className={s.sbLogoText}>
+              <span className={s.sbLogoTitle}>AshramOS</span>
+              <span className={s.sbLogoSub}>Pragya Yoga Studio</span>
+            </div>
+          )}
         </div>
-
-        {/* Quick action */}
-        <button type="button" className={s.sideQuick} onClick={onQuickCreate}>
-          <LuPlus size={16} /><span className={s.sideQuickText}>Quick Create</span>
+        <button
+          type="button"
+          className={s.sbCollapseBtn}
+          onClick={onToggleCollapse}
+          title={collapsed ? 'Expand' : 'Collapse'}
+        >
+          {collapsed ? <LuChevronsRight size={16} /> : <LuChevronsLeft size={16} />}
         </button>
+      </div>
 
-        {/* Nav */}
-        <nav className={s.navScroll}>
-          {SECTIONS.map(sec => (
-            <React.Fragment key={sec.label}>
-              <div className={s.sidebarSection}>{sec.label}</div>
-              {navItems.slice(sec.range[0], sec.range[1]).map(tab => (
+      {/* ── Profile ── */}
+      <button type="button" className={s.sbProfile}>
+        <div className={s.sbAvatar}>{user.avatar}</div>
+        {!collapsed && (
+          <div className={s.sbProfileMeta}>
+            <div className={s.sbName}>{user.name}</div>
+            <div className={s.sbRole}>{user.role}</div>
+          </div>
+        )}
+      </button>
+
+      {/* ── Quick Create ── */}
+      <button type="button" className={s.sbQuickCreate} onClick={onQuickCreate}>
+        <LuPlus size={18} />
+        {!collapsed && <span>Quick Create</span>}
+      </button>
+
+      {/* ── Navigation ── */}
+      <nav className={s.sbNav}>
+        {SECTIONS.map((sec) => (
+          <div key={sec.label} className={s.sbNavBlock}>
+            {!collapsed && <div className={s.sbSectionLabel}>{sec.label}</div>}
+            {navItems.slice(sec.range[0], sec.range[1]).map((tab) => {
+              const isActive = activeTab === tab.id;
+              return (
                 <button
                   key={tab.id}
                   onClick={() => handleNav(tab.id)}
-                  className={`${s.navItem} ${activeTab === tab.id ? s.navActive : ''}`}
+                  className={`${s.sbNavItem} ${isActive ? s.sbNavActive : ''}`}
                   title={tab.label}
                 >
-                  <span className={s.navIcon}>{tab.icon}</span>
-                  <span className={s.navText}>{tab.label}</span>
-                  {tab.badge ? <span className={s.navBadge}>{tab.badge}</span> : null}
+                  <span className={s.sbNavIcon}>{tab.icon}</span>
+                  {!collapsed && <span className={s.sbNavText}>{tab.label}</span>}
+                  {tab.badge != null && !collapsed && (
+                    <span className={s.sbNavBadge}>{tab.badge}</span>
+                  )}
                 </button>
-              ))}
-            </React.Fragment>
-          ))}
-        </nav>
-
-        {/* Footer / profile */}
-        <div className={s.sidebarFooter}>
-          <div className={s.userRow}>
-            <div className={s.userAvatar}>{user.avatar}</div>
-            <div className={s.userMeta}>
-              <div className={s.userName}>{user.name}</div>
-              <div className={s.userRole}>{user.role}</div>
-            </div>
+              );
+            })}
           </div>
-          <Link to="/" className={s.btnLogout} title="Back to Website">
-            <span className={s.logoutIcon}><LuArrowLeft /></span><span>Back to Website</span>
-          </Link>
-          <button type="button" className={s.btnLogout} onClick={onSignOut} title="Sign Out">
-            <span className={s.logoutIcon}><LuLogOut /></span><span>Sign Out</span>
-          </button>
-        </div>
+        ))}
+      </nav>
+
+      {/* ── Footer ── */}
+      <div className={s.sbFooter}>
+        <Link to="/" className={s.sbFooterLink} title="Back to Website">
+          <LuArrowLeft size={16} />
+          {!collapsed && <span>Back to Website</span>}
+        </Link>
+        <button type="button" className={s.sbFooterBtn} onClick={onSignOut} title="Sign Out">
+          <LuLogOut size={16} />
+          {!collapsed && <span>Sign Out</span>}
+        </button>
       </div>
     </aside>
   );
