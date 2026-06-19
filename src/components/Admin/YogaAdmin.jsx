@@ -29,6 +29,9 @@ import {
   createStudent, broadcastNotification,
   getLeads, getBatches,
 } from '../api/AdminServices.js';
+import {
+  AddStudentModal, AddLeadModal, NewBatchModal, RecordPaymentModal,
+} from './QuickActionModals';
 
 export default function YogaAdmin({ onLogout = () => {} }) {
   const { theme, toggleTheme } = useTheme();
@@ -37,6 +40,7 @@ export default function YogaAdmin({ onLogout = () => {} }) {
   const [feedback, setFeedback] = useState({ message: '', type: '' });
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [quickModal, setQuickModal] = useState(null);
 
   // Live data pulled from MongoDB via the admin API.
   const [overview, setOverview] = useState({ metrics: {}, systemHealth: [], todaySchedule: [], recentStudents: [] });
@@ -100,15 +104,24 @@ export default function YogaAdmin({ onLogout = () => {} }) {
   const topActivity = recentStudents.slice(0, 5).map((st) => ({
     title: `${st.name || 'New student'} registered`,
     meta: st.city || st.email || 'Student CRM',
-    color: '#7c3aed',
+    color: '#F97316',
   }));
   const topNotifs = [
-    (overview.metrics?.pendingBookings ? { title: `${overview.metrics.pendingBookings} pending bookings`, meta: 'Bookings need confirmation', color: '#f59e0b' } : null),
-    (leads.length ? { title: `${overview.totalLeads ?? leads.length} active leads in pipeline`, meta: 'Pipeline CRM', color: '#6366f1' } : null),
-    (overview.metrics?.newThisMonth ? { title: `${overview.metrics.newThisMonth} new members this month`, meta: 'Growth', color: '#22c55e' } : null),
+    (overview.metrics?.pendingBookings ? { title: `${overview.metrics.pendingBookings} pending bookings`, meta: 'Bookings need confirmation', color: '#D97706' } : null),
+    (leads.length ? { title: `${overview.totalLeads ?? leads.length} active leads in pipeline`, meta: 'Pipeline CRM', color: '#FB923C' } : null),
+    (overview.metrics?.newThisMonth ? { title: `${overview.metrics.newThisMonth} new members this month`, meta: 'Growth', color: '#16A34A' } : null),
   ].filter(Boolean);
 
-  const goCreate = () => { setActiveTab('students'); setMobileOpen(false); };
+  const goCreate = () => { setActiveTab('insights'); setQuickModal('student'); setMobileOpen(false); };
+  const closeModal = () => { setQuickModal(null); };
+  const afterCreate = () => { closeModal(); loadAll(); };
+  const handleQuickAction = (key) => { setActiveTab('insights'); setQuickModal(key); };
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setQuickModal(null);
+    setMobileOpen(false);
+  };
 
   // Create a student through the admin API (persists to MongoDB).
   const handleSaveStudent = async (e) => {
@@ -174,11 +187,11 @@ export default function YogaAdmin({ onLogout = () => {} }) {
   const adminUser = { name: 'Studio Admin', role: 'Studio Administrator', avatar: 'SA' };
 
   return (
-    <div className={s.shell}>
+    <div className={`${s.shell} ${collapsed ? s.shellCollapsed : ''}`}>
       {mobileOpen && <div className={s.backdrop} onClick={() => setMobileOpen(false)} />}
       <Sidebar
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={handleTabChange}
         navItems={NAV_ITEMS}
         user={adminUser}
         onSignOut={() => setShowLogoutModal(true)}
@@ -207,6 +220,7 @@ export default function YogaAdmin({ onLogout = () => {} }) {
             totalLeads={overview.totalLeads ?? leads.length}
             totalBatches={overview.totalBatches ?? batches.length}
             onRefresh={loadAll}
+            onQuickAction={handleQuickAction}
           />
         )}
         {activeTab === 'students' && (
@@ -236,6 +250,11 @@ export default function YogaAdmin({ onLogout = () => {} }) {
           onConfirm={() => { setShowLogoutModal(false); onLogout(); }}
         />
       )}
+
+      {quickModal === 'student' && <AddStudentModal onClose={closeModal} onSuccess={afterCreate} />}
+      {quickModal === 'lead' && <AddLeadModal onClose={closeModal} onSuccess={afterCreate} />}
+      {quickModal === 'batch' && <NewBatchModal onClose={closeModal} onSuccess={afterCreate} />}
+      {quickModal === 'payment' && <RecordPaymentModal onClose={closeModal} onSuccess={afterCreate} />}
     </div>
   );
 }

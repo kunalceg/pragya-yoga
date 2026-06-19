@@ -1,14 +1,14 @@
 import React from 'react';
 import s from './YogaAdmin.module.css';
 import Badge from './Badge';
-import { PageHeader, KpiCard, ChartCard, AreaChart, BarChart, Avatar, trendSeed } from './ui/Primitives';
+import { PageHeader, KpiCard, ChartCard, AreaChart, BarChart, Avatar } from './ui/Primitives';
 import {
   LuRefreshCw, LuUsers, LuFilter, LuRadioTower, LuIndianRupee,
   LuUserPlus, LuCreditCard, LuCalendarCheck, LuSparkles, LuActivity,
   LuClock, LuArrowRight, LuPlus,
 } from 'react-icons/lu';
 
-export default function DashboardInsights({ data = {}, totalLeads = 0, totalBatches = 0, onRefresh }) {
+export default function DashboardInsights({ data = {}, totalLeads = 0, totalBatches = 0, onRefresh, onQuickAction }) {
   const metrics = data.metrics || {};
   const systemHealth = data.systemHealth?.length ? data.systemHealth : [];
   const schedule = data.todaySchedule?.length ? data.todaySchedule : [];
@@ -17,10 +17,14 @@ export default function DashboardInsights({ data = {}, totalLeads = 0, totalBatc
   const revenue = metrics.revenue || 0;
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
 
-  // Deterministic, stable demo trends derived from real totals (presentation only).
-  const revTrend = trendSeed('revenue', 6).map(v => Math.round((revenue || 1000) * (0.5 + v / 20)));
-  const memTrend = trendSeed('members', 6).map(v => Math.round((metrics.activeStudents || 8) * (0.4 + v / 16)));
-  const bookTrend = trendSeed('bookings', 6).map(v => v + 2);
+  const revTrend = revenue > 0
+    ? [revenue * 0.6, revenue * 0.7, revenue * 0.75, revenue * 0.8, revenue * 0.9, revenue]
+    : [600, 700, 750, 800, 900, 1000];
+  const activeMembers = metrics.activeStudents ?? 0;
+  const memTrend = activeMembers > 0
+    ? Array.from({ length: 6 }, (_, i) => Math.round(activeMembers * (0.4 + i * 0.12)))
+    : [8, 10, 12, 14, 16, 18];
+  const bookTrend = [2, 3, 4, 5, 5, 6];
 
   const activity = [
     ...recentStudents.slice(0, 4).map((st) => ({
@@ -33,10 +37,10 @@ export default function DashboardInsights({ data = {}, totalLeads = 0, totalBatc
   ];
 
   const quickActions = [
-    { icon: <LuUserPlus />, label: 'Add Student' },
-    { icon: <LuRadioTower />, label: 'New Batch' },
-    { icon: <LuFilter />, label: 'Add Lead' },
-    { icon: <LuCreditCard />, label: 'Record Payment' },
+    { icon: <LuUserPlus />, label: 'Add Student', key: 'student' },
+    { icon: <LuRadioTower />, label: 'New Batch', key: 'batch' },
+    { icon: <LuFilter />, label: 'Add Lead', key: 'lead' },
+    { icon: <LuCreditCard />, label: 'Record Payment', key: 'payment' },
   ];
 
   return (
@@ -53,9 +57,9 @@ export default function DashboardInsights({ data = {}, totalLeads = 0, totalBatc
         <KpiCard icon={<LuUsers />} accent="orange" label="Active Members" value={metrics.activeStudents ?? 0}
           trend={`${metrics.newThisMonth ?? 0} new`} trendUp spark={memTrend} />
         <KpiCard icon={<LuFilter />} accent="amber" label="Open CRM Leads" value={totalLeads}
-          trend={`${metrics.pendingBookings ?? 0} pending`} trendUp spark={trendSeed('leads', 8)} />
+          trend={`${metrics.pendingBookings ?? 0} pending`} trendUp spark={[totalLeads * 0.4, totalLeads * 0.5, totalLeads * 0.7, totalLeads * 0.8, totalLeads * 0.9, totalLeads || 1]} />
         <KpiCard icon={<LuRadioTower />} accent="blue" label="Live Batches" value={totalBatches}
-          trend={`${metrics.activeMemberships ?? 0} memberships`} trendUp spark={trendSeed('batches', 8)} />
+          trend={`${metrics.activeMemberships ?? 0} memberships`} trendUp spark={[totalBatches * 0.3, totalBatches * 0.5, totalBatches * 0.6, totalBatches * 0.8, totalBatches * 0.9, totalBatches || 1]} />
         <KpiCard icon={<LuIndianRupee />} accent="green" label="Gross Revenue" value={revenue} prefix="₹"
           trend="collected" trendUp spark={revTrend} />
       </div>
@@ -67,14 +71,14 @@ export default function DashboardInsights({ data = {}, totalLeads = 0, totalBatc
             title="Revenue & Membership Trend"
             subtitle="Last 6 months"
             right={<div style={{ textAlign: 'right' }}><div className={s.chartBig}>₹{revenue.toLocaleString('en-IN')}</div><div className={s.chartSub}>total collected</div></div>}
-            legend={[{ color: '#7c3aed', label: 'Revenue' }, { color: '#22c55e', label: 'Members' }]}
+            legend={[{ color: '#F97316', label: 'Revenue' }, { color: '#16A34A', label: 'Members' }]}
           >
             <div style={{ color: 'var(--text-1)' }}>
               <AreaChart
                 labels={months}
                 series={[
-                  { color: '#7c3aed', data: revTrend },
-                  { color: '#22c55e', data: memTrend.map(v => v * 40) },
+                  { color: '#F97316', data: revTrend },
+                  { color: '#16A34A', data: memTrend.map(v => v * 40) },
                 ]}
               />
             </div>
@@ -82,7 +86,7 @@ export default function DashboardInsights({ data = {}, totalLeads = 0, totalBatc
 
           <ChartCard title="Booking Analytics" subtitle="Sessions booked per month">
             <div style={{ color: 'var(--text-1)' }}>
-              <BarChart labels={months} data={bookTrend} color="#6366f1" />
+              <BarChart labels={months} data={bookTrend} color="#FB923C" />
             </div>
           </ChartCard>
         </div>
@@ -108,7 +112,7 @@ export default function DashboardInsights({ data = {}, totalLeads = 0, totalBatc
             <h3 className={s.cardTitle}><span className={s.cardTitleIcon}><LuSparkles /></span>Quick Actions</h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
               {quickActions.map((q, i) => (
-                <button key={i} type="button" className={s.btn} style={{ justifyContent: 'flex-start', padding: '12px' }}>
+                <button key={i} type="button" className={s.btn} style={{ justifyContent: 'flex-start', padding: '12px' }} onClick={() => onQuickAction?.(q.key)}>
                   <span className={s.cardTitleIcon}>{q.icon}</span>{q.label}
                 </button>
               ))}
