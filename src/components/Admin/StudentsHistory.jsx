@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import s from './YogaAdmin.module.css';
 import Badge from './Badge';
-import { PageHeader, KpiCard, Drawer, Avatar, trendSeed } from './ui/Primitives';
+import { PageHeader, KpiCard, Avatar } from './ui/Primitives';
 import { getStudents, deleteStudent } from '../api/AdminServices.js';
+import StudentProfileWorkspace from './StudentProfileWorkspace';
 import {
   LuUserPlus, LuX, LuSearch, LuTrash2, LuUsers, LuBadgeCheck, LuClock,
-  LuMail, LuPhone, LuMapPin, LuActivity, LuStickyNote,
 } from 'react-icons/lu';
 
 export default function StudentsHistory({ form, setForm, onSave, onChanged, feedback }) {
@@ -17,6 +17,7 @@ export default function StudentsHistory({ form, setForm, onSave, onChanged, feed
   const [showForm, setShowForm]     = useState(false);
   const [quickFilter, setQuickFilter] = useState('all');
   const [selected, setSelected]     = useState(null);
+  const [localFeedback, setLocalFeedback] = useState({ message: '', type: '' });
 
   const fetchStudents = async () => {
     setLoading(true);
@@ -49,7 +50,8 @@ export default function StudentsHistory({ form, setForm, onSave, onChanged, feed
       setSelected(prev => (prev && prev._id === id ? null : prev));
       onChanged?.();
     } catch {
-      alert('Failed to delete student. Try again.');
+      setLocalFeedback({ message: 'Failed to delete student. Try again.', type: 'error' });
+      setTimeout(() => setLocalFeedback({ message: '', type: '' }), 4000);
     } finally {
       setDeletingId(null);
     }
@@ -89,9 +91,9 @@ export default function StudentsHistory({ form, setForm, onSave, onChanged, feed
         </button>
       </PageHeader>
 
-      {feedback?.message && (
-        <div className={`${s.feedbackInline} ${feedback.type === 'success' ? s.bannerSuccess : s.bannerError}`}>
-          <span className={s.bannerIcon}>{feedback.type === 'success' ? '✓' : '⚠'}</span>{feedback.message}
+      {(feedback?.message || localFeedback.message) && (
+        <div className={`${s.feedbackInline} ${(feedback?.type || localFeedback.type) === 'success' ? s.bannerSuccess : s.bannerError}`}>
+          <span className={s.bannerIcon}>{(feedback?.type || localFeedback.type) === 'success' ? '✓' : '⚠'}</span>{feedback?.message || localFeedback.message}
         </div>
       )}
 
@@ -113,9 +115,9 @@ export default function StudentsHistory({ form, setForm, onSave, onChanged, feed
       )}
 
       <div className={s.statsGrid} style={{ gridTemplateColumns: 'repeat(3,1fr)', marginBottom: '20px' }}>
-        <KpiCard icon={<LuUsers />} accent="orange" label="Total Students" value={counts.all} spark={trendSeed('total', 8)} />
-        <KpiCard icon={<LuBadgeCheck />} accent="green" label="Active Plans" value={counts.active} spark={trendSeed('activep', 8)} />
-        <KpiCard icon={<LuClock />} accent="amber" label="No Plan Yet" value={counts.pending} spark={trendSeed('pend', 8)} />
+        <KpiCard icon={<LuUsers />} accent="orange" label="Total Students" value={counts.all} spark={[counts.all * 0.3 || 1, counts.all * 0.5 || 2, counts.all * 0.7 || 3, counts.all * 0.8 || 4, counts.all * 0.9 || 5, counts.all || 6]} />
+        <KpiCard icon={<LuBadgeCheck />} accent="green" label="Active Plans" value={counts.active} spark={[counts.active * 0.3 || 1, counts.active * 0.5 || 2, counts.active * 0.7 || 3, counts.active * 0.8 || 4, counts.active * 0.9 || 5, counts.active || 6]} />
+        <KpiCard icon={<LuClock />} accent="amber" label="No Plan Yet" value={counts.pending} spark={[counts.pending * 0.3 || 1, counts.pending * 0.5 || 2, counts.pending * 0.7 || 3, counts.pending * 0.8 || 4, counts.pending * 0.9 || 5, counts.pending || 6]} />
       </div>
 
       {/* Search + quick filters */}
@@ -199,63 +201,14 @@ export default function StudentsHistory({ form, setForm, onSave, onChanged, feed
         )}
       </div>
 
-      {/* Detail drawer */}
-      <Drawer open={!!selected} onClose={() => setSelected(null)}>
-        {selected && (
-          <>
-            <div className={s.drawerHeader}>
-              <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
-                <Avatar name={selected.name} size={s.avatarLg} />
-                <div>
-                  <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 18, letterSpacing: '-0.02em' }}>{selected.name}</div>
-                  <div style={{ fontSize: 12.5, color: 'var(--text-2)', marginTop: 3 }}>{selected.style || 'Yoga Student'} · {selected.level || 'Beginner'}</div>
-                  <div style={{ marginTop: 8 }}><Badge label={getPlanStatus(selected)} /></div>
-                </div>
-              </div>
-              <button type="button" className={s.drawerClose} onClick={() => setSelected(null)}><LuX /></button>
-            </div>
-            <div className={s.drawerBody}>
-              <div className={s.drawerSection}>
-                <div className={s.drawerSectionTitle}>Membership</div>
-                <div className={s.drawerStatRow}>
-                  <div className={s.drawerStat}><div className={s.drawerStatLabel}>Plan</div><div className={s.drawerStatVal}>{selected.planMonths ? `${selected.planMonths} mo` : 'None'}</div></div>
-                  <div className={s.drawerStat}><div className={s.drawerStatLabel}>Status</div><div className={s.drawerStatVal} style={{ fontSize: 15 }}>{getPlanStatus(selected)}</div></div>
-                </div>
-              </div>
-
-              <div className={s.drawerSection}>
-                <div className={s.drawerSectionTitle}>Profile</div>
-                <div className={s.infoRow}><span className={s.infoLabel}><LuMail size={13} style={{ verticalAlign: '-2px', marginRight: 6 }} />Email</span><span className={s.infoVal}>{selected.email}</span></div>
-                <div className={s.infoRow}><span className={s.infoLabel}><LuPhone size={13} style={{ verticalAlign: '-2px', marginRight: 6 }} />Phone</span><span className={s.infoVal}>{selected.phone || '—'}</span></div>
-                <div className={s.infoRow}><span className={s.infoLabel}><LuMapPin size={13} style={{ verticalAlign: '-2px', marginRight: 6 }} />City</span><span className={s.infoVal}>{selected.city || '—'}</span></div>
-                <div className={s.infoRow}><span className={s.infoLabel}>Joined</span><span className={s.infoVal}>{selected.createdAt ? new Date(selected.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}</span></div>
-              </div>
-
-              <div className={s.drawerSection}>
-                <div className={s.drawerSectionTitle}><LuActivity size={12} style={{ verticalAlign: '-1px', marginRight: 5 }} />Recent Activity</div>
-                <div className={s.timeline}>
-                  <div className={s.timeItem}><div className={s.timeIcon}><LuUserPlus size={15} /></div><div className={s.timeBody}><div className={s.timeTitle}>Profile created</div><div className={s.timeMeta}>{selected.createdAt ? new Date(selected.createdAt).toLocaleDateString('en-IN') : 'Recently'}</div></div></div>
-                  {selected.planMonths > 0 && <div className={s.timeItem}><div className={s.timeIconGreen}><LuBadgeCheck size={15} /></div><div className={s.timeBody}><div className={s.timeTitle}>Membership active</div><div className={s.timeMeta}>{selected.planMonths} month plan</div></div></div>}
-                </div>
-              </div>
-
-              <div className={s.drawerSection}>
-                <div className={s.drawerSectionTitle}><LuStickyNote size={12} style={{ verticalAlign: '-1px', marginRight: 5 }} />Notes</div>
-                <textarea className={s.textarea} placeholder="Add a private note about this student…" style={{ height: 70 }} />
-              </div>
-
-              <button
-                type="button"
-                className={`${s.btn} ${s.btnDanger}`}
-                onClick={() => handleDelete(selected._id, selected.name)}
-                disabled={deletingId === selected._id}
-              >
-                <LuTrash2 size={14} /> {deletingId === selected._id ? 'Removing…' : 'Remove Student'}
-              </button>
-            </div>
-          </>
-        )}
-      </Drawer>
+      {/* Student Profile Workspace Drawer */}
+      {selected && (
+        <StudentProfileWorkspace
+          student={selected}
+          onClose={() => { setSelected(null); onChanged?.(); }}
+          onRefresh={onChanged}
+        />
+      )}
     </div>
   );
 }
