@@ -14,7 +14,7 @@ import Settings from '../models/Settings.js';
 const router = express.Router();
 
 router.get('/courses', asyncHandler(async (req, res) => res.json(await Course.find({ active: true }))));
-router.get('/plans', asyncHandler(async (req, res) => res.json(await Plan.find({ active: true }).sort({ durationMonths: 1 }))));
+router.get('/plans', asyncHandler(async (req, res) => res.json(await Plan.find({ active: true }).sort({ displayOrder: 1 }))));
 router.get('/batches', asyncHandler(async (req, res) => res.json(await Batch.find({ status: { $ne: 'Closed' } }).sort({ createdAt: -1 }))));
 router.get('/workshops', asyncHandler(async (req, res) => res.json(await Workshop.find({ status: 'available', date: { $gte: new Date() } }).sort({ date: 1 }))));
 router.get('/settings', asyncHandler(async (req, res) => {

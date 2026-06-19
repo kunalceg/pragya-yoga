@@ -12,12 +12,16 @@ const UserSchema = new mongoose.Schema(
     status: { type: String, enum: ['active', 'banned', 'pending'], default: 'active', index: true },
 
     // ── Profile ──
-    phone:  { type: String, default: '' },
-    city:   { type: String, default: '' },
-    style:  { type: String, default: 'Hatha' },
-    level:  { type: String, default: 'Beginner' },
-    avatar: { type: String, default: '' },
-    bio:    { type: String, default: '' },
+    phone:           { type: String, default: '' },
+    city:            { type: String, default: '' },
+    style:           { type: String, default: 'Hatha' },
+    level:           { type: String, default: 'Beginner' },
+    avatar:          { type: String, default: '' },
+    bio:             { type: String, default: '' },
+    notes:           { type: String, default: '' },
+    gender:          { type: String, default: '' },
+    dateOfBirth:     { type: Date, default: null },
+    emergencyContact:{ type: String, default: '' },
 
     // ── Cached / denormalised counters (kept in sync by services) ──
     planMonths:          { type: Number, default: 0 },

@@ -71,10 +71,11 @@ async function run() {
 
   // ── Plans ──
   const plans = await Plan.create([
-    { name: 'Monthly Pass', price: 2200, durationMonths: 1, pauseDays: 0, benefits: ['Unlimited live classes', 'Zoom access'] },
-    { name: 'Quarterly Pass', price: 6000, durationMonths: 3, pauseDays: 15, benefits: ['Unlimited live classes', 'Zoom access', 'Recorded sessions'] },
-    { name: 'Half-Yearly Pass', price: 11000, durationMonths: 6, pauseDays: 30, benefits: ['Everything in Quarterly', 'Monthly consultation'] },
-    { name: 'Annual Pass', price: 20000, durationMonths: 12, pauseDays: 60, benefits: ['Everything', '2 free workshops', 'Priority support'] },
+    { name: 'Monthly Pass', price: 2200, durationMonths: 1, pauseDays: 0, displayOrder: 1, isPopular: false, benefits: ['Unlimited live classes', 'Zoom access'], features: ['Daily live yoga classes', 'Zoom session access', 'Community group access'], membershipAccess: 'Studio & Zoom' },
+    { name: 'Quarterly Pass', price: 6000, durationMonths: 3, pauseDays: 15, displayOrder: 2, isPopular: false, benefits: ['Unlimited live classes', 'Zoom access', 'Recorded sessions'], features: ['Everything in Monthly', 'Recorded session library', 'Beginner practice guide', 'Email support'], membershipAccess: 'Studio, Zoom & Recordings' },
+    { name: 'Half-Yearly Pass', price: 11000, durationMonths: 6, pauseDays: 30, displayOrder: 3, isPopular: true, benefits: ['Everything in Quarterly', 'Monthly consultation'], features: ['Everything in Quarterly', 'Monthly 1-on-1 consultation', 'Personalised nutrition guide', 'Workshop discounts', 'Priority email support'], membershipAccess: 'Studio, Zoom, Recordings & Consultation' },
+    { name: 'Annual Pass', price: 20000, durationMonths: 12, pauseDays: 60, displayOrder: 4, isPopular: false, benefits: ['Everything', '2 free workshops', 'Priority support'], features: ['Everything in Half-Yearly', '2 free workshops', 'Priority WhatsApp support', 'Exclusive event invites', 'Cancel anytime'], membershipAccess: 'Full Premium Access' },
+    { name: '2-Year Pass', price: 35000, durationMonths: 24, pauseDays: 90, displayOrder: 5, isPopular: false, benefits: ['Everything in Annual', 'Unlimited workshops', 'Dedicated mentor'], features: ['Everything in Annual', 'Unlimited workshops', 'Dedicated mentor', 'Early access to new courses', 'Lifetime community access'], membershipAccess: 'Ultimate Premium Access' },
   ]);
   const planByMonths = Object.fromEntries(plans.map((p) => [p.durationMonths, p]));
 
