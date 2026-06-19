@@ -110,12 +110,14 @@ export const getStudents = asyncHandler(async (req, res) => {
 export const getStudentById = asyncHandler(async (req, res) => {
   const student = await User.findById(req.params.id);
   if (!student) throw ApiError.notFound('Student not found');
-  const [membership, payments, attendanceCount] = await Promise.all([
+  const [membership, payments, attendanceRecords, classSessions, activityLogs] = await Promise.all([
     Membership.findOne({ user: student._id }).sort({ createdAt: -1 }),
     Payment.find({ user: student._id }).sort({ date: -1 }),
-    Attendance.countDocuments({ user: student._id, status: { $in: ['present', 'zoom'] } }),
+    Attendance.find({ user: student._id }).sort({ date: -1 }),
+    ClassSession.find({ enrolledUsers: student._id }).sort({ date: -1 }),
+    ActivityLog.find({ targetUser: student._id }).sort({ createdAt: -1 }).limit(50),
   ]);
-  res.json({ student, membership, payments, attendanceCount });
+  res.json({ student, membership, payments, attendanceRecords, classSessions, activityLogs });
 });
 
 export const createStudent = asyncHandler(async (req, res) => {
@@ -136,7 +138,7 @@ export const createStudent = asyncHandler(async (req, res) => {
 });
 
 export const updateStudent = asyncHandler(async (req, res) => {
-  const allowed = ['name', 'email', 'phone', 'city', 'style', 'level', 'planMonths', 'status', 'bio'];
+  const allowed = ['name', 'email', 'phone', 'city', 'style', 'level', 'planMonths', 'status', 'bio', 'notes', 'gender', 'dateOfBirth', 'emergencyContact'];
   const updates = {};
   for (const f of allowed) if (req.body[f] !== undefined) updates[f] = req.body[f];
 
@@ -202,6 +204,126 @@ export const revokePlan = asyncHandler(async (req, res) => {
   res.json({ success: true, membership: m });
 });
 
+// ── Membership renew (admin) ────────────────────────────────
+export const renewMembership = asyncHandler(async (req, res) => {
+  const { studentId, planId } = req.body;
+  if (!studentId || !planId) throw ApiError.badRequest('studentId and planId are required');
+
+  const plan = await Plan.findById(planId);
+  if (!plan) throw ApiError.notFound('Plan not found');
+
+  const student = await User.findById(studentId);
+  if (!student) throw ApiError.notFound('Student not found');
+
+  const now = new Date();
+  let m = await Membership.findOne({ user: studentId }).sort({ createdAt: -1 });
+  const base = m && m.expiryDate > now ? m.expiryDate.getTime() : now.getTime();
+  const expiry = new Date(base + plan.durationMonths * 30 * DAY);
+
+  if (!m) {
+    m = await Membership.create({
+      user: studentId,
+      planType: plan.name,
+      planMonths: plan.durationMonths,
+      price: plan.price,
+      status: 'active',
+      startDate: now,
+      expiryDate: expiry,
+      pauseDaysAllowed: plan.pauseDays ?? 0,
+      benefits: plan.benefits,
+      history: [{ action: 'created', planMonths: plan.durationMonths, note: `Renewed with ${plan.name}` }],
+    });
+  } else {
+    m.planType = plan.name;
+    m.planMonths = plan.durationMonths;
+    m.price = plan.price;
+    m.status = 'active';
+    m.expiryDate = expiry;
+    m.pauseDaysAllowed = plan.pauseDays ?? m.pauseDaysAllowed;
+    m.benefits = plan.benefits;
+    m.history.push({ action: 'renewed', planMonths: plan.durationMonths, note: `Renewed with ${plan.name}` });
+    await m.save();
+  }
+
+  await User.findByIdAndUpdate(studentId, { planMonths: plan.durationMonths });
+
+  const payment = await Payment.create({
+    user: studentId, label: `${plan.name} (Renewal)`, amount: plan.price,
+    status: 'paid', method: 'UPI',
+  });
+
+  await notify(studentId, {
+    title: 'Membership renewed',
+    message: `Your ${plan.name} is active until ${expiry.toLocaleDateString('en-IN')}.`,
+    type: 'success',
+  });
+
+  await log(`Renewed membership: ${plan.name} for ${student.name}`, req, studentId, { planId, planName: plan.name, amount: plan.price, invoiceNo: payment.invoiceNo });
+
+  res.json({ success: true, membership: m, payment, invoiceNo: payment.invoiceNo });
+});
+
+// ── Membership upgrade (admin) ──────────────────────────────
+export const upgradeMembership = asyncHandler(async (req, res) => {
+  const { studentId, currentPlanId, targetPlanId } = req.body;
+  if (!studentId || !targetPlanId) throw ApiError.badRequest('studentId and targetPlanId are required');
+
+  const targetPlan = await Plan.findById(targetPlanId);
+  if (!targetPlan) throw ApiError.notFound('Target plan not found');
+
+  const student = await User.findById(studentId);
+  if (!student) throw ApiError.notFound('Student not found');
+
+  let m = await Membership.findOne({ user: studentId }).sort({ createdAt: -1 });
+  if (!m) throw ApiError.notFound('No existing membership to upgrade');
+
+  const currentPlan = currentPlanId ? await Plan.findById(currentPlanId) : null;
+
+  const now = new Date();
+  const newExpiry = new Date(now.getTime() + targetPlan.durationMonths * 30 * DAY);
+  const additionalCost = targetPlan.price - (currentPlan?.price || 0);
+
+  m.planType = targetPlan.name;
+  m.planMonths = targetPlan.durationMonths;
+  m.price = targetPlan.price;
+  m.status = 'active';
+  m.expiryDate = newExpiry;
+  m.pauseDaysAllowed = targetPlan.pauseDays ?? m.pauseDaysAllowed;
+  m.benefits = targetPlan.benefits;
+  m.history.push({
+    action: 'upgraded',
+    planMonths: targetPlan.durationMonths,
+    note: `Upgraded from ${currentPlan?.name || 'previous'} to ${targetPlan.name}`,
+  });
+  await m.save();
+
+  await User.findByIdAndUpdate(studentId, { planMonths: targetPlan.durationMonths });
+
+  const amount = additionalCost > 0 ? additionalCost : targetPlan.price;
+  const payment = await Payment.create({
+    user: studentId,
+    label: `${targetPlan.name} (Upgrade from ${currentPlan?.name || 'previous'})`,
+    amount,
+    status: 'paid',
+    method: 'UPI',
+  });
+
+  await notify(studentId, {
+    title: 'Membership upgraded',
+    message: `You're now on the ${targetPlan.name} plan.`,
+    type: 'success',
+  });
+
+  await log(`Upgraded membership to ${targetPlan.name} for ${student.name}`, req, studentId, {
+    fromPlan: currentPlan?.name || 'unknown',
+    toPlan: targetPlan.name,
+    amount,
+    invoiceNo: payment.invoiceNo,
+  });
+
+  res.json({ success: true, membership: m, payment, invoiceNo: payment.invoiceNo, additionalCost });
+});
+
 // ── Payments ─────────────────────────────────────────────────
 export const getPayments = asyncHandler(async (req, res) => {
   const payments = await Payment.find().populate('user', 'name email').sort({ date: -1 });
@@ -240,6 +362,11 @@ export const markAttendance = asyncHandler(async (req, res) => {
 export const getStudentAttendance = asyncHandler(async (req, res) => {
   const records = await Attendance.find({ user: req.params.id }).sort({ date: -1 });
   res.json(records);
+});
+
+export const getStudentLogs = asyncHandler(async (req, res) => {
+  const logs = await ActivityLog.find({ targetUser: req.params.id }).sort({ createdAt: -1 }).limit(50);
+  res.json(logs);
 });
 
 // ── Generic CRUD factory for simple collections ──────────────

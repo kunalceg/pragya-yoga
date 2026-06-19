@@ -21,10 +21,15 @@ router.get('/students/:id', a.getStudentById);
 router.put('/students/:id', a.updateStudent);
 router.delete('/students/:id', a.deleteStudent);
 router.patch('/students/:id/status', a.setStudentStatus);
+router.get('/students/:id/logs', a.getStudentLogs);
 
 // Plans assignment
 router.post('/plans/assign', a.assignPlan);
 router.put('/plans/revoke/:id', a.revokePlan);
+
+// Memberships renew & upgrade
+router.post('/memberships/renew', a.renewMembership);
+router.post('/memberships/upgrade', a.upgradeMembership);
 
 // Payments
 router.get('/payments', a.getPayments);
