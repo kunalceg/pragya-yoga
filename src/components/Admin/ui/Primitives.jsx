@@ -25,7 +25,7 @@ export function Counter({ value = 0, prefix = '', suffix = '', duration = 900 })
 }
 
 /* ── Sparkline (smooth area) ────────────────────────────────── */
-export function Sparkline({ data = [], color = '#7c3aed', height = 38, width = 120, fill = true }) {
+export function Sparkline({ data = [], color = '#F97316', height = 38, width = 120, fill = true }) {
   const pts = data.length ? data : [4, 6, 5, 8, 7, 10, 9, 12];
   const max = Math.max(...pts), min = Math.min(...pts);
   const range = max - min || 1;
@@ -49,7 +49,7 @@ export function Sparkline({ data = [], color = '#7c3aed', height = 38, width = 1
 }
 
 /* ── Mini bar chart ─────────────────────────────────────────── */
-export function MiniBars({ data = [], color = '#6366f1', height = 38 }) {
+export function MiniBars({ data = [], color = '#FB923C', height = 38 }) {
   const pts = data.length ? data : [5, 8, 6, 9, 7, 11, 10];
   const max = Math.max(...pts) || 1;
   return (
@@ -67,10 +67,10 @@ export function MiniBars({ data = [], color = '#6366f1', height = 38 }) {
 /* ── KPI Card ───────────────────────────────────────────────── */
 export function KpiCard({ icon, label, value, prefix = '', suffix = '', trend, trendUp = true, accent = 'orange', spark = [] }) {
   const accentMap = {
-    orange: [s.statOrange, s.statIcon, '#7c3aed'],
-    amber:  [s.statAmber, s.statIconAmber, '#f59e0b'],
-    blue:   [s.statBlue, s.statIconBlue, '#6366f1'],
-    green:  [s.statGreen, s.statIconGreen, '#22c55e'],
+    orange: [s.statOrange, s.statIcon, '#F97316'],
+    amber:  [s.statAmber, s.statIconAmber, '#D97706'],
+    blue:   [s.statBlue, s.statIconBlue, '#FB923C'],
+    green:  [s.statGreen, s.statIconGreen, '#16A34A'],
   };
   const [cardCls, iconCls, color] = accentMap[accent] || accentMap.orange;
   return (
@@ -134,7 +134,7 @@ export function AreaChart({ series = [], labels = [], height = 200 }) {
 }
 
 /* ── Bar chart ──────────────────────────────────────────────── */
-export function BarChart({ data = [], labels = [], color = '#7c3aed', height = 200 }) {
+export function BarChart({ data = [], labels = [], color = '#F97316', height = 200 }) {
   const width = 560;
   const pad = { t: 12, r: 8, b: 24, l: 8 };
   const max = Math.max(...data, 1);
