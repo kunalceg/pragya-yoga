@@ -71,6 +71,11 @@ export const setStudentStatus = (id, status) => request(`/students/${id}/status`
 export const assignPlan = (payload) => request("/plans/assign", { method: "POST", body: payload });
 export const revokePlan = (id) => request(`/plans/revoke/${id}`, { method: "PUT" });
 
+// ── Membership renew & upgrade (admin) ─────────────────────
+export const getAllPlans = () => request("/membership-plans");
+export const renewMembershipAdmin = (payload) => request("/memberships/renew", { method: "POST", body: payload });
+export const upgradeMembershipAdmin = (payload) => request("/memberships/upgrade", { method: "POST", body: payload });
+
 // ── Payments ───────────────────────────────────────────────
 export const getPayments = () => request("/payments");
 export const createPayment = (payload) => request("/payments", { method: "POST", body: payload });
@@ -107,6 +112,7 @@ export const broadcastNotification = (payload) => request("/notifications/broadc
 // Batches
 export const getBatches = () => request("/batches", { base: ROOT_URL });
 export const createBatch = (payload) => request("/batches", { method: "POST", body: payload, base: ROOT_URL });
+export const updateBatch = (id, payload) => request(`/batches/${id}`, { method: "PUT", body: payload, base: ROOT_URL });
 export const deleteBatch = (id) => request(`/batches/${id}`, { method: "DELETE", base: ROOT_URL });
 
 // Bookings

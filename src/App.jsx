@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import AdminQueryProvider from './components/Admin/AdminQueryClient';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import Navbar from "./components/Navbar/Navbar";
@@ -144,7 +145,7 @@ const AppShell = ({ user, isAdmin, isStudent, isDashboard, onLogout, onLoginSucc
             <Route
               path="/yogaadmin"
               element={
-                isAdmin   ? <YogaAdmin onLogout={onLogout} /> :
+                isAdmin   ? <AdminQueryProvider><YogaAdmin onLogout={onLogout} /></AdminQueryProvider> :
                 isStudent ? <Navigate to="/studentdashboard" replace /> :
                             <Navigate to="/login"             replace />
               }
