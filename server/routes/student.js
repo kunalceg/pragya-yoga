@@ -5,6 +5,7 @@
 import express from 'express';
 import { requireAuth } from '../middleware/auth.js';
 import * as s from '../controllers/studentController.js';
+import * as assetCtrl from '../controllers/assetController.js';
 
 const router = express.Router();
 router.use(requireAuth);
@@ -28,11 +29,13 @@ router.post('/classes/:id/enroll', s.enrollClass);
 
 // Workshops
 router.get('/workshops', s.getWorkshops);
+router.get('/workshops/:id', s.getWorkshopDetail);
 router.post('/workshops/:id/register', s.registerWorkshop);
 
-// Downloads
-router.get('/downloads', s.getDownloads);
+// Downloads / Assets
+router.get('/downloads', assetCtrl.getStudentAssets);
 router.post('/downloads/:id/track', s.trackDownload);
+router.get('/downloads/:id/download', assetCtrl.downloadAsset);
 
 // Consultations
 router.get('/consultations', s.getConsultations);

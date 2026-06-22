@@ -3,7 +3,7 @@ import s from './YogaAdmin.module.css';
 import { useTheme } from '../../contexts/ThemeContext';
 import {
   LuLayoutDashboard, LuUsers, LuFilter, LuRadioTower, LuGraduationCap,
-  LuReceipt, LuCalendarClock, LuFolderLock, LuMegaphone, LuTicketPercent,
+  LuReceipt, LuCalendarClock, LuFolderLock, LuMegaphone, LuTicketPercent, LuCalendar,
 } from 'react-icons/lu';
 
 // Layout Shell Components
@@ -16,6 +16,7 @@ import DashboardInsights from './DashboardInsights';
 import StudentsHistory from './StudentsHistory';
 import PipelineCRMLeads from './PipelineCRMLeads';
 import BatchesStreams from './BatchesStreams';
+import WorkshopManagement from './WorkshopManagement';
 import CoursesPlans from './CoursesPlans';
 import ReportsInvoices from './ReportsInvoices';
 import BookingsCalendar from './BookingsCalendar';
@@ -25,7 +26,7 @@ import CouponsReferrals from './CouponsReferrals';
 
 import {
   getOverview, getPayments, getConsultations, getStudents,
-  coursesApi, membershipPlansApi, couponsApi, downloadsApi,
+  coursesApi, membershipPlansApi, couponsApi, assetsApi,
   createStudent, broadcastNotification,
   getLeads, getBatches,
 } from '../api/AdminServices.js';
@@ -70,7 +71,7 @@ export default function YogaAdmin({ onLogout = () => {} }) {
     const [ov, st, ld, bt, co, pl, cp, dl, pay, cons] = await Promise.all([
       safe(getOverview()), safe(getStudents()), safe(getLeads()), safe(getBatches()),
       safe(coursesApi.list()), safe(membershipPlansApi.list()), safe(couponsApi.list()),
-      safe(downloadsApi.list()), safe(getPayments()), safe(getConsultations()),
+      safe(assetsApi.list()), safe(getPayments()), safe(getConsultations()),
     ]);
     if (ov) setOverview(ov);
     if (st) setStudents(st);
@@ -91,6 +92,7 @@ export default function YogaAdmin({ onLogout = () => {} }) {
     { id: 'students',       label: 'Students',             icon: <LuUsers />,         badge: students.length || null },
     { id: 'leads',          label: 'Pipeline CRM',         icon: <LuFilter />,        badge: (overview.totalLeads ?? leads.length) || null },
     { id: 'batches',        label: 'Batches & Streams',    icon: <LuRadioTower /> },
+    { id: 'workshops',      label: 'Workshops',            icon: <LuCalendar /> },
     { id: 'curriculum',     label: 'Courses & Plans',      icon: <LuGraduationCap /> },
     { id: 'attendance',     label: 'Reports & Invoices',   icon: <LuReceipt /> },
     { id: 'consultations',  label: 'Bookings',             icon: <LuCalendarClock /> },
@@ -235,10 +237,11 @@ export default function YogaAdmin({ onLogout = () => {} }) {
         )}
         {activeTab === 'leads' && <PipelineCRMLeads leads={leads} onChanged={loadAll} />}
         {activeTab === 'batches' && <BatchesStreams form={batchForm} setForm={setBatchForm} onChanged={loadAll} />}
+        {activeTab === 'workshops' && <WorkshopManagement onChanged={loadAll} />}
         {activeTab === 'curriculum' && <CoursesPlans courses={courses} plans={plans} />}
         {activeTab === 'attendance' && <ReportsInvoices payments={payments} metrics={overview.metrics} />}
         {activeTab === 'consultations' && <BookingsCalendar consultations={consultations} onChanged={loadAll} />}
-        {activeTab === 'content' && <ContentControl contentItems={contentItems} />}
+        {activeTab === 'content' && <ContentControl contentItems={contentItems} onRefresh={loadAll} />}
         {activeTab === 'comms' && <CommsWebConfig form={commForm} setForm={setCommForm} onBroadcast={handleBroadcast} feedback={feedback} />}
         {activeTab === 'rewards' && <CouponsReferrals form={couponForm} setForm={setCouponForm} coupons={coupons} onSave={handleSaveCoupon} feedback={feedback} />}
         </main>

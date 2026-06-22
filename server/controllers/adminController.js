@@ -23,7 +23,7 @@ import Plan from '../models/Plan.js';
 import Settings from '../models/Settings.js';
 import ActivityLog from '../models/ActivityLog.js';
 import { ensureReferral } from '../services/referralService.js';
-import { notify } from '../services/notificationService.js';
+import { notify, notifyPlanMembers } from '../services/notificationService.js';
 
 const DAY = 86400000;
 
@@ -393,7 +393,231 @@ function crud(Model, label) {
 }
 
 export const classes = crud(ClassSession, 'class');
-export const workshops = crud(Workshop, 'workshop');
+
+// ── Workshops (admin) ───────────────────────────────────────────
+export const adminGetWorkshops = asyncHandler(async (req, res) => {
+  const workshops = await Workshop.find().sort({ createdAt: -1 });
+  res.json(workshops);
+});
+
+export const adminCreateWorkshop = asyncHandler(async (req, res) => {
+  const {
+    name, date, startTime, endTime, duration, price, capacity, instructor,
+    description, zoomLink, image, registrationDeadline, isPaid,
+    allowedPlans, isPublished, status,
+  } = req.body;
+  if (!name || !date) throw ApiError.badRequest('Name and date are required');
+
+  const wk = await Workshop.create({
+    name, date: new Date(date), startTime, endTime, duration,
+    price: price ?? 0, capacity: capacity ?? 50, instructor, description,
+    zoomLink, image, registrationDeadline: registrationDeadline ? new Date(registrationDeadline) : null,
+    isPaid: isPaid ?? false,
+    allowedPlans: allowedPlans || [],
+    isPublished: isPublished ?? false,
+    publishedAt: isPublished ? new Date() : null,
+    status: status || 'available',
+  });
+
+  await log(`Created workshop: ${wk.name}`, req);
+
+  // If published immediately, notify eligible plan members
+  if (wk.isPublished && wk.allowedPlans.length > 0) {
+    await notifyPlanMembers(wk.allowedPlans, {
+      title: 'New Workshop Available',
+      message: `"${wk.name}" – Enroll Now.`,
+      type: 'workshop',
+      workshop: wk._id,
+    });
+  }
+
+  res.status(201).json(wk);
+});
+
+export const adminUpdateWorkshop = asyncHandler(async (req, res) => {
+  const wk = await Workshop.findById(req.params.id);
+  if (!wk) throw ApiError.notFound('Workshop not found');
+
+  const allowed = [
+    'name', 'date', 'startTime', 'endTime', 'duration', 'price', 'capacity',
+    'instructor', 'description', 'zoomLink', 'image', 'registrationDeadline',
+    'isPaid', 'allowedPlans', 'isPublished', 'status', 'archived',
+  ];
+  const wasPublished = wk.isPublished;
+  const prevPlans = [...wk.allowedPlans];
+
+  for (const f of allowed) {
+    if (req.body[f] !== undefined) {
+      if (f === 'date' || f === 'registrationDeadline') {
+        wk[f] = req.body[f] ? new Date(req.body[f]) : null;
+      } else {
+        wk[f] = req.body[f];
+      }
+    }
+  }
+
+  await wk.save();
+  await log(`Updated workshop: ${wk.name}`, req);
+
+  // If newly published (or plans changed while published), notify eligible members
+  const justPublished = !wasPublished && wk.isPublished;
+  if (justPublished) wk.publishedAt = new Date();
+  const plansChanged = wk.isPublished && JSON.stringify(prevPlans) !== JSON.stringify(wk.allowedPlans);
+  if ((justPublished || plansChanged) && wk.allowedPlans.length > 0) {
+    await notifyPlanMembers(wk.allowedPlans, {
+      title: 'New Workshop Available',
+      message: `"${wk.name}" – Enroll Now.`,
+      type: 'workshop',
+      workshop: wk._id,
+    });
+  }
+
+  res.json(wk);
+});
+
+export const adminDeleteWorkshop = asyncHandler(async (req, res) => {
+  const wk = await Workshop.findByIdAndDelete(req.params.id);
+  if (!wk) throw ApiError.notFound('Workshop not found');
+  await log(`Deleted workshop: ${wk.name}`, req);
+  res.json({ success: true });
+});
+
+export const adminTogglePublish = asyncHandler(async (req, res) => {
+  const wk = await Workshop.findById(req.params.id);
+  if (!wk) throw ApiError.notFound('Workshop not found');
+  if (wk.isPublished) throw ApiError.badRequest('Workshop is already published');
+
+  wk.isPublished = true;
+  wk.publishedAt = new Date();
+  await wk.save();
+
+  if (wk.allowedPlans.length > 0) {
+    await notifyPlanMembers(wk.allowedPlans, {
+      title: 'New Workshop Available',
+      message: `"${wk.name}" – Enroll Now.`,
+      type: 'workshop',
+      workshop: wk._id,
+    });
+  }
+
+  await log(`Published workshop: ${wk.name}`, req);
+  res.json(wk);
+});
+
+export const adminToggleArchive = asyncHandler(async (req, res) => {
+  const wk = await Workshop.findById(req.params.id);
+  if (!wk) throw ApiError.notFound('Workshop not found');
+  wk.archived = !wk.archived;
+  await wk.save();
+  await log(`${wk.archived ? 'Archived' : 'Unarchived'} workshop: ${wk.name}`, req);
+  res.json(wk);
+});
+
+export const adminGetWorkshopStats = asyncHandler(async (req, res) => {
+  const wk = await Workshop.findById(req.params.id).populate('registrations.user', 'name email phone');
+  if (!wk) throw ApiError.notFound('Workshop not found');
+
+  const totalRegistrations = wk.registrations.length;
+  const paidRegistrations = wk.registrations.filter((r) => r.paid).length;
+  const remainingSeats = Math.max(0, wk.capacity - totalRegistrations);
+  const enrollmentPct = wk.capacity > 0 ? Math.round((totalRegistrations / wk.capacity) * 100) : 0;
+  const totalRevenue = wk.isPaid ? (wk.price || 0) * totalRegistrations : 0;
+
+  // For each registered student, find their membership plan info
+  const studentIds = wk.registrations.filter((r) => r.user).map((r) => r.user._id);
+  const memberships = await Membership.find({ user: { $in: studentIds } }).sort({ createdAt: -1 }).lean();
+  const membershipByUser = {};
+  for (const m of memberships) {
+    if (!membershipByUser[m.user.toString()]) {
+      membershipByUser[m.user.toString()] = m;
+    }
+  }
+
+  // Build enriched registrations with membership info
+  const enrichedRegistrations = wk.registrations.map((reg) => {
+    const user = reg.user;
+    const membership = user ? membershipByUser[user._id?.toString()] : null;
+    return {
+      _id: reg._id,
+      user: user ? { _id: user._id, name: user.name, email: user.email, phone: user.phone } : null,
+      paid: reg.paid,
+      attended: reg.attended,
+      at: reg.at,
+      planType: membership?.planType || reg.planType || '—',
+      planMonths: membership?.planMonths || reg.planMonths || 0,
+      planStatus: membership?.status || '—',
+    };
+  });
+
+  // Activity timeline: key events for this workshop
+  const activityTimeline = [
+    { event: 'Workshop Created', date: wk.createdAt },
+    ...(wk.isPublished ? [{ event: 'Workshop Published', date: wk.publishedAt || wk.updatedAt }] : []),
+    ...(totalRegistrations > 0 ? [{ event: 'First Registration', date: wk.registrations[0]?.at }] : []),
+    ...(totalRegistrations > 1
+      ? [{ event: `${totalRegistrations} total registrations reached`, date: wk.registrations[totalRegistrations - 1]?.at }]
+      : []),
+  ];
+
+  const now = new Date();
+  const workshopPassed = new Date(wk.date) < now;
+
+  res.json({
+    workshop: {
+      _id: wk._id,
+      name: wk.name,
+      description: wk.description,
+      date: wk.date,
+      startTime: wk.startTime,
+      endTime: wk.endTime,
+      duration: wk.duration,
+      instructor: wk.instructor,
+      zoomLink: wk.zoomLink,
+      image: wk.image,
+      capacity: wk.capacity,
+      price: wk.price,
+      isPaid: wk.isPaid,
+      registrationDeadline: wk.registrationDeadline,
+      allowedPlans: wk.allowedPlans,
+      isPublished: wk.isPublished,
+      publishedAt: wk.publishedAt,
+      archived: wk.archived,
+      status: wk.status,
+      createdAt: wk.createdAt,
+      updatedAt: wk.updatedAt,
+    },
+    stats: {
+      totalRegistrations,
+      paidRegistrations,
+      remainingSeats,
+      enrollmentPct,
+      totalRevenue,
+      eligiblePlans: wk.allowedPlans,
+      workshopPassed,
+    },
+    registrations: enrichedRegistrations,
+    activityTimeline,
+  });
+});
+
+export const adminGetWorkshopRegistrations = asyncHandler(async (req, res) => {
+  const wk = await Workshop.findById(req.params.id).populate('registrations.user', 'name email phone city');
+  if (!wk) throw ApiError.notFound('Workshop not found');
+  res.json(wk.registrations);
+});
+
+export const adminMarkAttendance = asyncHandler(async (req, res) => {
+  const { registrationId, attended } = req.body;
+  const wk = await Workshop.findById(req.params.id);
+  if (!wk) throw ApiError.notFound('Workshop not found');
+
+  const reg = wk.registrations.id(registrationId);
+  if (!reg) throw ApiError.notFound('Registration not found');
+  reg.attended = attended ?? false;
+  await wk.save();
+  res.json({ success: true });
+});
+
 export const downloads = crud(Download, 'download');
 export const courses = crud(Course, 'course');
 export const plans = crud(Plan, 'plan');

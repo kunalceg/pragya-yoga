@@ -123,14 +123,58 @@ export async function buildStudentDashboard(userId) {
   }));
 
   // ── Workshops ──
+  const eligiblePlanNames = membership?.planType ? [membership.planType] : [];
   const registered = [];
   const available = [];
   for (const wk of workshops) {
+    // Skip workshops not published or archived
+    if (!wk.isPublished || wk.archived) continue;
+
+    // Check plan eligibility: if allowedPlans is non-empty, user's plan must match
+    if (wk.allowedPlans && wk.allowedPlans.length > 0) {
+      const planMatch = eligiblePlanNames.some((pn) =>
+        wk.allowedPlans.some((ap) => ap.toLowerCase() === pn.toLowerCase())
+      );
+      if (!planMatch) continue;
+    }
+
+    const totalRegs = wk.registrations.length;
+    const remainingSeats = Math.max(0, wk.capacity - totalRegs);
+    const fmtTime = (t) => t || '';
+    const workshopObj = {
+      id: wk._id,
+      _id: wk._id,
+      date: fmtDate(wk.date),
+      startTime: fmtTime(wk.startTime),
+      endTime: fmtTime(wk.endTime),
+      name: wk.name,
+      duration: wk.duration,
+      price: wk.price,
+      description: wk.description || '',
+      instructor: wk.instructor || '',
+      zoomLink: wk.zoomLink || '',
+      image: wk.image || '',
+      capacity: wk.capacity,
+      totalRegistrations: totalRegs,
+      remainingSeats,
+      isPaid: wk.isPaid,
+      allowedPlans: wk.allowedPlans || [],
+      status: wk.status || 'available',
+    };
+
     const reg = wk.registrations.find((r) => r.user && r.user.equals(uid));
     if (reg) {
-      registered.push({ date: fmtDate(wk.date), name: wk.name, duration: wk.duration, price: wk.price, paid: reg.paid });
+      registered.push({
+        ...workshopObj,
+        paid: reg.paid,
+        attended: reg.attended,
+        enrolledAt: reg.at,
+        planType: reg.planType || '',
+        planMonths: reg.planMonths || 0,
+        lastJoinTime: reg.lastJoinTime || null,
+      });
     } else if (wk.status === 'available' && wk.date >= now) {
-      available.push({ id: wk._id, date: fmtDate(wk.date), name: wk.name, duration: wk.duration, price: wk.price });
+      available.push(workshopObj);
     }
   }
 

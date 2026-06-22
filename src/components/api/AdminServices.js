@@ -94,11 +94,66 @@ const resource = (name) => ({
 });
 
 export const classesApi = resource("classes");
-export const workshopsApi = resource("workshops");
-export const downloadsApi = resource("downloads");
+
+// ── Workshops (custom admin endpoints) ─────────────────────────
+export const workshopsApi = {
+  list: () => request("/workshops"),
+  create: (payload) => request("/workshops", { method: "POST", body: payload }),
+  update: (id, payload) => request(`/workshops/${id}`, { method: "PUT", body: payload }),
+  remove: (id) => request(`/workshops/${id}`, { method: "DELETE" }),
+  togglePublish: (id) => request(`/workshops/${id}/publish`, { method: "PATCH" }),
+  toggleArchive: (id) => request(`/workshops/${id}/archive`, { method: "PATCH" }),
+  getStats: (id) => request(`/workshops/${id}/stats`),
+  getRegistrations: (id) => request(`/workshops/${id}/registrations`),
+  markAttendance: (id, registrationId, attended) =>
+    request(`/workshops/${id}/attendance`, { method: "PATCH", body: { registrationId, attended } }),
+};
+
 export const coursesApi = resource("courses");
 export const membershipPlansApi = resource("membership-plans");
 export const couponsApi = resource("coupons");
+
+// ── Assets / Content Management ────────────────────────────
+function authHeadersMultiPart() {
+  const token = localStorage.getItem("token");
+  return { Authorization: `Bearer ${token}` };
+}
+
+async function requestMultiPart(path, { method = "POST", body } = {}) {
+  const opts = { method, headers: authHeadersMultiPart() };
+  if (body) opts.body = body;
+  let res = await fetch(`${ADMIN_URL}${path}`, opts);
+  if (res.status === 401 && (await tryRefresh())) {
+    opts.headers = authHeadersMultiPart();
+    res = await fetch(`${ADMIN_URL}${path}`, opts);
+  }
+  const text = await res.text();
+  const data = text ? JSON.parse(text) : {};
+  if (!res.ok) throw new Error(data.error || data.message || "Request failed");
+  return data;
+}
+
+export const assetsApi = {
+  list: (params = {}) => {
+    const q = new URLSearchParams();
+    if (params.search) q.set("search", params.search);
+    if (params.type) q.set("type", params.type);
+    if (params.visibility) q.set("visibility", params.visibility);
+    if (params.active !== undefined) q.set("active", params.active);
+    if (params.page) q.set("page", params.page);
+    if (params.limit) q.set("limit", params.limit);
+    const qs = q.toString();
+    return request(`/downloads${qs ? `?${qs}` : ""}`);
+  },
+  get: (id) => request(`/downloads/${id}`),
+  upload: (formData) => requestMultiPart("/downloads/upload", { method: "POST", body: formData }),
+  update: (id, payload) => request(`/downloads/${id}`, { method: "PUT", body: payload }),
+  replaceFile: (id, formData) => requestMultiPart(`/downloads/${id}/replace`, { method: "POST", body: formData }),
+  archive: (id, active) => request(`/downloads/${id}/archive`, { method: "PATCH", body: { active } }),
+  remove: (id) => request(`/downloads/${id}`, { method: "DELETE" }),
+  stats: () => request("/downloads/stats"),
+  downloadUrl: (id) => `${ADMIN_URL}/downloads/${id}/download`,
+};
 
 // ── Consultations ──────────────────────────────────────────
 export const getConsultations = () => request("/consultations");

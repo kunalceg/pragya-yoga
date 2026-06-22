@@ -5,6 +5,8 @@
 import express from 'express';
 import { requireAuth, requireAdmin } from '../middleware/auth.js';
 import * as a from '../controllers/adminController.js';
+import * as assetCtrl from '../controllers/assetController.js';
+import upload from '../middleware/upload.js';
 
 const router = express.Router();
 router.use(requireAuth, requireAdmin);
@@ -46,17 +48,27 @@ router.post('/classes', a.classes.create);
 router.put('/classes/:id', a.classes.update);
 router.delete('/classes/:id', a.classes.remove);
 
-// Workshops
-router.get('/workshops', a.workshops.list);
-router.post('/workshops', a.workshops.create);
-router.put('/workshops/:id', a.workshops.update);
-router.delete('/workshops/:id', a.workshops.remove);
+// Workshops (custom admin handlers)
+router.get('/workshops', a.adminGetWorkshops);
+router.post('/workshops', a.adminCreateWorkshop);
+router.put('/workshops/:id', a.adminUpdateWorkshop);
+router.delete('/workshops/:id', a.adminDeleteWorkshop);
+router.patch('/workshops/:id/publish', a.adminTogglePublish);
+router.patch('/workshops/:id/archive', a.adminToggleArchive);
+router.get('/workshops/:id/stats', a.adminGetWorkshopStats);
+router.get('/workshops/:id/registrations', a.adminGetWorkshopRegistrations);
+router.patch('/workshops/:id/attendance', a.adminMarkAttendance);
 
-// Downloads / content
-router.get('/downloads', a.downloads.list);
-router.post('/downloads', a.downloads.create);
-router.put('/downloads/:id', a.downloads.update);
-router.delete('/downloads/:id', a.downloads.remove);
+// ── Assets / Content Management ──────────────────────────────
+router.get('/downloads', assetCtrl.listAssets);
+router.post('/downloads/upload', upload.single('file'), assetCtrl.uploadAsset);
+router.get('/downloads/stats', assetCtrl.getAssetStats);
+router.get('/downloads/:id', assetCtrl.getAsset);
+router.put('/downloads/:id', assetCtrl.updateAsset);
+router.post('/downloads/:id/replace', upload.single('file'), assetCtrl.replaceAssetFile);
+router.patch('/downloads/:id/archive', assetCtrl.archiveAsset);
+router.delete('/downloads/:id', assetCtrl.deleteAsset);
+router.get('/downloads/:id/download', assetCtrl.downloadAsset);
 
 // Courses
 router.get('/courses', a.courses.list);

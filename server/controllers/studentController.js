@@ -180,23 +180,153 @@ export const enrollClass = asyncHandler(async (req, res) => {
 });
 
 // ── Workshops ────────────────────────────────────────────────
+export const getWorkshopDetail = asyncHandler(async (req, res) => {
+  const wk = await Workshop.findById(req.params.id).populate('registrations.user', 'name email');
+  if (!wk) throw ApiError.notFound('Workshop not found');
+
+  // Check plan eligibility
+  if (wk.allowedPlans && wk.allowedPlans.length > 0) {
+    const membership = await Membership.findOne({
+      user: req.user._id,
+      status: 'active',
+      expiryDate: { $gt: new Date() },
+    }).sort({ createdAt: -1 });
+    const eligible = membership && wk.allowedPlans.some(
+      (ap) => ap.toLowerCase() === membership.planType.toLowerCase()
+    );
+    if (!eligible) throw ApiError.forbidden('Your current membership plan does not have access to this workshop');
+  }
+
+  const myReg = wk.registrations.find((r) => r.user && r.user._id.equals(req.user._id));
+  const totalRegs = wk.registrations.length;
+  const remainingSeats = Math.max(0, wk.capacity - totalRegs);
+
+  // Auto-generate reminder notification if workshop is within 24 hours and student is registered
+  if (myReg && wk.date) {
+    const now = new Date();
+    const workshopStart = new Date(wk.date);
+    const hoursUntil = (workshopStart.getTime() - now.getTime()) / 3600000;
+    if (hoursUntil > 0 && hoursUntil <= 24) {
+      const existingReminder = await Notification.findOne({
+        user: req.user._id,
+        workshop: wk._id,
+        type: 'workshop',
+        title: { $regex: /reminder/i },
+      });
+      if (!existingReminder) {
+        await notify(req.user._id, {
+          title: 'Reminder: ' + wk.name,
+          message: `<strong>${wk.name}</strong> starts ${wk.startTime ? 'at ' + wk.startTime : 'soon'}! Click to join.`,
+          type: 'workshop',
+          workshop: wk._id,
+        });
+      }
+    }
+  }
+
+  res.json({
+    id: wk._id,
+    _id: wk._id,
+    name: wk.name,
+    description: wk.description,
+    date: wk.date,
+    startTime: wk.startTime,
+    endTime: wk.endTime,
+    duration: wk.duration,
+    price: wk.price,
+    capacity: wk.capacity,
+    instructor: wk.instructor,
+    zoomLink: wk.zoomLink,
+    image: wk.image,
+    registrationDeadline: wk.registrationDeadline,
+    isPaid: wk.isPaid,
+    allowedPlans: wk.allowedPlans,
+    status: wk.status,
+    isPublished: wk.isPublished,
+    remainingSeats,
+    totalRegistrations: totalRegs,
+    registered: !!myReg,
+    myRegistration: myReg
+      ? {
+          _id: myReg._id,
+          paid: myReg.paid,
+          attended: myReg.attended,
+          enrolledAt: myReg.at,
+          planType: myReg.planType || '',
+          planMonths: myReg.planMonths || 0,
+          lastJoinTime: myReg.lastJoinTime || null,
+        }
+      : null,
+    createdAt: wk.createdAt,
+    updatedAt: wk.updatedAt,
+  });
+});
+
 export const getWorkshops = asyncHandler(async (req, res) => {
-  const workshops = await Workshop.find({}).sort({ date: 1 });
+  // Find the student's active membership to determine eligible plan names
+  const membership = await Membership.findOne({
+    user: req.user._id,
+    status: 'active',
+    expiryDate: { $gt: new Date() },
+  }).sort({ createdAt: -1 });
+
+  const eligiblePlanNames = membership?.planType ? [membership.planType] : [];
+
+  // Fetch all published, non-archived workshops
+  const allWorkshops = await Workshop.find({
+    isPublished: true,
+    archived: { $ne: true },
+  }).sort({ date: 1 });
+
+  // Filter workshops: either no allowedPlans restriction, or student's plan matches
+  const workshops = allWorkshops.filter((wk) => {
+    if (!wk.allowedPlans || wk.allowedPlans.length === 0) return true;
+    return eligiblePlanNames.some((pn) =>
+      wk.allowedPlans.some((ap) => ap.toLowerCase() === pn.toLowerCase())
+    );
+  });
+
   res.json(workshops);
 });
 
 export const registerWorkshop = asyncHandler(async (req, res) => {
   const wk = await Workshop.findById(req.params.id);
   if (!wk) throw ApiError.notFound('Workshop not found');
+
+  // Find active membership
+  const membership = await Membership.findOne({
+    user: req.user._id,
+    status: 'active',
+    expiryDate: { $gt: new Date() },
+  }).sort({ createdAt: -1 });
+
+  // Check plan eligibility
+  if (wk.allowedPlans && wk.allowedPlans.length > 0) {
+    const eligible = membership && wk.allowedPlans.some(
+      (ap) => ap.toLowerCase() === membership.planType.toLowerCase()
+    );
+    if (!eligible) throw ApiError.forbidden('Your current membership plan does not have access to this workshop');
+  }
+
   if (wk.registrations.some((r) => r.user && r.user.equals(req.user._id))) {
     return res.json({ success: true, msg: 'Already registered' });
   }
   if (wk.registrations.length >= wk.capacity) throw ApiError.badRequest('This workshop is full');
 
-  wk.registrations.push({ user: req.user._id, paid: true });
+  wk.registrations.push({
+    user: req.user._id,
+    paid: wk.price > 0,
+    planType: membership?.planType || '',
+    planMonths: membership?.planMonths || 0,
+  });
   await wk.save();
   if (wk.price > 0) await recordPayment(req.user._id, `Workshop: ${wk.name}`, wk.price);
-  await notify(req.user._id, { title: 'Workshop registered', message: `You're registered for ${wk.name}.`, type: 'success' });
+  await notify(req.user._id, {
+    title: 'Enrolled: ' + wk.name,
+    message: `You're registered for <strong>${wk.name}</strong>. Click to view details.`,
+    type: 'workshop',
+    workshop: wk._id,
+  });
   res.json({ success: true, msg: 'Registered successfully' });
 });
 

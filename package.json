@@ -147,6 +147,7 @@
     "mpath": "^0.9.0",
     "mquery": "^6.0.0",
     "ms": "^2.1.3",
+    "multer": "^2.2.0",
     "nanoid": "^3.3.11",
     "napi-build-utils": "^2.0.0",
     "natural-compare": "^1.4.0",

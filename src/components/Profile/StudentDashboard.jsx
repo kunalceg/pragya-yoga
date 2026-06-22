@@ -52,6 +52,7 @@ export default function StudentDashboard({ onLogout }) {
   const [loading, setLoading]         = useState(true);
   const [fetchError, setFetchError]   = useState("");
   const [activePage, setActivePage]   = useState("profile");
+  const [activeParams, setActiveParams] = useState({});
   const [unreadNotifs, setUnreadNotifs] = useState(0);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -139,8 +140,9 @@ export default function StudentDashboard({ onLogout }) {
 
   const ActivePage = PAGE_MAP[activePage] ?? ProfilePage;
 
-  function handleNav(id) {
+  function handleNav(id, params = {}) {
     setActivePage(id);
+    setActiveParams(params);
     if (id === "notifications") setUnreadNotifs(0);
   }
 
@@ -249,6 +251,8 @@ export default function StudentDashboard({ onLogout }) {
                 student={student}
                 onUpdateSuccess={handleStudentUpdate}
                 reload={reloadStudent}
+                onNavigate={handleNav}
+                workshopId={activeParams.workshopId}
               />
             </motion.div>
           </AnimatePresence>

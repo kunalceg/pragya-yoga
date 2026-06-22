@@ -82,6 +82,7 @@ export const resumeMembership = () => api("/membership/resume", { method: "POST"
 
 // ── Classes / Workshops ────────────────────────────────────
 export const enrollClass = (id) => api(`/classes/${id}/enroll`, { method: "POST" });
+export const getWorkshopDetail = (id) => api(`/workshops/${id}`);
 export const registerWorkshop = (id) => api(`/workshops/${id}/register`, { method: "POST" });
 
 // ── Consultations ──────────────────────────────────────────
@@ -89,10 +90,13 @@ export const bookConsultation = (payload) => api("/consultations", { method: "PO
 export const rescheduleConsultation = (id, date) => api(`/consultations/${id}/reschedule`, { method: "PATCH", body: { date } });
 export const cancelConsultation = (id) => api(`/consultations/${id}/cancel`, { method: "PATCH" });
 
-// ── Downloads ──────────────────────────────────────────────
+// ── Downloads / Assets ─────────────────────────────────────
+export const getStudentDownloads = () => api("/downloads");
 export const trackDownload = (id) => api(`/downloads/${id}/track`, { method: "POST" });
+export const downloadAssetUrl = (id) => `${STUDENT_URL}/downloads/${id}/download`;
 
 // ── Notifications ──────────────────────────────────────────
+export const getNotifications = () => api("/notifications");
 export const markNotificationRead = (id) => api(`/notifications/${id}/read`, { method: "PATCH" });
 export const markAllNotificationsRead = () => api("/notifications/read-all", { method: "PATCH" });
 export const deleteNotification = (id) => api(`/notifications/${id}`, { method: "DELETE" });
